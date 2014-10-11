@@ -1,0 +1,24 @@
+# Dropbox-related files
+/.dropbox
+Icon*
+
+# Directories of binary files
+/articles/
+/poster/fig/
+
+# LaTeX auxiliary files
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+
+# All PDFs
+*.pdf
+
+# Binary R output
+*.RData
+*.rda
