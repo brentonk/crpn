@@ -4,6 +4,9 @@
 library("caret")
 library("reshape2")
 library("ggplot2")
+library("tikzDevice")
+
+Sys.unsetenv("TEXINPUTS")
 
 source("20-split-data.r")
 source("51-probs-preds.r")
@@ -95,12 +98,26 @@ plot_dir <- file.path("..", "poster", "fig")
 plot_width <- 7.25
 plot_height <- 3.5
 
+cplot <- confusionPlot(
+    "Capability Ratio Alone" = confusion_logit,
+    "Random Forest Model\non CINC Components + Year" = confusion_rf_time
+    )
+
 ## tikzDevice and beamerposter do not play nice, so using pdf()
 pdf(file = file.path(plot_dir, "confusion-logit.pdf"),
      width = plot_width,
      height = plot_height)
-print(confusionPlot(
-    "Capability Ratio Alone" = confusion_logit,
-    "Random Forest Model\non CINC Components + Year" = confusion_rf_time
-))
+print(cplot)
+dev.off()
+
+## Plot for slides
+tikz(file = file.path("..", "slides", "confusion.tex"),
+     width = 4.75,
+     height = 2.75)
+print(cplot
+      + theme_grey(base_size = 7) 
+      + theme(plot.background = element_rect(fill = "transparent", colour = NA),
+              legend.background = element_rect(fill = "transparent", colour = NA),
+              axis.title.y = element_text(vjust = 1))
+      )
 dev.off()

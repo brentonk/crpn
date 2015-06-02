@@ -1,0 +1,119 @@
+\documentclass{beamer}
+\usepackage{tikz}
+
+\usetheme{m}
+
+\title{Capability Ratios Predict Nothing}
+\date{April 18, 2015}
+\author{Robert J. Carroll \and Brenton Kenkel}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}
+  \frametitle{What We$^*$ Want to Measure}
+
+  In a hypothetical dispute between two states, how likely is each side to win?
+
+  \vspace{\fill}
+
+  \begin{scriptsize}
+    $^*$ ``We'' being empirical IR scholars.
+  \end{scriptsize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Argument}
+
+  Use \textbf{(out-of-sample) predictive power} as the criterion for measures of expected dispute outcomes.
+\end{frame}
+
+\begin{frame}
+  \frametitle{How It's Done Now}
+
+  Ratios of CINC scores.
+  \begin{itemize}
+    \item Not designed for dyads
+    \item Unweighted
+    \item Inflexible over time
+    \item Nil predictive power
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How to Do It Better}
+
+  \begin{enumerate}
+    \item Split data into \alert{training} (80\%) and \textbf{test} (20\%) samples.
+
+    \item With \alert{training} data:
+    \begin{enumerate}
+      \item Run lots of models
+      \item Cross-validate them
+      \item Pick one with lowest CV error
+    \end{enumerate}
+
+    \item With \textbf{test} data: Unbiased estimate of chosen model's prediction error.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Our Data}
+
+  \begin{itemize}
+    \item Sample: MIDs ($N = 1{,}732$)
+    \item Response: Dispute outcome
+    \begin{itemize}
+      \item Side A wins
+      \item Stalemate
+      \item Side B wins
+    \end{itemize}
+    \item Predictors:
+    \begin{itemize}
+      \item Six CINC components
+      \item Year of dispute
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Results: Predicted Outcomes}
+
+  \centering
+  \input{confusion}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Results: ROC Curves}
+
+  \centering
+  \input{roc}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary}
+
+  How to measure expected dispute outcomes?
+  \begin{itemize}
+    \item Criterion: predictive power
+    \item Train, validate, test
+    \item CINC ratios utterly fail
+    \item We provide a better measure
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What's Next}
+
+  \begin{itemize}
+    \item Replicate studies of dispute outbreak
+    \item Wars instead of MIDs
+    \item Apply to other proxy variables
+  \end{itemize}
+\end{frame}
+
+\plain{Thanks!\\[2em]\small{}rcarrol3@nd.edu\\brenton.kenkel@vanderbilt.edu}
+
+\end{document}
+

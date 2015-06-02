@@ -3,6 +3,9 @@
 if (!require("rgl"))
     NULL
 library("akima")
+library("tikzDevice")
+
+Sys.unsetenv("TEXINPUTS")
 
 source("51-probs-preds.r")
 
@@ -236,5 +239,28 @@ print(
                           limits = c(0, 1))
     + facet_wrap(~ Method, ncol = 2)
     + theme_bw()
+)
+dev.off()
+
+tikz(file = file.path("..", "slides", "roc.tex"),
+     width = 4.75,
+     height = 2.75)
+print(
+    ggplot(plot_roc$main, aes(x = VictoryA, y = VictoryB))
+    + geom_tile(aes(fill = Stalemate))
+    + geom_text(data = plot_roc$vol,
+                aes(label = label),
+                size = 2)
+    + scale_x_continuous("Correct Identification Rate, A Wins")
+    + scale_y_continuous("Correct Identification Rate, B Wins")
+    + scale_fill_gradient(name = "Correct Identification\nRate, Stalemate",
+                          low = "#b0dad4",
+                          high = "#3a8278",
+                          limits = c(0, 1))
+    + facet_wrap(~ Method, ncol = 2)
+    + ggtitle("Out-of-Sample ROC Curves")
+    + theme_bw(base_size = 7)
+    + theme(plot.background = element_rect(fill = "transparent", colour = NA),
+            legend.background = element_rect(fill = "transparent", colour = NA))
 )
 dev.off()
