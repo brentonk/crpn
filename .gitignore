@@ -31,3 +31,6 @@ Icon*
 /slides/confusion.tex
 /slides/roc.tex
 /slides/*.png
+
+# Polmeth abstract file
+abstract-polmeth.md
