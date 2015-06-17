@@ -6,6 +6,7 @@
 
 library("Amelia")
 library("dplyr")
+library("foreach")
 library("ggplot2")
 library("methods")
 library("reshape2")
@@ -75,15 +76,69 @@ if (interactive()) {
 ### Multiply impute
 ###-----------------------------------------------------------------------------
 
+component_names <- c("irst",
+                     "milex",
+                     "milper",
+                     "pec",
+                     "tpop",
+                     "upop")
+
 ## asinh()-transformed variables are bounded below by 0
-bds <- cbind(which(names(data_NMC) %in% c("irst",
-                                          "milex",
-                                          "milper",
-                                          "pec",
-                                          "tpop",
-                                          "upop")),
+bds <- cbind(which(names(data_NMC) %in% component_names),
              0,
              .Machine$double.xmax)
+
+## We want to place an observation-level prior with mean zero for any
+## missing value satisfying the following criteria:
+##   * There are no non-zero observations that come before it
+##   * The first observed value that comes after it is zero
+##
+## To that end, this function takes a data series and gives us the latest year
+## we can assume to be zero by these rules (-Inf if no zeroes in the series)
+latest_all_zero <- function(x, year)
+{
+    ## Strip out missing years
+    year <- year[!is.na(x)]
+    x <- x[!is.na(x)]
+
+    ## We want the latest year at which the cumulative sum of the data series is
+    ## zero
+    ##
+    ## Suppressing warnings because max() of a length-zero vector throws one
+    suppressWarnings(max(year[cumsum(x) == 0]))
+}
+
+## Calculate the relevant "last all-zero year" for each series of each CINC
+## component variable
+laz_NMC <- data_NMC %>%
+  group_by(ccode) %>%
+  summarise_each(funs(latest_all_zero(., year)),
+                 irst:upop)
+laz_NMC <- left_join(data_NMC %>% select(ccode, year),
+                     laz_NMC,
+                     by = "ccode")
+
+## Construct matrix of observation-level priors to pass to Amelia
+prs <- foreach (v = component_names, .combine = "rbind") %do% {
+    ## Identify observations that are both missing and before the relevant year
+    rows <- which(is.na(data_NMC[, v]) & laz_NMC[, "year"] < laz_NMC[, v])
+
+    ## Identify corresponding column of the data being passed to amelia()
+    col <- which(names(data_NMC) == v)
+
+    ## Prior has zero mean
+    mu <- 0
+
+    ## Set standard deviation of prior to the s.d. of the variable in the
+    ## overall data
+    sigma <- sd(data_NMC[, v], na.rm = TRUE)
+
+    if (length(rows) > 0) {
+        cbind(rows, col, mu, sigma)
+    } else {
+        matrix(nrow = 0, ncol = 4)
+    }
+}
 
 ## Run Amelia
 ##
@@ -98,6 +153,7 @@ impute_NMC <- amelia(x = data_NMC,
                      polytime = 3,
                      intercs = TRUE,
                      bounds = bds,
+                     priors = prs,
                      max.resample = 1000,
                      p2s = 2,
                      empri = 0.001 * nrow(data_NMC))
