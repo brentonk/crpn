@@ -161,12 +161,6 @@ impute_NMC <- amelia(x = data_NMC,
 save(impute_NMC,
      file = "results-impute-nmc.rda")
 
-## Save the imputed datasets separately, so that we don't have to load up the
-## whole 100+ MB file whenever we just want the data
-imputations_NMC <- impute_NMC$imputations
-save(imputations_NMC,
-     file = "results-imputations-nmc.rda")
-
 ## Also save the cleaned pre-imputation data
 save(data_NMC,
      file = "results-data-nmc.rda")
