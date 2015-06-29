@@ -38,8 +38,8 @@ load("results-imputations-train.rda")
 
 ## train() arguments to pass to every model
 common_args <- list(
-    metric = "logLik",
-    maximize = TRUE
+    metric = "logLoss",
+    maximize = FALSE
 )
 
 ## Control parameters for tuning via cross-validation
@@ -51,7 +51,7 @@ tr_control <- trainControl(
     number = 10,
     ## returnData = FALSE,
     classProbs = TRUE,
-    summaryFunction = loglik_metric,
+    summaryFunction = mnLogLoss,
     allowParallel = FALSE
 )
 

@@ -9,35 +9,6 @@ library("dplyr")
 library("foreach")
 library("tidyr")
 
-## Log-likelihood metric for multinomial models
-##
-## See <http://topepo.github.io/caret/training.html#metrics>
-loglik_metric <- function(data, lev = NULL, model = NULL)
-{
-    ## Retrieve the estimated probability of the observed outcome for each
-    ## observation
-    prob_observed <- lapply(lev, function(outcome) {
-        ## Set of observations ending in the specified level
-        idx_outcome <- data$obs == outcome
-
-        ## Estimated probabilities are a column in the data frame whose name is
-        ## the specified level
-        data[idx_outcome, outcome]
-    })
-
-    ## Metric is the average of the log-probabilities
-    ##
-    ## Doing the average instead of the sum since some of the folds may not have
-    ## the same sample size
-    ll <- mean(log(unlist(prob_observed)))
-
-    ## Also retrieve the standard metrics
-    standard_metrics <- defaultSummary(data, lev, model)
-
-    c(standard_metrics,
-      "logLik" = ll)
-}
-
 ## Take a list of arguments and return either a list of trained models or a
 ## matrix of out-of-fold predicted probabilities
 ##
@@ -118,8 +89,8 @@ args_to_train <- function(arg_list,
 ## probabilities of observed outcomes
 learn_ensemble <- function(probs)
 {
-    ## Objective function for choosing weights on each model to maximize the
-    ## log-likelihood of out-of-fold predicted probabilities
+    ## Objective function for choosing weights on each model to minimize the
+    ## log-loss of out-of-fold predicted probabilities
     ll_ensemble_weights <- function(w, pr_mat)
     {
         ## Compute the last weight -- not including in `w` because constrOptim()
@@ -133,8 +104,9 @@ learn_ensemble <- function(probs)
 
         ## Log-likelihood of each observation is log(w * p_i)
         ##
-        ## Multiplied by -1 since constrOptim() minimizes
-        -1 * sum(log(pred))
+        ## Multiplied by -1 since constrOptim() minimizes, and divided by number
+        ## of observations for consistency with mnLogLoss()
+        -1 * sum(log(pred)) / length(pred)
     }
 
     ## Derivative w.r.t. w_j is the sum of
@@ -160,7 +132,7 @@ learn_ensemble <- function(probs)
                         "/")
 
         ## Multiplied by -1 again since constrOptim() minimizes
-        -1 * colSums(pr_mat)
+        -1 * colSums(pr_mat) / length(pred)
     }
 
     ## Constraints for weight selection:
