@@ -158,9 +158,99 @@ impute_NMC <- amelia(x = data_NMC,
                      p2s = 2,
                      empri = 0.001 * nrow(data_NMC))
 
+## Draw a separate set of imputations to use when applying the model to all
+## possible dyad-years
+##
+## Not sure if it's bad to use the same imputations for both training and
+## predictions, but this way should be safe for sure
+##
+## We should be able to run amelia() again on the last set of output, but for
+## some reason this results in lots of singularity errors.  Seems like something
+## goes wrong with the ridge prior when run on an object of class "amelia", and
+## I can't debug it.  So we'll just copy the code above instead.
+set.seed(777)                           # For exact replicability
+impute_NMC_new <- amelia(x = data_NMC,
+                         m = 10,
+                         ts = "year",
+                         cs = "ccode",
+                         polytime = 3,
+                         intercs = TRUE,
+                         bounds = bds,
+                         priors = prs,
+                         max.resample = 1000,
+                         p2s = 2,
+                         empri = 0.001 * nrow(data_NMC))
+
+
+###-----------------------------------------------------------------------------
+### Calculate proportions of yearly totals
+###-----------------------------------------------------------------------------
+
+## Use original (untransformed) data to compute the yearly totals
+##
+## We could do this within each imputed dataset instead.  Then the resulting
+## datasets would each be logically consistent -- i.e., all proportions would
+## sum to 1.  But then every observation on the proportions would vary across
+## imputed datasets, increasing the variation due to imputation.
+untransform_NMC <- raw_NMC %>%
+    select_(.dots = c("ccode", "year", component_names))
+
+## Calculate total amount of each component each year, removing missing values
+totals_NMC <- untransform_NMC %>%
+    group_by(year) %>%
+    summarise_each_(funs(sum(., na.rm = TRUE)),
+                    vars = component_names)
+names(totals_NMC) <- ifelse(names(totals_NMC) %in% component_names,
+                            paste0("total_", names(totals_NMC)),
+                            names(totals_NMC))
+
+## Function to compute proportions for a given (transformed) set of data and
+## merge them into it
+##
+## Writing a function since it needs to be done separately for each imputation
+## -- can't compute the proportions in advance due to missingness in raw data
+add_props <- function(x)
+{
+    ## Untransform the given data
+    untransform_x <- x %>%
+        select_(.dots = c("ccode", "year", component_names)) %>%
+        mutate_each_(funs(sinh), vars = component_names)
+
+    ## Calculate proportions
+    prop_mutations <- paste0(component_names,
+                             "/total_",
+                             component_names)
+    names(prop_mutations) <- paste0("prop_", component_names)
+    props_x <-
+        left_join(untransform_x,
+                  totals_NMC,
+                  by = "year") %>%
+        mutate_(.dots = prop_mutations) %>%
+        select_(.dots = c("ccode", "year", names(prop_mutations)))
+
+    ## Merge proportions back into original data and return
+    left_join(x,
+              props_x,
+              by = c("ccode", "year"))
+}
+
+## Add proportions to original data
+data_NMC <- add_props(data_NMC)
+
+## Add proportions to imputed datasets
+imputations_NMC <- lapply(impute_NMC$imputations, add_props)
+imputations_NMC_new <- lapply(impute_NMC$imputations, add_props)
+
+## Save data and imputations
+save(raw_NMC,
+     data_NMC,
+     totals_NMC,
+     file = "results-data-nmc.rda")
+
 save(impute_NMC,
+     imputations_NMC,
      file = "results-impute-nmc.rda")
 
-## Also save the cleaned pre-imputation data
-save(data_NMC,
-     file = "results-data-nmc.rda")
+save(impute_NMC_new,
+     imputations_NMC_new,
+     file = "results-impute-nmc-new.rda")

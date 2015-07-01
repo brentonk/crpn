@@ -116,6 +116,7 @@ data_MID <- select(data_MID,
                    -NumA,
                    -NumB)
 
+
 ###-----------------------------------------------------------------------------
 ### Merge with imputed NMC data
 ###-----------------------------------------------------------------------------
@@ -199,7 +200,7 @@ save(data_test,
 
 ## Create 10 imputed training sets by merging imputations of COW components into
 ## training data
-imputations_train <- lapply(impute_NMC$imputations,
+imputations_train <- lapply(imputations_NMC,
                             merge_NMC_MID,
                             mid = data_train)
 
