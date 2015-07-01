@@ -190,10 +190,8 @@ head(data_test)
 sum(is.na(data_test))                   # 0 (as expected)
 
 ## Calculate logged capability ratio
-##
-## Since CINC is logged, it's just the difference
 data_test <- mutate(data_test,
-                    capratio = cinc_a - cinc_b)
+                    capratio = log(exp(cinc_a) / (exp(cinc_a) + exp(cinc_b))))
 
 ## Save test data, and don't touch it again until model is trained
 save(data_test,
@@ -208,7 +206,7 @@ imputations_train <- lapply(impute_NMC$imputations,
 ## Calculate logged capability ratio for training datasets
 imputations_train <- lapply(imputations_train,
                             mutate_,
-                            capratio = "cinc_a - cinc_b")
+                            capratio = "log(exp(cinc_a) / (exp(cinc_a) + exp(cinc_b)))")
 lapply(imputations_train, dim)
 lapply(imputations_train, head)
 
