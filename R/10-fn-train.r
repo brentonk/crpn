@@ -87,7 +87,7 @@ args_to_train <- function(arg_list,
 
 ## Learn optimal ensemble weights for a matrix of out-of-fold predicted
 ## probabilities of observed outcomes
-learn_ensemble <- function(probs)
+learn_ensemble <- function(probs, outer.eps = 1e-8)
 {
     ## Objective function for choosing weights on each model to minimize the
     ## log-loss of out-of-fold predicted probabilities
@@ -153,6 +153,7 @@ learn_ensemble <- function(probs)
                                   grad = grad_ensemble_weights,
                                   ui = ui,
                                   ci = ci,
+                                  outer.eps = outer.eps,
                                   pr_mat = probs)
 
     ensemble_optim
