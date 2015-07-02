@@ -21,7 +21,8 @@ args_to_train <- function(arg_list,
                           data_train,
                           data_test = NULL,
                           for_probs = FALSE,
-                          allow_no_tune = TRUE)
+                          allow_no_tune = TRUE,
+                          logfile = NULL)
 {
     ## Not allowing parallelization, since this function is always inside an
     ## imputation loop
@@ -69,6 +70,11 @@ args_to_train <- function(arg_list,
                            as.character(obs) == as.character(Outcome))
 
             fit <- pred$prob
+        }
+
+        if (!is.null(logfile)) {
+            cat(args$method, as.character(Sys.time()), "\n",
+                file = logfile, append = TRUE)
         }
 
         fit

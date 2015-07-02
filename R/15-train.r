@@ -344,6 +344,13 @@ time_start <- proc.time()
 set.seed(1980)                          # For exact replicability
 
 full_ensemble <- foreach (dat = imputations_train, .packages = c("caret", "tidyr", "dplyr")) %dorng% {
+    ## Separate logs across each node
+    logfile <- paste0("logs/",
+                      Sys.info()["nodename"],
+                      "-",
+                      sample(1000:9999, 1),
+                      ".log")
+
     ## Cross-validation folds for the middle loop
     ##
     ## We're going to train each model *within* each fold as well, in order to
@@ -355,6 +362,9 @@ full_ensemble <- foreach (dat = imputations_train, .packages = c("caret", "tidyr
                             returnTrain = TRUE)
 
     out_probs <- foreach (fold = seq_len(n_folds), .combine = "rbind") %do% {
+        cat("FOLD", fold, as.character(Sys.time()), "\n",
+            file = logfile, append = TRUE)
+
         ## Retrieve the training and test sets corresponding to the given fold
         fold_train <- dat[cv_folds[[fold]], , drop = FALSE]
         fold_test <- dat[-cv_folds[[fold]], , drop = FALSE]
@@ -367,7 +377,8 @@ full_ensemble <- foreach (dat = imputations_train, .packages = c("caret", "tidyr
                                     data_train = fold_train,
                                     data_test = fold_test,
                                     for_probs = TRUE,
-                                    allow_no_tune = TRUE)
+                                    allow_no_tune = TRUE,
+                                    logfile = logfile)
 
         fold_probs
     }
@@ -376,13 +387,16 @@ full_ensemble <- foreach (dat = imputations_train, .packages = c("caret", "tidyr
     imputation_weights <- learn_ensemble(out_probs)
 
     ## Train each model on the full imputed dataset
+    cat("FINAL FIT", as.character(Sys.time()), "\n",
+        file = logfile, append = TRUE)
     imputation_models <- args_to_train(arg_list = method_args,
                                        common_args = common_args,
                                        tr_control = tr_control,
                                        data_train = dat,
                                        data_test = NULL,
                                        for_probs = FALSE,
-                                       allow_no_tune = FALSE)
+                                       allow_no_tune = FALSE,
+                                       logfile = logfile)
 
     list(models = imputation_models,
          out_probs = out_probs,
