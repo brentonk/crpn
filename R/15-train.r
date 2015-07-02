@@ -343,7 +343,7 @@ time_start <- proc.time()
 
 set.seed(1980)                          # For exact replicability
 
-full_ensemble <- foreach (dat = imputations_train, .packages = c("caret")) %dorng% {
+full_ensemble <- foreach (dat = imputations_train, .packages = c("caret", "tidyr", "dplyr")) %dorng% {
     ## Cross-validation folds for the middle loop
     ##
     ## We're going to train each model *within* each fold as well, in order to
