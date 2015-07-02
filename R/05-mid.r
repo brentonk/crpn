@@ -10,6 +10,9 @@ library("dplyr")
 library("stringr")
 library("tidyr")
 
+source("04-merge-nmc-dyad.r")
+
+
 ###-----------------------------------------------------------------------------
 ### Load and clean the MID dispute-level data
 ###-----------------------------------------------------------------------------
@@ -124,26 +127,6 @@ data_MID <- select(data_MID,
 load("results-data-nmc.rda")
 load("results-impute-nmc.rda")
 
-## Function for merging NMC data into MID data for each side, setting variable
-## names appropriately
-merge_NMC_MID <- function(nmc, mid)
-{
-    ## Make "Side A" and "Side B" copies of the NMC data
-    nmc_a <- nmc
-    nmc_b <- nmc
-
-    ## Make variable names in the NMC data country-specific, except year
-    names(nmc_a) <- ifelse(names(nmc_a) != "year",
-                           paste0(names(nmc_a), "_a"),
-                           names(nmc_a))
-    names(nmc_b) <- str_replace(names(nmc_a), "_a$", "_b")
-
-    ## Merge in each NMC dataset in sequence
-    mid %>%
-      left_join(nmc_a) %>%
-      left_join(nmc_b)
-}
-
 ## Identify cases with no missingness in either country-year
 completeness_NMC <- select(data_NMC,
                            ccode,
@@ -155,7 +138,7 @@ completeness_NMC$complete <- apply(impute_NMC$missMatrix,
 ## Merge completion indicators for each side into the base MID data, and
 ## calculate a summary variable for fully observed cases
 data_MID <- data_MID %>%
-  merge_NMC_MID(completeness_NMC, .) %>%
+  merge_NMC_dyad(completeness_NMC, ., capratio = FALSE) %>%
   mutate(complete = complete_a & complete_b) %>%
   select(-complete_a, -complete_b)
 mean(data_MID$complete)                 # 83% of cases are complete
@@ -185,14 +168,9 @@ table(data_test$Outcome)
 table(data_train$Outcome)
 
 ## Merge COW components into test data
-data_test <- merge_NMC_MID(data_NMC,
-                           data_test)
+data_test <- merge_NMC_dyad(data_NMC, data_test)
 head(data_test)
 sum(is.na(data_test))                   # 0 (as expected)
-
-## Calculate logged capability ratio
-data_test <- mutate(data_test,
-                    capratio = log(exp(cinc_a) / (exp(cinc_a) + exp(cinc_b))))
 
 ## Save test data, and don't touch it again until model is trained
 save(data_test,
@@ -201,13 +179,8 @@ save(data_test,
 ## Create 10 imputed training sets by merging imputations of COW components into
 ## training data
 imputations_train <- lapply(imputations_NMC,
-                            merge_NMC_MID,
-                            mid = data_train)
-
-## Calculate logged capability ratio for training datasets
-imputations_train <- lapply(imputations_train,
-                            mutate_,
-                            capratio = "log(exp(cinc_a) / (exp(cinc_a) + exp(cinc_b)))")
+                            merge_NMC_dyad,
+                            dyad = data_train)
 lapply(imputations_train, dim)
 lapply(imputations_train, head)
 
