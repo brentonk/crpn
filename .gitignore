@@ -37,3 +37,6 @@ abstract-polmeth.md
 
 # Packrat package sources
 /R/packrat/src/
+
+# xtable output
+latex/tab-*.tex

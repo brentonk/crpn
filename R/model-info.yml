@@ -1,0 +1,109 @@
+# Information about each ML model, for an eventual table
+- name: "null"
+  method: Null Model
+  data: Intercept only
+  year: false
+- name: polr_capratio
+  method: &polr Ordered Logit
+  data: Capability Ratio
+  year: false
+- name: polr
+  method: *polr
+  data: &components Components
+  year: false
+- name: polr_t
+  method: *polr
+  data: *components
+  year: true
+- name: polr_props
+  method: *polr
+  data: &props Proportions
+  year: false
+- name: polr_props_t
+  method: *polr
+  data: *props
+  year: true
+- name: knn
+  method: &knn $k$-Nearest Neighbors
+  data: *components
+  year: false
+- name: knn_t
+  method: *knn
+  data: *components
+  year: true
+- name: knn_props
+  method: *knn
+  data: *props
+  year: false
+- name: knn_props_t
+  method: *knn
+  data: *props
+  year: true
+- name: rf
+  method: &rf Random Forest
+  data: *components
+  year: false
+- name: rf_t
+  method: *rf
+  data: *components
+  year: true
+- name: rf_props
+  method: *rf
+  data: *props
+  year: false
+- name: rf_props_t
+  method: *rf
+  data: *props
+  year: true
+- name: nnet
+  method: &nnet Neural Network
+  data: *components
+  year: false
+- name: nnet_t
+  method: *nnet
+  data: *components
+  year: true
+- name: nnet_props
+  method: *nnet
+  data: *props
+  year: false
+- name: nnet_props_t
+  method: *nnet
+  data: *props
+  year: true
+- name: gpr
+  method: &gpr Gaussian Process
+  data: *components
+  year: false
+- name: gpr_t
+  method: *gpr
+  data: *components
+  year: true
+- name: gpr_props
+  method: *gpr
+  data: *props
+  year: false
+- name: gpr_props_t
+  method: *gpr
+  data: *props
+  year: true
+- name: svm
+  method: &svm Support Vector Machine
+  data: *components
+  year: false
+- name: svm_t
+  method: *svm
+  data: *components
+  year: true
+- name: svm_props
+  method: *svm
+  data: *props
+  year: false
+- name: svm_props_t
+  method: *svm
+  data: *props
+  year: true
+- name: ensemble
+  method: Ensemble
+  data: .na
+  year: .na
