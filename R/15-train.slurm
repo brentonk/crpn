@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --mail-user=brenton.kenkel@gmail.com
 #SBATCH --mail-type=ALL
-#SBATCH --nodes=10
+#SBATCH --nodes=11
 #SBATCH --tasks-per-node=1
 #SBATCH --time=24:00:00
 #SBATCH --mem=2000M
