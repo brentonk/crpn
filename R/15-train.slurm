@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --mail-user=brenton.kenkel@gmail.com
 #SBATCH --mail-type=ALL
-#SBATCH --nodes=11
-#SBATCH --tasks-per-node=1
-#SBATCH --time=24:00:00
-#SBATCH --mem=2000M
+#SBATCH --nodes=1
+#SBATCH --tasks-per-node=11
+#SBATCH --time=36:00:00
+#SBATCH --mem=8000M
 #SBATCH --output=15-train.out
 
 setpkgs -a R_3.2.0_gcc

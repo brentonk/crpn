@@ -41,6 +41,7 @@ options(error=quote(assign(".mpi.err", FALSE, env = .GlobalEnv)))
 library("caret")
 library("foreach")
 library("doRNG")
+library("iterators")
 library("methods")
 
 ## ML packages
@@ -242,34 +243,6 @@ method_args <- list(
         maxit = 1000,
         trace = FALSE
     ),
-    ## Gaussian process with radial basis function kernel on the capability
-    ## index components
-    gpr = list(
-        form = f_components,
-        method = "gaussprRadial",
-        preProcess = c("center", "scale")
-    ),
-    ## Gaussian process with radial basis function kernel on the capability
-    ## index components and time
-    gpr_t = list(
-        form = f_components_t,
-        method = "gaussprRadial",
-        preProcess = c("center", "scale")
-    ),
-    ## Gaussian process with radial basis function kernel on the capability
-    ## proportions
-    gpr_props = list(
-        form = f_props,
-        method = "gaussprRadial",
-        preProcess = c("center", "scale")
-    ),
-    ## Gaussian process with radial basis function kernel on the capability
-    ## proportions and time
-    gpr_props_t = list(
-        form = f_props_t,
-        method = "gaussprRadial",
-        preProcess = c("center", "scale")
-    ),
     ## Support vector machine with radial basis function kernel on the
     ## capability index components
     svm = list(
@@ -324,10 +297,6 @@ timings <- c(
     nnet_t        = 54,
     nnet_props    = 106,
     nnet_props_t  = 48,
-    gpr           = 122,
-    gpr_t         = 102,
-    gpr_props     = 488,
-    gpr_props_t   = 454,
     svm           = 48,
     svm_t         = 49,
     svm_props     = 73,
@@ -343,12 +312,11 @@ time_start <- proc.time()
 
 set.seed(1980)                          # For exact replicability
 
-full_ensemble <- foreach (dat = imputations_train, .packages = c("caret", "tidyr", "dplyr")) %dorng% {
+full_ensemble <- foreach (dat = imputations_train, i = icount(), .packages = c("caret", "tidyr", "dplyr")) %dorng% {
     ## Separate logs across each node
     logfile <- paste0("logs/",
-                      Sys.info()["nodename"],
-                      "-",
-                      sample(1000:9999, 1),
+                      "imp",
+                      sprintf("%.2d", i),
                       ".log")
 
     ## Cross-validation folds for the middle loop
