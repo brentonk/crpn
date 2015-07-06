@@ -27,6 +27,9 @@ Icon*
 *.RData
 *.rda
 
+# Predicted probability output
+*.csv
+
 # Tikz output
 /slides/confusion.tex
 /slides/roc.tex
