@@ -9,7 +9,7 @@ library("dplyr")
 library("xtable")
 library("yaml")
 
-load("results-full-ensemble-WORKING.rda") # REPLACE
+load("results-full-ensemble.rda")
 
 ## Calculate the average (across imputations) CV log-loss of each model
 model_ll <- sapply(full_ensemble, function(x) {
@@ -56,10 +56,10 @@ model_table <- inner_join(model_info,
 
 ## Prettify numeric values and truncate small ensemble weights
 model_table <- mutate(model_table,
-                      logLoss = sprintf("%.3f", logLoss),
-                      weight = ifelse(weight > 0.0005,
-                                      sprintf("%.3f", weight),
-                                      "$<$0.001"))
+                      logLoss = sprintf("%.2f", logLoss),
+                      weight = ifelse(weight > 0.005,
+                                      sprintf("%.2f", weight),
+                                      "$<$0.01"))
 
 ## Use checkmarks for whether year is included
 ##
