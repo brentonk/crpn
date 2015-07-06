@@ -40,3 +40,6 @@ abstract-polmeth.md
 
 # xtable output
 latex/tab-*.tex
+
+# Replications (for now)
+/replications/
