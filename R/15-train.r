@@ -243,6 +243,34 @@ method_args <- list(
         maxit = 1000,
         trace = FALSE
     ),
+    ## Gaussian process with radial basis function kernel on the capability
+    ## index components
+    gpr = list(
+        form = f_components,
+        method = "gaussprRadial",
+        preProcess = c("center", "scale")
+    ),
+    ## Gaussian process with radial basis function kernel on the capability
+    ## index components and time
+    gpr_t = list(
+        form = f_components_t,
+        method = "gaussprRadial",
+        preProcess = c("center", "scale")
+    ),
+    ## Gaussian process with radial basis function kernel on the capability
+    ## proportions
+    gpr_props = list(
+        form = f_props,
+        method = "gaussprRadial",
+        preProcess = c("center", "scale")
+    ),
+    ## Gaussian process with radial basis function kernel on the capability
+    ## proportions and time
+    gpr_props_t = list(
+        form = f_props_t,
+        method = "gaussprRadial",
+        preProcess = c("center", "scale")
+    ),
     ## Support vector machine with radial basis function kernel on the
     ## capability index components
     svm = list(
@@ -276,37 +304,6 @@ method_args <- list(
         tuneLength = 15
     )
 )
-
-## Approximate timings per fold, in seconds:
-timings <- c(
-    null          = 1,
-    polr_capratio = 1,
-    polr          = 2,
-    polr_t        = 4,
-    polr_props    = 2,
-    polr_props_t  = 4,
-    knn           = 4,
-    knn_t         = 4,
-    knn_props     = 5,
-    knn_props_t   = 5,
-    rf            = 112,
-    rf_t          = 142,
-    rf_props      = 129,
-    rf_props_t    = 146,
-    nnet          = 90,
-    nnet_t        = 54,
-    nnet_props    = 106,
-    nnet_props_t  = 48,
-    svm           = 48,
-    svm_t         = 49,
-    svm_props     = 73,
-    svm_props_t   = 76
-)
-
-## Estimated total hours: about 70
-##
-## Relatedly, estimated size of output is about 650 MB
-length(imputations_train) * (10 + 1) * sum(timings) / 3600
 
 time_start <- proc.time()
 

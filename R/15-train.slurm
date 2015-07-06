@@ -3,7 +3,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --nodes=1
 #SBATCH --tasks-per-node=11
-#SBATCH --time=36:00:00
+#SBATCH --time=72:00:00
 #SBATCH --mem=8000M
 #SBATCH --output=15-train.out
 
