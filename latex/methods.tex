@@ -1,0 +1,30 @@
+\section{Building a Better Proxy for Expected Dispute Outcomes}
+
+\subsection{Data}
+
+To evaluate the predictive performance of both the capability ratio and our alternative model, we use data on the outcomes of international disputes.
+We combine the National Material Capabilities data \note{cite?} with information on the outcomes and participants of Militarized International Disputes between 1816 and 2007 \note{cite}.
+Our data consist of $N = 1{,}740$ disputes, each between an ``initiator,'' or Country~A, and a ``target,'' or Country~B \note{footnote on this?}.
+Every dispute outcome is either A~Wins, B~Wins, or Stalemate, which we denote by $Y_i \in \{A, B, \emptyset\}$, respectively.
+In each dispute, we observe the year it took place, each disputant's raw material capability components, and each disputant's share of the system-wide total of each component at the time.\footnote{
+  There are missing observations in the National Material Capabilities data.
+  Consequently, about 17\% of the disputes we observe contain at least one missing cell.
+  We use multiple imputation to deal with missingness \note{cite}; see the Appendix for details.
+}
+These predictors are collected in the vector $X_i$.
+
+We want to measure the out-of-sample predictive power of various models, which means we cannot use the full dataset for model fitting.
+Following common practice in machine learning, we randomly divide our sample into two parts: a \emph{training sample} for building and selecting models, and a \emph{test sample} for making out-of-sample predictions with a model built on the training sample \note{cite}.
+We use an 80-20 split, resulting in a training sample of $N_{\text{train}} = 1{,}391$ disputes and a test sample of $N_{\text{test}} = 349$ disputes.\footnote{
+  To avoid complications due to missing data, we draw the test sample exclusively from the subset of complete observations.
+}
+We exclusively use the training sample for all model tuning, fitting, and selection.
+Even if we try to prevent overfitting in the training stage---which we do---we cannot rule out the possibility that the resulting model overfits the training data.
+This is where the test sample comes in.
+After selecting a model from the training data, we run the test sample through it to evaluate the model's out-of-sample predictive power.
+As long as we do not use the test sample to make any further modeling decisions, this gives us an unbiased estimate of our chosen model's out-of-sample performance.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "oinc"
+%%% End:
