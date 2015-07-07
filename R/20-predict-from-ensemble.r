@@ -5,6 +5,7 @@
 ###
 ################################################################################
 
+library("caret")
 library("foreach")
 library("iterators")
 
@@ -26,7 +27,7 @@ predict_from_ensemble <- function(dat, ensemble)
         ## Sum the weighted probabilities
         pred <- Reduce("+", pred)
 
-        cat("Finished imputation", i, as.character(Sys.time()), "\n")
+        cat("Finished imputation", i, date(), "\n")
 
         pred
     }
