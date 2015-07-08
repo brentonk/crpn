@@ -16,9 +16,13 @@
 
 % Math commands
 \DeclareMathOperator{\CVL}{CVL} % CV loss
+\DeclareMathOperator{\CINC}{CINC} % CINC function
 
 % Section heading styling
 \allsectionsfont{\sffamily}
+
+% BibTeX
+\usepackage{natbib}
 
 \title{
   Capability Ratios Predict Nothing%
@@ -31,7 +35,7 @@
 \author{%
   Robert J. Carroll%
   \thanks{%
-    Rob's affiliation as of Polmeth goes here.
+    Assistant Professor, Department of Political Science, Florida State University.  Email:  \nolinkurl{RobCarrollFSU@gmail.com}.
   }%
   \and%
   Brenton Kenkel%
@@ -62,10 +66,10 @@
 \section{Introduction}
 
 
-\section{Predictive Power and Proxy Variables}
+\input{prediction}
 
 
-\section{The Capability Ratio and Its Discontents}
+\input{discontents}
 
 
 \input{methods}
@@ -75,6 +79,11 @@
 
 
 \section{Conclusion}
+
+
+\newpage
+\bibliographystyle{apsr}
+\bibliography{oincbib}
 
 
 \end{document}
