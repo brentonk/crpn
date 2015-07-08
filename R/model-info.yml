@@ -104,6 +104,6 @@
   data: *props
   year: true
 - name: ensemble
-  method: Ensemble
+  method: Super Learner
   data: .na
   year: .na
