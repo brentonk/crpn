@@ -93,9 +93,16 @@ By definition, the CV loss of the super learner is no greater than that of the b
 
 To extract as much predictive power as possible from the material capability data, we examine a diverse array of candidate models to plug into the super learner.
 Each candidate model must, of course, work with a categorical outcome variable and generate predicted probabilities.
-Beyond that, we restrict our focus to classes of models that have been well studied in the machine learning or statistical literatures, settling on six: ordered logistic regression, $k$-nearest neighbors, random forests, neural networks, Gaussian processes, and support vector machines \note{cite each}.
+Beyond that, we restrict our focus to classes of models that have been well studied in the machine learning or statistics literatures, settling on six: ordered logistic regression, $k$-nearest neighbors, random forests, neural networks, Gaussian processes, and support vector machines \note{cite each}.
 We run each model on four sets of variables: the disputants' raw capability components and their capability component proportions, each with and without the year the dispute began.
 We also include a null model (ordered logistic regression just on an intercept) and ordered logistic regression on the capability ratio, giving us $M = 26$ candidate models.
+
+The biggest downside of our approach is that the results are not easily interpretable.
+Because the super learner entails averaging a large set of models---some of which, like random forests, are themselves difficult to interpret---it gives us no simple summary of how each predictor affects dispute outcomes.
+Whether this is a problem depends on one's aims.
+Certainly, we would not recommend the super learner as a means of testing hypotheses about the determinants of dispute outcomes.
+However, our goal is not to test a hypothesis---it is to construct the best proxy possible for how a dispute between two countries is likely to end.
+In this context, it is worth sacrificing interpretability for the sake of predictive power.
 
 %%% Local Variables:
 %%% mode: latex
