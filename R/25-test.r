@@ -8,7 +8,11 @@
 library("caret")
 library("dplyr")
 library("foreach")
+library("ggtern")
+library("tikzDevice")
 library("xtable")
+
+Sys.unsetenv("TEXINPUTS")
 
 source("20-predict-from-ensemble.r")
 
@@ -107,3 +111,50 @@ print(test_xtable,
       file = file.path("..", "latex", "tab-test.tex"),
       floating = FALSE,
       include.rownames = FALSE)
+
+
+###-----------------------------------------------------------------------------
+### Ternary plot of predicted probabilities
+###-----------------------------------------------------------------------------
+
+## Combine predictions from the two models
+pred_test_capratio$model <- "Capability Ratio"
+pred_test_ensemble$model <- "Super Learner"
+plot_data <- rbind(pred_test_capratio,
+                   pred_test_ensemble)
+plot_data$obs <- factor(data_test$Outcome,
+                        levels = c("Stalemate", "VictoryA", "VictoryB"),
+                        labels = c("$\\emptyset$", "$A$", "$B$"))
+
+## Separate category without stalemates
+plot_data_victories <- filter(plot_data,
+                              obs != "$\\emptyset$")
+plot_data$sample <- "All Disputes"
+plot_data_victories$sample <- "No Stalemates"
+plot_data <- rbind(plot_data, plot_data_victories)
+
+tikz(file = file.path("..", "latex", "fig-tern.tex"),
+     width = 5,
+     height = 6)
+ggtern(plot_data,
+       aes(x = VictoryA,
+           y = Stalemate,
+           z = VictoryB)) +
+    geom_point(aes(shape = obs,
+                   colour = obs),
+              alpha = 0.5) +
+    scale_colour_brewer("Observed Outcome",
+                        palette = "Set1",
+                        labels = c("Stalemate", "A Wins", "B Wins")) +
+    scale_shape("Observed Outcome",
+                labels = c("Stalemate", "A Wins", "B Wins")) +
+    scale_T_continuous("$\\emptyset$") +
+    scale_L_continuous("$A$") +
+    scale_R_continuous("$B$") +
+    facet_grid(sample ~ model) +
+    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+    theme_grey(base_size = 10) +
+    theme(axis.tern.ticks = element_blank(),
+          axis.tern.text = element_text(size = rel(0.8)),
+          legend.position = "bottom")
+dev.off()
