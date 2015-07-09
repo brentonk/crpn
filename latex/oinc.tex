@@ -7,7 +7,8 @@
 \usepackage[labelsep=period,font=small,labelfont=bf]{caption}
 \usepackage[charter]{mathdesign}
 \usepackage[scaled]{helvet}
-\usepackage[colorlinks=true,citecolor=blue]{hyperref}
+\usepackage[hyphens]{url}
+\usepackage[colorlinks=true,citecolor=black]{hyperref}
 
 % Highlighted notes
 \usepackage{xcolor}
@@ -23,6 +24,7 @@
 
 % BibTeX
 \usepackage{natbib}
+\renewcommand{\harvardurl}[1]{\textbf{URL:} \url{#1}}
 
 \title{
   Capability Ratios Predict Nothing%
@@ -80,6 +82,10 @@
 
 \section{Conclusion}
 
+
+\clearpage
+\appendix
+\input{appendix}
 
 \newpage
 \bibliographystyle{apsr}

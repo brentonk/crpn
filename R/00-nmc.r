@@ -11,6 +11,8 @@ library("ggplot2")
 library("methods")
 library("reshape2")
 library("stringr")
+library("tidyr")
+library("xtable")
 
 ###-----------------------------------------------------------------------------
 ### Load and clean
@@ -254,3 +256,38 @@ save(impute_NMC,
 save(impute_NMC_new,
      imputations_NMC_new,
      file = "results-impute-nmc-new.rda")
+
+
+###-----------------------------------------------------------------------------
+### Make table of summary statistics of raw components
+###-----------------------------------------------------------------------------
+
+## Compute and prettify summary statistics
+table_NMC <- raw_NMC %>%
+    select_(.dots = component_names) %>%
+    gather(component, value, everything()) %>%
+    group_by(component) %>%
+    summarise(zero = sum(value == 0, na.rm = TRUE) / length(value),
+              miss = mean(is.na(value))) %>%
+    mutate(component = factor(component,
+                              levels = component_names,
+                              labels = c("Iron and Steel Production",
+                                         "Military Expenditures",
+                                         "Military Personnel",
+                                         "Primary Energy Consumption",
+                                         "Total Population",
+                                         "Urban Population")),
+           zero = sprintf("%.3f", zero),
+           miss = sprintf("%.3f", miss)) %>%
+    rename(Component = component,
+           "Pr(Zero)" = zero,
+           "Pr(Missing)" = miss)
+
+## Convert to LaTeX
+xtable_NMC <- xtable(table_NMC,
+                     align = c("l", "l", "r", "r"))
+
+print(xtable_NMC,
+      file = file.path("..", "latex", "tab-summary.tex"),
+      floating = FALSE,
+      include.rownames = FALSE)

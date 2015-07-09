@@ -9,6 +9,7 @@ library("caret")
 library("dplyr")
 library("stringr")
 library("tidyr")
+library("xtable")
 
 source("04-merge-nmc-dyad.r")
 
@@ -186,3 +187,27 @@ lapply(imputations_train, head)
 
 save(imputations_train,
      file = "results-imputations-train.rda")
+
+
+###-----------------------------------------------------------------------------
+### Make table of MID outcome distributions
+###-----------------------------------------------------------------------------
+
+table_MID <- cbind(
+    Full = table(data_MID$Outcome),
+    Training = table(data_train$Outcome),
+    Test = table(data_test$Outcome)
+)
+
+## Reorganize and clean up names
+table_MID <- table_MID[3:1, ]
+rownames(table_MID) <- c("A Wins",
+                         "Stalemate",
+                         "B Wins")
+
+xtable_MID <- xtable(table_MID,
+                     align = c("l", "r", "r", "r"))
+
+print(xtable_MID,
+      file = file.path("..", "latex", "tab-mid.tex"),
+      floating = FALSE)
