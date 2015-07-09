@@ -3,18 +3,20 @@
 \subsection{Data}
 
 To evaluate the predictive performance of both the capability ratio and our alternative model, we use data on the outcomes of international disputes.
-We combine the National Material Capabilities data \note{cite?} with information on the outcomes and participants of Militarized International Disputes between 1816 and 2007 \note{cite}.
-Our data consist of $N = 1{,}740$ disputes, each between an ``initiator,'' or Country~A, and a ``target,'' or Country~B \note{footnote on this?}.
+We combine the National Material Capabilities data \citep{singer1972} with information on the outcomes and participants of Militarized International Disputes between 1816 and 2007 \citep{Palmer:2015hp}.
+Our data consist of $N = 1{,}740$ disputes, each between an ``initiator,'' or Country~A, and a ``target,'' or Country~B.\footnote{
+  See the Appendix for the data construction and coding specifics.
+}
 Every dispute outcome is either A~Wins, B~Wins, or Stalemate, which we denote by $Y_i \in \{A, B, \emptyset\}$, respectively.
 In each dispute, we observe the year it took place, each disputant's raw material capability components, and each disputant's share of the system-wide total of each component at the time.\footnote{
   There are missing observations in the National Material Capabilities data.
   Consequently, about 17\% of the disputes we observe contain at least one missing cell.
-  We use multiple imputation to deal with missingness \note{cite}; see the Appendix for details.
+  We use multiple imputation to deal with missingness \citep{honaker_what_2010}; see the Appendix for details.
 }
 These predictors are collected in the vector $X_i$.
 
 We want to measure the out-of-sample predictive power of various models, which means we cannot use the full dataset for model fitting.
-Following common practice in machine learning, we randomly divide our sample into two parts: a \emph{training sample} for building and selecting models, and a \emph{test sample} for making out-of-sample predictions with a model built on the training sample \note{cite}.
+Following common practice in machine learning, we randomly divide our sample into two parts: a \emph{training sample} for building and selecting models, and a \emph{test sample} for making out-of-sample predictions with a model built on the training sample.
 We use an 80-20 split, resulting in a training sample of $N_{\text{train}} = 1{,}391$ disputes and a test sample of $N_{\text{test}} = 349$ disputes.\footnote{
   To avoid complications due to missing data, we draw the test sample exclusively from the subset of complete observations.
 }
@@ -32,7 +34,7 @@ Our goal is to build the model that squeezes the most out-of-sample predictive p
 }
 To begin with, we must be a bit more specific about what we mean by ``predictive power.''
 We define a \emph{model} as a function $f$ that maps from the predictor variables into the probability of each potential dispute outcome, $f(X_i) = (f_A(X_i), f_B(X_i), f_{\emptyset}(X_i))$.
-Our metric for a model's predictive power is its \emph{log loss}, which is common in multinomial classification settings \note{cite?} and is closely related to the log-likelihood.
+Our metric for a model's predictive power is its \emph{log loss}, which is common in multinomial classification settings and is closely related to the log-likelihood \citep[221]{Hastie:2009wpa}.
 To calculate the log loss, we take a model's predicted probability of each observed outcome, take the average of their logged values, and multiply the resulting average by $-1$.
 Smaller values of the log loss represent greater predictive accuracy, with a lower bound of~$0$ representing perfect prediction.\footnote{
   Predicted probabilities very close to~0 are trimmed to keep the log loss finite.
@@ -49,7 +51,7 @@ Formally, the log loss of a model~$f$ on the data $(X, Y)$ is
 To select a model to use for out-of-sample prediction, we will fit a number of candidate models on the training data.
 Since we cannot use the test data for model selection, this requires estimating each model's out-of-sample prediction error within the training sample.
 We cannot rely on ordinary within-sample measures of fit (e.g., percent correctly predicted), as these will lead us to overfit to the training data.
-Instead, we estimate each model's out-of-sample log loss via $K$-fold cross-validation \note{cite}.
+Instead, we estimate each model's out-of-sample log loss via $K$-fold cross-validation \citep[241--249]{Hastie:2009wpa}.
 We randomly assign each observation in the training sample to a ``fold'' $k \in \{1, \ldots, K\}$ and then fit each candidate model $K$ times, each time leaving one fold out of the fitting.\footnote{
   When fitting models with tuning parameters, we choose tuning parameters separately within each fold via another cross-validation loop, again using log loss as the objective function.
   In this case, when choosing the tuning parameters for the model fit to the full training data, we use different folds than those we use to estimate its out-of-fold log loss.
@@ -67,8 +69,8 @@ Our estimate of the out-of-sample log loss of the $m$'th candidate model is its 
 where $(X^{(k)}, Y^{(k)})$ is the subset of training data assigned to fold~$k$.
 Following usual practice, we use $K = 10$ cross-validation folds.
 
-It is well known in the machine learning literature that averaging many models can lead to better predictive accuracy than using a single model \note{cite}.
-Accordingly, instead of simply choosing the model with the lowest CV loss, we combine the models in a weighted average following the super learner algorithm \note{cite}.
+It is well known in the machine learning literature that averaging many models can lead to better predictive accuracy than using a single model \citep{breiman_bagging_1996}.
+Accordingly, instead of simply choosing the model with the lowest CV loss, we combine the models in a weighted average following the super learner algorithm \citep{vanderLaan:bz}.
 Specifically, we select the weights $\hat{w}_1, \ldots, \hat{w}_M$ that solve
 \begin{equation}
   \label{eq:super-learner}
@@ -93,7 +95,7 @@ By definition, the CV loss of the super learner is no greater than that of the b
 
 To extract as much predictive power as possible from the material capability data, we examine a diverse array of candidate models to plug into the super learner.
 Each candidate model must, of course, work with a categorical outcome variable and generate predicted probabilities.
-Beyond that, we restrict our focus to classes of models that have been well studied in the machine learning or statistics literatures, settling on six: ordered logistic regression, $k$-nearest neighbors, random forests, neural networks, Gaussian processes, and support vector machines \note{cite each}.
+Beyond that, we restrict our focus to classes of models that have been well studied in the machine learning or statistics literatures, settling on six: ordered logistic regression \citep{McKelvey:2010gv}, $k$-nearest neighbors \citep{Cover:1967jq}, random forests \citep{Breiman:2001fb}, neural networks \citep{Ripley:1996vd}, Gaussian processes \citep{Rasmussen:2006vz}, and support vector machines \citep{Cortes:1995ie}.
 We run each model on four sets of variables: the disputants' raw capability components and their capability component proportions, each with and without the year the dispute began.
 We also include a null model (ordered logistic regression just on an intercept) and ordered logistic regression on the capability ratio, giving us $M = 26$ candidate models.
 
