@@ -105,3 +105,57 @@ print(model_xtable,
       include.rownames = FALSE,
       sanitize.text.function = identity,
       hline.after = c(-1, 0, nrow(model_xtable) - 1, nrow(model_xtable)))
+
+
+###-----------------------------------------------------------------------------
+### Closer look at capability ratio model
+###-----------------------------------------------------------------------------
+
+## Extract the fitted model
+##
+## Since `cinc` has no missing values, the model is the same across all
+## imputations
+polr_capratio <- full_ensemble[[1]]$models$polr_capratio$finalModel
+
+## Look at the model summary
+summary(polr_capratio)
+
+## Highest and lowest predictions within the range of the training data
+predict(polr_capratio,
+        newdata = data.frame(capratio = range(imputations_train[[1]]$capratio)),
+        type = "prob")
+predict(polr_capratio,
+        newdata = data.frame(capratio = quantile(imputations_train[[1]]$capratio,
+                                                 c(0.25, 0.75))),
+        type = "prob")
+
+## Make a "regression table"
+table_capratio <- data_frame(
+    coef = c(polr_capratio$coefficients, polr_capratio$zeta),
+    se = sqrt(diag(vcov(polr_capratio))),
+    z = coef/se,
+    p = 2 * pnorm(-abs(z))
+)
+
+## Prettify numeric values
+table_capratio <- table_capratio %>%
+    mutate_each(funs(sprintf("%.2f", .))) %>%
+    mutate_each(funs(gsub("-", "$-$", ., fixed = TRUE))) %>%
+    mutate(p = ifelse(p == "0.00", "$<$0.01", p)) %>%
+    rename(Estimate = coef,
+           SE = se,
+           "$Z$" = z,
+           "$p$" = p)
+table_capratio[2:3, 3:4] <- ""
+
+## Convert to LaTeX
+xtable_capratio <- xtable(table_capratio,
+                          align = c("l", "r", "r", "r", "r"))
+rownames(xtable_capratio) <- c("Capability Ratio (logged)",
+                               "Cutpoint: B Wins to Stalemate",
+                               "Cutpoint: Stalemate to A Wins")
+
+print(xtable_capratio,
+      file = file.path("..", "latex", "tab-capratio.tex"),
+      floating = FALSE,
+      sanitize.text.function = identity)
