@@ -14,21 +14,29 @@ Sys.unsetenv("TEXINPUTS")
 
 load("results-data-nmc.rda")
 
-## Want to use undirected dyads to make comparison most direct, since the
-## capability ratio isn't specific to directed/undirected
+pred_dir_dyad <- read.csv("results-predict-dir-dyad.csv")
 pred_dyad <- read.csv("results-predict-dyad.csv")
 
 ## Calculate capability ratios for all dyads
-pred_dyad <- pred_dyad %>%
-    left_join(data_NMC %>% select(ccode, year, cinc_a = cinc),
-              by = c(ccode_a = "ccode", year = "year")) %>%
-    left_join(data_NMC %>% select(ccode, year, cinc_b = cinc),
-              by = c(ccode_b = "ccode", year = "year")) %>%
-    mutate(capratio = exp(cinc_a) / (exp(cinc_a) + exp(cinc_b)))
+make_capratio <- function(pred) {
+    pred %>%
+        left_join(data_NMC %>% select(ccode, year, cinc_a = cinc),
+                  by = c(ccode_a = "ccode", year = "year")) %>%
+        left_join(data_NMC %>% select(ccode, year, cinc_b = cinc),
+                  by = c(ccode_b = "ccode", year = "year")) %>%
+        mutate(capratio = exp(cinc_a) / (exp(cinc_a) + exp(cinc_b)))
+}
+
+pred_dir_dyad <- make_capratio(pred_dir_dyad)
+pred_dyad <- make_capratio(pred_dyad)
 
 ## Calculate correlations
-with(pred_dyad, cor(VictoryA, capratio, use = "complete.obs"))
-with(pred_dyad, cor(VictoryB, capratio, use = "complete.obs"))
+##
+## We want these for the directed dyads, since the identities of A and B are
+## arbitrary in the undirected cases (lower number is A) -- this way the
+## correlation doesn't depend on the arbitrary numbering scheme
+with(pred_dir_dyad, cor(VictoryA, capratio, use = "complete"))
+with(pred_dir_dyad, cor(VictoryB, capratio, use = "complete"))
 
 ## Plot each quantity for all pairings of:
 ##   * USA (2)
@@ -36,6 +44,8 @@ with(pred_dyad, cor(VictoryB, capratio, use = "complete.obs"))
 ##   * Russia (365)
 ##   * China (710)
 ##   * Japan (740)
+## Want to use undirected dyads for this since the capability ratio isn't
+## initiator-specific
 countries <- c(USA = 2, UK = 200, Russia = 365, China = 710, Japan = 740)
 plot_data <-
     expand.grid(ccode_a = countries,
