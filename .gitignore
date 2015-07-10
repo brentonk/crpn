@@ -21,6 +21,7 @@ Icon*
 *.nav
 *.out
 *.snm
+*.synctex
 *.toc
 
 # All PDFs
