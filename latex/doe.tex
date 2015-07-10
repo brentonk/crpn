@@ -53,20 +53,19 @@
 \maketitle
 
 \begin{abstract}
-  Most empirical studies of international conflict use a ratio of military capability index scores as a proxy for the expected outcome of war.
-  Despite the near-universal inclusion of capability ratios in statistical analyses of conflict, there has been no effort to validate whether these ratios are reliable predictors of war outcomes.
-  Because states' expectations about potential war outcomes play a large role in theories of conflict, including the bargaining model of war, it is crucial for empirical research to control for a valid measure of these expectations.
-  We proceed in three steps.
-  First, we show that the predictive performance of the capability ratio is nil: it does no better than a null model at predicting war outcomes.
-  Second, we advocate a data-driven approach to constructing a superior proxy for expected war outcomes, using the train-validate-test paradigm from the machine learning literature.
-  Applying this method, we find that we can develop a substantially better measure of expected war outcomes using the same components that are used to construct the capability ratio.
-  Third, we use our new measure to replicate existing studies of the role expectations play in the outbreak of international conflict.
+  Modern approaches to political measurement have generally ignored the importance of out-of-sample predictive performance. 
+  This is problematic for two reasons; first, many of the abstractions scholars attempt to proxy for are themselves expectations; and second, the resulting measures are prone to overfitting. 
+  We advocate a data-driven approach to measurement based on the train-validate-test paradigm from machine learning. 
+  We demonstrate the effectiveness of the approach as it applies to proxying the expected outcome of militarized interstate disputes. 
+  We find that the traditional ratio of capability indices has almost no predictive power relative to null models. 
+  Conversely, the score we construct via our approach---the Dispute Outcome Expectations score, or DOE---improves out-of-sample predictive performance. 
+  This holds even though our approach introduces no new covariates to the analysis, indicating the usefulness of our approach.
 \end{abstract}
 
 \clearpage
 
 
-\section{Introduction}
+\input{introduction}
 
 
 \input{prediction}
