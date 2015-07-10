@@ -50,3 +50,6 @@ latex/tab-*.tex
 
 # Replications (for now)
 /replications/
+
+# R history files
+.Rhistory
