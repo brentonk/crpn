@@ -41,6 +41,10 @@ model_weight <- sapply(full_ensemble, function(x) {
 model_weight <- rowMeans(model_weight)
 model_weight <- c(model_weight, ensemble = NA)
 
+## Weight on the capability ratio
+print(model_weight["null"])             # 2.3e-7
+print(model_weight["polr_capratio"])    # 7.5e-7
+
 ## Arrange results into data frame
 model_results <- data.frame(
     name = c(names(full_ensemble[[1]]$models), "ensemble"),
@@ -65,6 +69,11 @@ model_info <- yaml.load_file("model-info.yml",
 model_table <- inner_join(model_info,
                           model_results,
                           by = "name")
+
+## Examine splits across different factors
+model_table %>% group_by(method) %>% summarise(logLoss = mean(logLoss))
+model_table %>% group_by(data) %>% summarise(logLoss = mean(logLoss))
+model_table %>% group_by(year) %>% summarise(logLoss = mean(logLoss))
 
 ## Prettify numeric values and truncate small ensemble weights
 model_table <- mutate(model_table,

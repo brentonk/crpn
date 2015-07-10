@@ -106,6 +106,117 @@ Certainly, we would not recommend the super learner as a means of testing hypoth
 However, our goal is not to test a hypothesis---it is to construct the best proxy possible for how a dispute between two countries is likely to end.
 In this context, it is worth sacrificing interpretability for the sake of predictive power.
 
+\subsection{Results}
+
+To summarize, the analysis proceeds in two steps.
+First, we fit candidate models on the training set, cross-validate them to estimate their out-of-sample prediction error, and average them to form a super learner.
+Second, we compare the super learner's predictions to actual outcomes in the test set to obtain an unbiased estimate of its out-of-sample predictive power.
+Our main findings are that the capability ratio has barely more predictive power than a null model and that the super learner does much better.
+In other words, by making optimal use of the component variables underlying the capability ratio, we can construct a superior proxy for expected dispute outcomes.
+
+\begin{table}[tp]
+  \centering
+  \input{tab-capratio}
+  \caption{
+    Results of an ordered logistic regression of dispute outcomes on the capability ratio using the training data.
+    Because there are no missing values in the CINC scores, these estimates are identical across imputed datasets.
+  }
+  \label{tab:capratio}
+\end{table}
+
+A mere glance at the training set results shows that the predictive power of the capability ratio is limited.
+We say ``limited'' not as a euphemism for ``bad'' (though it is bad), but rather literally.
+To see why, examine Table~\ref{tab:capratio}, which contains the results of the ordered logistic regression on the logged capability ratio in the training data.
+Although the coefficient on the capability ratio is positive and statistically significant at the conventional level, its magnitude is small relative to the cutpoints.
+In order to predict that A Wins, we would need a logged capability ratio of more than~7---an impossibility, since the logged capability ratio is bounded above by~0.
+Similarly, to predict that B Wins, we would need a logged capability ratio of less than~$-13$, which is below the minimal value observed in the training data (about~$-9$).
+The predicted probabilities are also constricted: for example, the probability that A Wins is between 2 percent and 14 percent for all observations in the training data.
+So the capability ratio only weakly predicts dispute outcomes in sample.
+This does not bode well for its ability to make predictions out of sample.
+
+\begin{table}[tp]
+  \centering
+  \input{tab-ensemble}
+  \caption{
+    Summary of training set results, including the cross-validation estimate of out-of-sample log loss, proportional reduction in loss (relative to the null model), and optimal super learner weight of each candidate model.
+    All quantities represent the average across imputed datasets.
+  }
+  \label{tab:ensemble}
+\end{table}
+
+Indeed, the results are even less encouraging when we turn to the cross-validation results, which give us a formal estimate of the capability ratio's out-of-sample predictive power.
+The results for all candidate models, as well as their weights in the super learner ensemble, appear in Table~\ref{tab:ensemble}.
+By the criterion of CV loss, the capability ratio does barely better than a null model at predicting dispute outcomes.
+Its proportional reduction in loss, a rough analog of $R^2$ for categorical data, is about 1~percent---a negligible improvement.
+Consequently, it is no surprise that the capability ratio model receives little weight in the optimal ensemble.\footnote{
+  Its average weight across imputations is about $7.5 \times 10^{-7}$.
+}
+The capability ratio's relationship with dispute outcomes is just too weak for it to serve as a good proxy for the likelihood that a conflict will end in either side's favor.
+
+On the bright side, when we examine the other candidate models, we see that it is possible to build a better proxy with the same underlying components.
+All but two of the other candidate models have better cross-validation loss than the capability ratio model,\footnote{
+  The two models that perform worse are the Gaussian processes on the capability proportions.
+  We suspect that the strong right skew of the capability proportions throws off the algorithm used for automatic tuning parameter selection in the software we use for Gaussian processes.
+  See the Appendix for details.
+}
+and most have a proportional reduction in loss of 10 percent or greater.
+Looking at Table~\ref{tab:ensemble}, we see a few basic patterns in the performance of the candidate models.
+Models that include the year of the dispute tend to predict outcomes better than those that do not, indicating that the importance of different material capability components varies over time.
+We also see, perhaps counterintuitively (and contrary to how the capability ratio is constructed), that the raw capability components tend to be better predictors than the annual totals.
+On the modeling front, neural networks tend to perform best, followed by random forests, support vector machines, and $k$-nearest neighbors.
+The ordered logistic regression models, which are significantly less flexible in terms of allowing for nonlinearities and interactions, tend to worse than these.
+
+As we expected, the super learner ensemble performs discernibly better than any of the candidate models from which it is constructed.
+The ensemble's proportional reduction in loss, as estimated by cross-validation on the training set, is about 23~percent, or three percentage points better than the best candidate model.
+The model concentrates the bulk of its weight on two of the candidate models: the random forest on the raw capability components and the neural network on the annual capability proportions, both with year of dispute included.
+Interestingly, though one of these (the neural network) is the best individual model, the other is not the second-best.
+More generally, while models with lower CV loss tend to receive more weight, the relationship is by no means one-to-one.
+We see this because the ensemble prefers not only predictive power, but also diversity.
+Different classes of models have different blind spots; the more diverse the ensemble is, the more these blind spots are minimized.
+A model that looks bad on its own might still merit non-negligible weight in the optimal ensemble if it captures a slice of the data missed by the models that are best on their own.
+
+\begin{table}[tp]
+  \centering
+  \input{tab-test}
+  \caption{
+    Results of applying the null model, the capability ratio model, and the super learner to the test data.
+    P.R.L.\ is the proportional reduction in log loss compared to the null model.
+    Accuracy and kappa are measures of classification performance, where we take the predicted outcome to be the one with the highest predicted probability.
+    Accuracy is the percentage correctly predicted, while kappa is the percentage improvement in classification over what would be expected by chance \citep{Carletta:1996uk}.
+  }
+  \label{tab:test}
+\end{table}
+
+Given how well the super learner performed in the training data relative to the capability ratio and the other individual candidate models, we decided to proceed with it to construct our proxy for expected dispute outcomes.
+Since cross-validation estimates of out-of-sample predictive power tend to be too optimistic \citep{Tibshirani:2009tz}, we obtain an unbiased estimate by calculating the super learner's log loss on our test sample.
+We reiterate here that the super learner is constructed solely from the training data and that we settled on its use before examining its test set performance.
+Had we done otherwise, the test set results might also be too optimistic in expectation.
+The results of the test set analysis appear in Table~\ref{tab:test}.
+The super learner's out-of-sample proportional reduction in error is about 17~percent---less than our cross-validated estimate, as expected, but still respectable.
+Of course, we would like to have a model that does even better at forecasting dispute outcomes out of sample.
+We suspect this will take additional data on material capabilities or other factors that affect conflict processes.
+Given the diversity and flexibility of the models we apply to the National Material Capabilities data, it is hard to see how any further improvements would be more than marginal.
+
+\begin{figure}[tp]
+  \centering
+  \input{fig-tern}
+  \vspace{-6em}
+  \caption{
+    Predicted probabilities of dispute outcomes in the test set according to the capability ratio model and the super learner.
+    The first row shows predictions for every dispute; the second excludes disputes that ended in a stalemate.
+  }
+  \label{fig:tern}
+\end{figure}
+
+We also use the test data to confirm our pessimism about the capability ratio's out-of-sample predictive power.
+We see from Table~\ref{tab:test} that its proportional reduction in loss on the test sample is 1~percent, the same as what we estimated via cross-validation on the training sample.
+Beyond that, the test set results nicely illustrate the limited predictive range of the capability ratio model, as shown in the ternary plots in Figure~\ref{fig:tern}.
+Under the capability ratio model, plotted in the left column, every dispute in the test set is given an 85--90~percent chance of being a stalemate.
+Seeing how narrow the capability ratio's predictive range is, it is little surprise that it barely does better than a null model at prediction.
+It is apparent from the right column of Figure~\ref{fig:tern} that the super learner makes much better use of the material capability data.
+Its predictive range is greater, which in turn allows it to achieve a stronger---though hardly perfect---relationship between predicted and observed outcomes.
+If our goal is to forecast the expected outcomes of potential international disputes, the super learner gives us a discernibly better proxy than the capability ratio does.
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "oinc"
