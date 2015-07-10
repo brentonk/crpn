@@ -81,8 +81,7 @@ For our purposes in this paper, we think it is preferable to reduce variation ac
 We impute $I = 10$ datasets of national capabilities according to the procedure laid out above, and we merge each with the training subset of our dispute data to yield $I$ training data imputations.
 We run the super learner separately on each imputation, and our final model is an (unweighted) average of the $I$ super learners.
 
-% TODO: Replace OINC with new acronym
-After training is complete, we run into missing data problems once again when calculating OINC scores.
+After training is complete, we run into missing data problems once again when calculating DOE scores.
 To calculate predicted probabilities for dyads with missing values, we calculate a \emph{new} set of $I = 10$ imputations of the capabilities data and take an (unweighted) average of our model's predictions across the imputations.
 
 \subsection{Super Learner Candidate Models}
@@ -155,5 +154,5 @@ Further details about each candidate model are summarized below.
 
 %%% Local Variables:
 %%% mode: latex
-%%% TeX-master: "oinc"
+%%% TeX-master: "doe"
 %%% End:
