@@ -9,7 +9,14 @@ library("dplyr")
 library("xtable")
 library("yaml")
 
+load("results-data-nmc.rda")
+load("results-imputations-train.rda")
 load("results-full-ensemble.rda")
+
+
+###-----------------------------------------------------------------------------
+### Big table of ensemble results
+###-----------------------------------------------------------------------------
 
 ## Calculate the average (across imputations) CV log-loss of each model
 model_ll <- sapply(full_ensemble, function(x) {
@@ -42,6 +49,11 @@ model_results <- data.frame(
     stringsAsFactors = FALSE
 )
 
+## Calculate proportional reduction in loss
+model_results <- model_results %>%
+    mutate(prl = (logLoss[1] - logLoss) / logLoss[1]) %>%
+    select(name, logLoss, prl, weight)
+
 ## Retrieve data frame of basic model characteristics
 model_info <- yaml.load_file("model-info.yml",
                              handlers = list(
@@ -57,6 +69,8 @@ model_table <- inner_join(model_info,
 ## Prettify numeric values and truncate small ensemble weights
 model_table <- mutate(model_table,
                       logLoss = sprintf("%.2f", logLoss),
+                      prl = sprintf("%.2f", prl),
+                      prl = gsub("-", "$-$", prl, fixed = TRUE),
                       weight = ifelse(weight > 0.005,
                                       sprintf("%.2f", weight),
                                       "$<$0.01"))
@@ -69,17 +83,19 @@ model_table <- mutate(model_table,
                                     "$\\checkmark$",
                                     ""))
 
-## Blank irrelevant values for the ensemble
+## Blank irrelevant values
+model_table[1, "prl"] <- ""
 model_table[nrow(model_table), c("data", "year", "weight")] <- ""
 
 ## Convert to LaTeX
 model_xtable <- model_table %>%
     select(-name) %>%
-    xtable(align = c("l", "l", "l", "c", "r", "r"))
+    xtable(align = c("l", "l", "l", "c", "r", "r", "r"))
 colnames(model_xtable) <- c("Method",
                             "Data",
                             "Year",
                             "CV Loss",
+                            "P.R.L.",
                             "Weight")
 
 ## Write to file
