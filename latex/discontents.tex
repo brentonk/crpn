@@ -2,23 +2,18 @@
 
 Thanks in part to the popularity of formal models of choice under uncertainty, many unobserved quantities like those discussed above take the form of probabilities. 
 Our application---expectations about war outcomes as parameterized by some probability $p \in [0,1]$---is no different.
-
-\subsection{The Logic of Ratio-Based Measures in the Unit Interval}
-
-When creating a measure that must fall in the unit interval, it is most intuitive to propose some pair of positive variables, $(A,B)$, and input them into a logistic function, so that the measure $f$ takes the form
-\begin{align*}
-  f(A,B) &= \frac{A}{A + B}.
-\end{align*}
-To enhance flexibility, the analyst may propose some strictly positive, increasing function $g$ that manipulates $A$ and $B$ prior to their input, yielding
-\begin{align*}
-  f(A,B) &= \frac{g(A)}{g(A) + g(B)}.
-\end{align*}
-This latter approach (1) lets $A$ and $B$ be negative numbers; and (2) allows the analyst to adjust the shape of $x$ as required.\footnote{For simplicity of exposition, we introduce the approach in terms of single variables $A$ and $B$. 
-  Of course, these might be---and in our application, will be---collections of variables input into a multivariate function $g$.} 
-Importantly, this enhanced flexibility comes at a cost: the analyst now must propose appropriate data to bring to bear (in the form of $A$ and $B$) along with an appropriate function $g$. 
+We want to create a proxy for the chance that Country~A would prevail in a dispute against Country~B, given their observable characteristics, $x_A$ and $x_B$.
+Since a measure of a probability must lie within the unit interval, a natural way to proceed is to propose an indexing function $g$, where $g(x) \geq 0$, and then take the ratio of indices,
+\begin{equation}
+  \label{eq:ratio}
+  f(x_A, x_B)
+  =
+  \frac{g(x_A)}{g(x_A) + g(x_B)}.
+\end{equation}
+The quality of such a measure depends on both the selected characteristics and on the appropriateness of the indexing function~$g$.
 This latter responsibility plays a large role in the development of good measures and is our primary area of focus.
 
-Though simple, this enhanced ratio-based approach is remarkably powerful, and is widely used across many diverse applications. 
+Though simple, this enhanced ratio-based approach is remarkably powerful and finds use in a diverse array of applications. 
 A classic success comes from the study of baseball outcomes, where the Pythagorean prediction \citep{james1983,miller2007} of a team's winning percentage is defined as
 \begin{align*}
   f\left(\text{Runs Scored}, \text{Runs Allowed} ; \alpha\right) &= \frac{\text{Runs Scored}^\alpha}{\text{Runs Scored}^\alpha + \text{Runs Allowed}^\alpha},
@@ -27,37 +22,18 @@ where $\alpha \geq 0$ adjusts $x$'s shape.
 Here the quest for the best-fitting $g$ amounts to estimating $\alpha$; \citet{james1983} originally proposed $\alpha = 2$ \emph{ad hoc}, and later analysts found that $\alpha = 1.83$ fit the data best. 
 Though the analyses that produced this estimate suffer from the overfitting problems discussed above, the Pythagorean predictor still performs quite well when imposed upon out of sample data.
 
-In complicated applications---like international conflict---assessing $g$ is a more nuanced chore. 
-Consider, for example, two competing functional forms of contest success functions (CSFs). 
-Letting $e_i \geq 0$ denote state $i$'s effort level in the contest and assuming $e_A + e_B > 0$, the ratio CSF (which is identical to the aforementioned Pythagorean predictor) is given by
-\begin{align*}
-  f_\text{Ratio}(e_A,e_B; \gamma) &= \frac{e_A^\gamma}{e_A^\gamma + e_B^\gamma}.
-\end{align*}
-Likewise, the less common difference form is given by
-\begin{align*}
-  f_\text{Difference}(e_A,e_B;\kappa) &= \frac{\exp\left\{\kappa e_A\right\}}{\exp\left\{\kappa e_A\right\} + \exp\left\{\kappa e_B\right\}}.
-\end{align*}
-These contest success functions are identical save for $g(e_i)$: for the former, $g(e_i) = e_i^\gamma$, while for the latter, $g(e_i) = \exp\left\{\kappa e_i\right\}$. 
-Though this difference may seem academic, it has large theoretical ramifications for the appropriate way to model returns to scale in battle, and so adjudication is an important exercise. 
-To that end, \citet{jia2013} recommend model selection techniques like Bayes factors, while \citet{hwang2012} derives a general functional form that allows for direct empirical adjudication. 
-In either case, the analyst is left with a sense of which CSF (and thus which $g$) serves the extant data better; estimates of the parameters could then be used to make predictions given future effort data. 
-However, just as with the Pythagorean predictor in baseball, those estimates suffer from the overfitting problems discussed above.
+% TODO: Some of this notation collides with what we use for multiple imputation in the appendix.  Do we care?
 
-As we will see, however, the usual approach for proxying $p$ falls well short of the mark for appropriately accounting for these interesting dynamics, much less accounting for the importance of predictive power.
-
-\subsection{The Standard Approach and Its Problems}
-
-When proxying for expected war outcomes, empirical conflict scholars normally use transformations of data on states' material capabilities. 
+When proxying for expected dispute outcomes, empirical conflict scholars normally use transformations of data on states' material capabilities. 
 We now relate the typical transformation to our discussion of ratio-based measures above.
-
 We begin by introducing some helpful notation: call the set of states $\mathcal{I} = \left\{1, \ldots, I\right\}$; the set of variables $\mathcal{J} = \left\{1,\ldots,J\right\}$; and the set of years $\mathcal{T} = \left\{1,\ldots, T\right\}$. 
 Denote state $i$'s value for variable $j$ in time $t$ as $M_{ijt}$. 
 The set of all data is $M$, and all data in year $t$ is $M_t$.
-
 Define state $i$'s share of variable $j$ in year $t$ as
 \begin{align*}
   S_{ijt}(M_{t}) &= \frac{M_{ijt}}{\sum_{\mathcal{I}} M_{ijt}}.
 \end{align*}
+
 We now introduce the \emph{CINC function}.\footnote{Here CINC stands for ``Composite Index of National Capability'' as given in the Correlates of War National Material Capabilities data \citep{singer1972}.} 
 State $i$'s CINC score in year $t$ is its average share across all variables:
 \begin{align*}
@@ -80,7 +56,7 @@ For example, the CINC function assigns the same importance to military spending 
 Whether this is an appropriate assignment is an empirical question that goes unanswered. 
 Even on the tenuous assumption that $\CINC$ is a good data reduction technique on $M_t$, it is not clear whether it serves as a good $g$ function. 
 Prior to entering $f_{\text{CR}}$, should the CINC scores be exponentiated given some parameter on returns to scale, or perhaps exponentiated, or logged? 
-Finally, even given that $\CINC$ is a useful $g$, we do not know whether a ratio-based approach is appropriate at all. 
+Finally, even given that $\CINC$ is a useful index, we do not know whether a ratio-based approach is appropriate at all. 
 In other words, taking the capability ratio at its word requires making a host of assumptions that may not hold well enough to make it useful in applications.\footnote{
   It is worth noting that some applications follow \citet{bremer1992} in using the explicit CINC ratio:
   \begin{align*}
@@ -106,3 +82,8 @@ So, while it remains true that the capability ratio is not meant to directly rel
 Remedying these problems by fitting a model---perhaps estimating an exponent on the CINC scores in $f_{\text{CR}}$, or weights for the CINC indicators---might be a laudable first step, but it would still suffer from functional form dependencies. 
 The careful scholar might sidestep these by fitting an ensemble of models with different functional forms imposed, but so long as the ensemble is fit to the entire capability data set, it will suffer from overfitting and lose predictive power. 
 In the next section, we outline our method for estimating $p$ that suffers neither from overfitting nor from pathologies in the $\CINC$-utilizing, ratio-based approach. 
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "doe"
+%%% End:
