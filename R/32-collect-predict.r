@@ -48,9 +48,11 @@ predict_dyad_flip <- predict_dir_dyad %>%
            Stalemate_flip = Stalemate,
            VictoryA_flip = VictoryB)
 
-## Reduce to undirected dyads and calculate predicted probabilities
+## Calculate predicted probabilities
+##
+## Keeping all pairings in the table, even though every observation is
+## effectively there twice, for ease of merging later on
 predict_dyad <- predict_dyad_orig %>%
-    filter(ccode_a < ccode_b) %>%
     left_join(predict_dyad_flip,
               by = c("ccode_a", "ccode_b", "year")) %>%
     mutate(VictoryB = 0.5 * (VictoryB_orig + VictoryB_flip),
@@ -59,7 +61,7 @@ predict_dyad <- predict_dyad_orig %>%
     select(ccode_a, ccode_b, year, VictoryB, Stalemate, VictoryA)
 
 ## Sanity checks
-stopifnot(nrow(predict_dyad) == nrow(predict_dir_dyad) / 2)
+stopifnot(nrow(predict_dyad) == nrow(predict_dir_dyad))
 stopifnot(all.equal(with(predict_dyad,
                          VictoryB + Stalemate + VictoryA),
                     rep(1, nrow(predict_dyad)),
