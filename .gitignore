@@ -49,8 +49,8 @@ abstract-polmeth.md
 # xtable output
 latex/tab-*.tex
 
-# Replications (for now)
-/replications/
-
 # R history files
 .Rhistory
+
+# Stata files
+*.dta
