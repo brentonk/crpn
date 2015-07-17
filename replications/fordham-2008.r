@@ -11,6 +11,8 @@ library("caret")
 library("dplyr")
 library("foreign")
 
+source("glm-and-cv.r")
+
 raw_fordham_2008 <- read.dta("fordham-2008.dta")
 doe_dyad <- read.csv("../R/results-predict-dyad.csv")
 
@@ -53,56 +55,27 @@ f_fordham_2008 <-
     atopdo ~ lnexports1 + lndistance + lntotmids10_1 + lntotmids10_2 +
         lndyadmid10 + lncap_1 + lncap_2 + polity22 + coldwar + noallyrs +
         T.prefail + T.spline1 + T.spline2 + T.spline3
-cr_fordham_2008 <- train(
+cr_fordham_2008 <- glm_and_cv(
     form = f_fordham_2008,
     data = data_fordham_2008,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 100,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    ),
-    family = binomial(link = "probit")
+    number = 10,
+    repeats = 100,
+    probit = TRUE
 )
-
-## Don't save cross-validation indices (takes tons of space with large N)
-cr_fordham_2008$control$index <- NULL
-cr_fordham_2008$control$indexOut <- NULL
-
-prettyNum(coef(cr_fordham_2008$finalModel))
+printCoefmat(cr_fordham_2008$summary)
 
 ## Replicate, replacing CINC scores with DOE scores
 set.seed(806)
-doe_fordham_2008 <- train(
+doe_fordham_2008 <- glm_and_cv(
     form = update(f_fordham_2008,
                   . ~ . - lncap_1 - lncap_2 + log(VictoryA) + log(VictoryB)),
     data = data_fordham_2008,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 100,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    ),
-    family = binomial(link = "probit")
+    number = 10,
+    repeats = 100,
+    probit = TRUE
 )
+printCoefmat(doe_fordham_2008$summary)
 
-## Don't save cross-validation indices (takes tons of space with large N)
-doe_fordham_2008$control$index <- NULL
-doe_fordham_2008$control$indexOut <- NULL
-
-prettyNum(coef(doe_fordham_2008$finalModel))
-
-save(data_fordham_2008,
-     cr_fordham_2008,
+save(cr_fordham_2008,
      doe_fordham_2008,
      file = "results-fordham-2008.rda")

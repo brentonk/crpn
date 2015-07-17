@@ -12,12 +12,20 @@ library("dplyr")
 library("foreign")
 library("MASS")
 
+source("glm-and-cv.r")
+
 data_fuhrmann_sechser_2014 <- read.dta("fuhrmann-sechser-2014.dta")
 doe_dir_dyad <- read.csv("../R/results-predict-dir-dyad.csv")
 
 ## only keep the politically-relevant ones
 data_fuhrmann_sechser_2014 <- data_fuhrmann_sechser_2014[
   data_fuhrmann_sechser_2014$politically_relevant == 1,]
+
+## convert DV to factor
+data_fuhrmann_sechser_2014$military_conflict <- 
+    factor(data_fuhrmann_sechser_2014$military_conflict,
+           levels = 0:1,
+           labels = c("No", "Yes"))
 
 ## replication formula
 f_fuhrmann_sechser_2014 <- 
@@ -28,45 +36,16 @@ f_fuhrmann_sechser_2014 <-
   target_polity + polity_interaction + time_conflict + time_conflict2 + 
   time_conflict3 
 
-## replicate
-reported_model <- glm(formula = f_fuhrmann_sechser_2014,
-                      data = data_fuhrmann_sechser_2014,
-                      family = binomial(link = "probit"))
-
-## check
-summary(reported_model)
-                                    ## this is exact
-
-## convert DV to factor
-data_fuhrmann_sechser_2014$military_conflict <- 
-    factor(data_fuhrmann_sechser_2014$military_conflict,
-           levels = 0:1,
-           labels = c("No", "Yes"))
-
 ## run the reported model with cross validation
 set.seed(90210)
-cr_fuhrmann_sechser_2014 <- train(
-  f_fuhrmann_sechser_2014,
+cr_fuhrmann_sechser_2014 <- glm_and_cv(
+  form = f_fuhrmann_sechser_2014,
   data = data_fuhrmann_sechser_2014,
-  method = "glm",
-  metric = "logLoss",
-  trControl = trainControl(
-    method = "repeatedcv",
-    number = 10,
-    repeats = 100,
-    returnData = FALSE,
-    summaryFunction = mnLogLoss,
-    classProbs = TRUE,
-    trim = TRUE
-  ),
-  family = binomial(link = "probit")
+  number = 10,
+  repeats = 100,
+  probit = TRUE
 )
-
-## clean out the big-N stuff
-cr_fuhrmann_sechser_2014$control$index <- NULL
-cr_fuhrmann_sechser_2014$control$indexOut <- NULL
-
-prettyNum(coef(cr_fuhrmann_sechser_2014$finalModel))
+printCoefmat(cr_fuhrmann_sechser_2014$summary)
 
 ## merge in DOE
 data_fuhrmann_sechser_2014 <- left_join(data_fuhrmann_sechser_2014,
@@ -82,31 +61,16 @@ length(which(is.na(data_fuhrmann_sechser_2014$VictoryA)))
 set.seed(8032)
 doeForm <- update(f_fuhrmann_sechser_2014,
                   . ~ . - power_ratio + VictoryA + VictoryB)
-doe_fuhrmann_sechser_2014 <-  train(
-  doeForm,
+doe_fuhrmann_sechser_2014 <- glm_and_cv(
+  form = doeForm,
   data = data_fuhrmann_sechser_2014,
-  method = "glm",
-  metric = "logLoss",
-  trControl = trainControl(
-    method = "repeatedcv",
-    number = 10,
-    repeats = 100,
-    returnData = FALSE,
-    summaryFunction = mnLogLoss,
-    classProbs = TRUE,
-    trim = TRUE
-  ),
-  family = binomial(link = "probit")
+  number = 10,
+  repeats = 100,
+  probit = TRUE
 )
-
-## clean again
-doe_fuhrmann_sechser_2014$control$index <- NULL
-doe_fuhrmann_sechser_2014$control$indexOut <- NULL
-
-prettyNum(coef(doe_fuhrmann_sechser_2014$finalModel))
+printCoefmat(doe_fuhrmann_sechser_2014$summary)
 
 ## save it
 save(cr_fuhrmann_sechser_2014,
      doe_fuhrmann_sechser_2014,
-     data_fuhrmann_sechser_2014,
      file = "results-fuhrmann-sechser-2014.rda")

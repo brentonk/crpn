@@ -11,6 +11,8 @@ library("caret")
 library("dplyr")
 library("foreign")
 
+source("glm-and-cv.r")
+
 raw_weeks_2012 <- read.dta("weeks-2012.dta")
 doe_dir_dyad <- read.csv("../R/results-predict-dir-dyad.csv")
 
@@ -40,57 +42,26 @@ f_weeks_2012 <-
         dependlow + majmaj + minmaj + majmin + contigdum + logdist + s_wt_glo +
         s_lead_1 + s_lead_2 + pcyrsmzinit + pcyrsmzinits1 + pcyrsmzinits2 +
         pcyrsmzinits3
-cr_weeks_2012 <- train(
+cr_weeks_2012 <- glm_and_cv(
     form = f_weeks_2012,
     data = data_weeks_2012,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 10,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    )
+    number = 10,
+    repeats = 10
 )
-
-## Don't save cross-validation indices (takes tons of space with large N)
-cr_weeks_2012$control$index <- NULL
-cr_weeks_2012$control$indexOut <- NULL
-
-## Make sure results replicated
-prettyNum(coef(cr_weeks_2012$finalModel))
+printCoefmat(cr_weeks_2012$summary)
 
 ## Replicate, replacing all functions of the CINC score (the two raw scores and
 ## the ratio) with DOE scores
 set.seed(2132)
-doe_weeks_2012 <- train(
+doe_weeks_2012 <- glm_and_cv(
     form = update(f_weeks_2012,
                   . ~ . - cap_1 - cap_2 - initshare + VictoryA + VictoryB),
     data = data_weeks_2012,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 10,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    )
+    number = 10,
+    repeats = 10
 )
+printCoefmat(doe_weeks_2012$summary)
 
-## Don't save cross-validation indices (takes tons of space with large N)
-doe_weeks_2012$control$index <- NULL
-doe_weeks_2012$control$indexOut <- NULL
-
-## Look at results
-prettyNum(coef(doe_weeks_2012$finalModel))
-
-save(data_weeks_2012,
-     cr_weeks_2012,
+save(cr_weeks_2012,
      doe_weeks_2012,
      file = "results-weeks-2012.rda")

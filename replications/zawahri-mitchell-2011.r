@@ -11,6 +11,8 @@ library("caret")
 library("dplyr")
 library("foreign")
 
+source("glm-and-cv.r")
+
 raw_zawahri_mitchell_2011 <- read.dta("zawahri-mitchell-2011.dta")
 doe_dyad <- read.csv("../R/results-predict-dyad.csv")
 
@@ -41,54 +43,25 @@ set.seed(2611)
 f_zawahri_mitchell_2011 <-
     bilattreaty ~ lowpolity + samelegal + downstreampower + upstreampower +
         percentarealow + waterdependlow + avgpreciplow
-cr_zawahri_mitchell_2011 <- train(
+cr_zawahri_mitchell_2011 <- glm_and_cv(
     form = f_zawahri_mitchell_2011,
     data = data_zawahri_mitchell_2011,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 100,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    )
+    number = 10,
+    repeats = 100
 )
-
-## Don't save cross-validation indices (takes tons of space with large N)
-cr_zawahri_mitchell_2011$control$index <- NULL
-cr_zawahri_mitchell_2011$control$indexOut <- NULL
-
-prettyNum(coef(cr_zawahri_mitchell_2011$finalModel))
+printCoefmat(cr_zawahri_mitchell_2011$summary)
 
 ## Replace raw CINC scores with corresponding DOE scores and run again
 set.seed(1162)
-doe_zawahri_mitchell_2011 <- train(
+doe_zawahri_mitchell_2011 <- glm_and_cv(
     form = update(f_zawahri_mitchell_2011,
                   . ~ . - downstreampower - upstreampower + VictoryUp + VictoryDown),
     data = data_zawahri_mitchell_2011,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 100,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    )
+    number = 10,
+    repeats = 100
 )
+printCoefmat(doe_zawahri_mitchell_2011$summary)
 
-## Don't save cross-validation indices (takes tons of space with large N)
-doe_zawahri_mitchell_2011$control$index <- NULL
-doe_zawahri_mitchell_2011$control$indexOut <- NULL
-
-prettyNum(coef(doe_zawahri_mitchell_2011$finalModel))
-
-save(data_zawahri_mitchell_2011,
-     cr_zawahri_mitchell_2011,
+save(cr_zawahri_mitchell_2011,
      doe_zawahri_mitchell_2011,
      file = "results-zawahri-mitchell.rda")

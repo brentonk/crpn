@@ -11,6 +11,8 @@ library("caret")
 library("dplyr")
 library("foreign")
 
+source("glm-and-cv.r")
+
 raw_weeks_2008 <- read.dta("weeks-2008.dta")
 doe_dir_dyad <- read.csv("../R/results-predict-dir-dyad.csv")
 
@@ -79,56 +81,25 @@ set.seed(2308)
 f_weeks_2008 <-
     recip ~ regimetype1 + majpow1*majpow2 + capshare1 + contig +
         ally + s_wt_glo + s_ld_1 + s_ld_2 + revtype
-cr_weeks_2008 <- train(
-    f_weeks_2008,
+cr_weeks_2008 <- glm_and_cv(
+    form = f_weeks_2008,
     data = data_weeks_2008,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 100,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    )
+    number = 10,
+    repeats = 100
 )
-
-## Don't save cross-validation indices (takes tons of space with large N)
-cr_weeks_2008$control$index <- NULL
-cr_weeks_2008$control$indexOut <- NULL
-
-## Confirm that coefficients are the same as in the paper
-prettyNum(coef(cr_weeks_2008$finalModel))
+printCoefmat(cr_weeks_2008$summary)
 
 ## Replace capability ratio with DOE scores
 set.seed(8032)
-doe_weeks_2008 <-  train(
-    update(f_weeks_2008,
-           . ~ . - capshare1 + VictoryA + VictoryB),
+doe_weeks_2008 <- glm_and_cv(
+    form = update(f_weeks_2008,
+                  . ~ . - capshare1 + VictoryA + VictoryB),
     data = data_weeks_2008,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 100,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    )
+    number = 10,
+    repeats = 100
 )
+printCoefmat(doe_weeks_2008$summary)
 
-## Don't save cross-validation indices (takes tons of space with large N)
-doe_weeks_2008$control$index <- NULL
-doe_weeks_2008$control$indexOut <- NULL
-
-## Look at model results
-prettyNum(coef(cr_weeks_2008$finalModel))
-
-save(data_weeks_2008,
-     cr_weeks_2008,
+save(cr_weeks_2008,
      doe_weeks_2008,
      file = "results-weeks-2008.rda")

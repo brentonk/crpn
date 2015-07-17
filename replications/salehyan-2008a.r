@@ -11,6 +11,8 @@ library("caret")
 library("dplyr")
 library("foreign")
 
+source("glm-and-cv.r")
+
 raw_salehyan_2008a <- read.dta("salehyan-2008a.dta")
 doe_dir_dyad <- read.csv("../R/results-predict-dir-dyad.csv")
 
@@ -37,28 +39,14 @@ f_salehyan_2008a <-
     mzinit_lead ~ logref1*capshare + logref2*capshare + uppcivcon1 +
         uppcivcon2 + dem1*dem2 + trans1*trans2 + contig + colcont +
         s_wt_glo + depend1 + depend2 + igos + lpcyrs + lpcyrs1 + lpcyrs2 + lpcyrs3
-cr_salehyan_2008a <- train(
+cr_salehyan_2008a <- glm_and_cv(
     form = f_salehyan_2008a,
     data = data_salehyan_2008a,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 100,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    ),
-    family = binomial(link = "probit")
+    number = 10,
+    repeats = 100,
+    probit = TRUE
 )
-
-## Don't save cross-validation indices (takes tons of space with large N)
-cr_salehyan_2008a$control$index <- NULL
-cr_salehyan_2008a$control$indexOut <- NULL
-
-prettyNum(coef(cr_salehyan_2008a$finalModel))
+printCoefmat(cr_salehyan_2008a$summary)
 
 ## Replicate, replacing capability ratios with DOE scores (so we now have four
 ## interactions instead of two)
@@ -67,30 +55,15 @@ f_salehyan_2008a_doe <-
     mzinit_lead ~ logref1*(VictoryA + VictoryB) + logref2*(VictoryA + VictoryB) +
         uppcivcon1 + uppcivcon2 + dem1*dem2 + trans1*trans2 + contig + colcont +
         s_wt_glo + depend1 + depend2 + igos + lpcyrs + lpcyrs1 + lpcyrs2 + lpcyrs3
-doe_salehyan_2008a <- train(
+doe_salehyan_2008a <- glm_and_cv(
     form = f_salehyan_2008a_doe,
     data = data_salehyan_2008a,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 100,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    ),
-    family = binomial(link = "probit")
+    number = 10,
+    repeats = 100,
+    probit = TRUE
 )
+printCoefmat(doe_salehyan_2008a$summary)
 
-## Don't save cross-validation indices (takes tons of space with large N)
-doe_salehyan_2008a$control$index <- NULL
-doe_salehyan_2008a$control$indexOut <- NULL
-
-prettyNum(coef(doe_salehyan_2008a$finalModel))
-
-save(data_salehyan_2008a,
-     cr_salehyan_2008a,
+save(cr_salehyan_2008a,
      doe_salehyan_2008a,
      file = "results-salehyan-2008a.rda")

@@ -12,54 +12,33 @@ library("dplyr")
 library("foreign")
 library("MASS")
 
+source("glm-and-cv.r")
+
 load("park-colaresi-2014.RData")
 data_park_colaresi_2014 <- data1.subset
 rm(data1.subset, data1.subset.nomiss)
 doe_dyad <- read.csv("../R/results-predict-dyad.csv")
 
-## replicate their results
+## Convert response to factor
+data_park_colaresi_2014$cwmid <- factor(data_park_colaresi_2014$cwmid,
+                                        levels = 0:1,
+                                        labels = c("No", "Yes"))
+
+## replicate their results and cross-validate
+set.seed(90210)
 f_park_colaresi_2014 <- 
   cwmid ~ lowdem + lowgdp + landcontig + nlparity + beckpeace + cvwonset + 
   dyaddur + samecolony + ethborder + terrsim + landcontig*nlparity + 
   landcontig*beckpeace + landcontig*cvwonset + landcontig*dyaddur + 
   landcontig*samecolony + landcontig*ethborder + landcontig*terrsim + 
   .spline1 + .spline2 +.spline3
-
-reported_model <- glm(formula = f_park_colaresi_2014,
-                      data = data_park_colaresi_2014,
-                      family = binomial(link = "logit"))
-
-summary(reported_model)
-                              ## exact.  also large.  so:
-rm(reported_model)
-
-## run with cross-validation
-data_park_colaresi_2014$cwmid <- factor(data_park_colaresi_2014$cwmid,
-                                        levels = 0:1,
-                                        labels = c("No", "Yes"))
-
-set.seed(90210)
-cr_park_colaresi_2014 <- train(
-  f_park_colaresi_2014,
+cr_park_colaresi_2014 <- glm_and_cv(
+  form = f_park_colaresi_2014,
   data = data_park_colaresi_2014,
-  method = "glm",
-  metric = "logLoss",
-  trControl = trainControl(
-    method = "repeatedcv",
-    number = 10,
-    repeats = 10,
-    returnData = FALSE,
-    summaryFunction = mnLogLoss,
-    classProbs = TRUE,
-    trim = TRUE
-  )
+  number = 10,
+  repeats = 10
 )
-
-## Don't save cross-validation indices (takes tons of space with large N)
-cr_park_colaresi_2014$control$index <- NULL
-cr_park_colaresi_2014$control$indexOut <- NULL
-
-prettyNum(coef(cr_park_colaresi_2014$finalModel))
+printCoefmat(cr_park_colaresi_2014$summary)
 
 ## merge in DOE scores
 data_park_colaresi_2014 <- left_join(data_park_colaresi_2014,
@@ -75,32 +54,19 @@ length(which(is.na(data_park_colaresi_2014$VictoryA)))
 data_park_colaresi_2014$doeParity <- abs(data_park_colaresi_2014$VictoryA - 
                                            data_park_colaresi_2014$VictoryB)
 
+## replicate with DOE
+set.seed(1209)
 doeForm <- update(f_park_colaresi_2014,
                   . ~ . - nlparity + doeParity - landcontig * nlparity + 
                     landcontig * doeParity)
-doe_park_colaresi_2014 <-  train(
-  doeForm,
+doe_park_colaresi_2014 <- glm_and_cv(
+  form = doeForm,
   data = data_park_colaresi_2014,
-  method = "glm",
-  metric = "logLoss",
-  trControl = trainControl(
-    method = "repeatedcv",
-    number = 10,
-    repeats = 10,
-    returnData = FALSE,
-    summaryFunction = mnLogLoss,
-    classProbs = TRUE,
-    trim = TRUE
-  )
+  number = 10,
+  repeats = 10
 )
-
-## Don't save cross-validation indices (takes tons of space with large N)
-doe_park_colaresi_2014$control$index <- NULL
-doe_park_colaresi_2014$control$indexOut <- NULL
-
-prettyNum(coef(doe_park_colaresi_2014$finalModel))
+printCoefmat(doe_park_colaresi_2014$summary)
 
 save(cr_park_colaresi_2014,
      doe_park_colaresi_2014,
-     data_park_colaresi_2014,
      file = "results-park-colaresi-2014.rda")

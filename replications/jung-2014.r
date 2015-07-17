@@ -11,6 +11,8 @@ library("caret")
 library("dplyr")
 library("foreign")
 
+source("glm-and-cv.r")
+
 raw_jung_2014 <- read.dta("jung-2014.dta")
 doe_dir_dyad <- read.csv("../R/results-predict-dir-dyad.csv")
 
@@ -38,53 +40,24 @@ f_jung_2014 <-
         identg + tertg + hegtg + caprat_1 + cowally_1 + depend1_1 + depend2_1 +
         jointdemo_1 + jointminor_1 + border + lndistance + mid1peace + mid1sp1 +
         mid1sp2 + mid1sp3
-cr_jung_2014 <- train(
+cr_jung_2014 <- glm_and_cv(
     form = f_jung_2014,
     data = data_jung_2014,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 10,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    )
+    number = 10,
+    repeats = 10
 )
-
-## Don't save cross-validation indices (takes tons of space with large N)
-cr_jung_2014$control$index <- NULL
-cr_jung_2014$control$indexOut <- NULL
-
-prettyNum(coef(cr_jung_2014$finalModel))
+printCoefmat(cr_jung_2014$summary)
 
 ## Replicate, replacing CINC ratio with DOE scores
-doe_jung_2014 <- train(
+doe_jung_2014 <- glm_and_cv(
     form = update(f_jung_2014,
                   . ~ . - caprat_1 + VictoryA + VictoryB),
     data = data_jung_2014,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 10,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    )
+    number = 10,
+    repeats = 10
 )
+printCoefmat(doe_jung_2014$summary)
 
-## Don't save cross-validation indices (takes tons of space with large N)
-doe_jung_2014$control$index <- NULL
-doe_jung_2014$control$indexOut <- NULL
-
-prettyNum(coef(doe_jung_2014$finalModel))
-
-save(data_jung_2014,
-     cr_jung_2014,
+save(cr_jung_2014,
      doe_jung_2014,
      file = "results-jung-2014.rda")

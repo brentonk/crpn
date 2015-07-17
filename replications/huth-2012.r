@@ -78,60 +78,88 @@ summary(orig_huth_2012)
 data_huth_2012 <- data_huth_2012 %>%
     filter(!is.na(VictoryA))
 
+## Analogue of glm_and_cv() for multinomial models
+multinom_and_cv <- function(form,
+                            data,
+                            number = 10,
+                            repeats = 10)
+{
+    ## Fit the original model
+    fit <- multinom(formula = form,
+                    data = data,
+                    model = TRUE,
+                    decay = 0,
+                    trace = FALSE)
+
+    ## Extract individual log-likelihoods
+    pred_probs <- predict(fit, type = "probs")
+    y <- model.response(model.frame(fit))
+    y_col <- match(y, colnames(pred_probs))
+    pred_probs <- pred_probs[cbind(seq_along(y), y_col)]
+    log_lik <- log(pred_probs)
+
+    ## Construct regression table
+    summ_raw <- summary(fit)
+    summ <-
+        data_frame(est = c(t(summ_raw$coefficients)),
+                   se = c(t(summ_raw$standard.errors)),
+                   z = est/se,
+                   p = 2 * pnorm(-abs(z))) %>%
+        rename("Estimate" = est,
+               "Std. Error" = se,
+               "z value" = z,
+               "Pr(>|z|)" = p)
+    rownames(summ) <- paste(rep(rownames(summ_raw$coefficients),
+                                each = ncol(summ_raw$coefficients)),
+                            colnames(summ_raw$coefficients),
+                            sep = ":")
+    class(summ) <- "data.frame"
+
+    ## Cross-validate via caret
+    cv <- train(form = form,
+                data = data,
+                method = "multinom",
+                preProcess = c("center", "scale"),
+                metric = "logLoss",
+                trControl = trainControl(
+                    method = "repeatedcv",
+                    number = number,
+                    repeats = repeats,
+                    summaryFunction = mnLogLoss,
+                    classProbs = TRUE
+                ),
+                tuneGrid = data.frame(decay = 0),
+                trace = FALSE)
+
+    list(log_lik = log_lik,
+         summary = summ,
+         cv = cv$results,
+         formula = form,
+         data = fit$model,
+         y = y)
+}
+
 ## Re-run original model and cross-validate on reduced data
 set.seed(812)
-cr_huth_2012 <- train(
+cr_huth_2012 <- multinom_and_cv(
     form = f_huth_2012,
     data = data_huth_2012,
-    method = "multinom",
-    preProcess = c("center", "scale"),
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 100,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        allowParallel = FALSE
-    ),
-    tuneGrid = data.frame(decay = 0),
-    trace = FALSE
+    number = 10,
+    repeats = 100
 )
-
-## Don't save cross-validation indices (takes tons of space with large N)
-cr_huth_2012$control$index <- NULL
-cr_huth_2012$control$indexOut <- NULL
-
-summary(cr_huth_2012$finalModel)
+printCoefmat(cr_huth_2012$summary)
 
 ## Replace CINC ratio with DOE scores
 set.seed(218)
-doe_huth_2012 <- train(
+doe_huth_2012 <- multinom_and_cv(
     form = update(f_huth_2012,
                   . ~ . - milratio + VictoryA + VictoryB),
     data = data_huth_2012,
-    method = "multinom",
-    preProcess = c("center", "scale"),
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 100,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        allowParallel = FALSE
-    ),
-    tuneGrid = data.frame(decay = 0),
-    trace = FALSE
+    number = 10,
+    repeats = 100
 )
+printCoefmat(doe_huth_2012$summary)
 
-## Don't save cross-validation indices (takes tons of space with large N)
-doe_huth_2012$control$index <- NULL
-doe_huth_2012$control$indexOut <- NULL
-
-summary(doe_huth_2012$finalModel)
-
-save(data_huth_2012,
-     cr_huth_2012,
+save(cr_huth_2012,
      doe_huth_2012,
      file = "results-huth-2012.rda")

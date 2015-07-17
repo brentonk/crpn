@@ -11,6 +11,8 @@ library("caret")
 library("dplyr")
 library("foreign")
 
+source("glm-and-cv.r")
+
 raw_gartzke_2007 <- read.dta("gartzke-2007.dta")
 doe_dyad <- read.csv("../R/results-predict-dyad.csv")
 
@@ -49,54 +51,25 @@ f_gartzke_2007 <-
     maoznewl ~ demlo + demhi + deplo + capopenl + rgdppclo + gdpcontg + contig +
         logdstab + majpdyds + alliesr + lncaprt + namerica + samerica + europe +
         africa + nafmeast + asia + T.spline1 + T.spline2 + T.spline3
-cr_gartzke_2007 <- train(
+cr_gartzke_2007 <- glm_and_cv(
     form = f_gartzke_2007,
     data = data_gartzke_2007,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 10,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    )
+    number = 10,
+    repeats = 10
 )
-
-## Don't save cross-validation indices (takes tons of space with large N)
-cr_gartzke_2007$control$index <- NULL
-cr_gartzke_2007$control$indexOut <- NULL
-
-prettyNum(coef(cr_gartzke_2007$finalModel))
+printCoefmat(cr_gartzke_2007$summary)
 
 ## Replace (logged) capability ratio with (logged) DOE scores and run again
 set.seed(77077)
-doe_gartzke_2007 <- train(
+doe_gartzke_2007 <- glm_and_cv(
     form = update(f_gartzke_2007,
                   . ~ . - lncaprt + log(VictoryMax) + log(VictoryMin)),
     data = data_gartzke_2007,
-    method = "glm",
-    metric = "logLoss",
-    trControl = trainControl(
-        method = "repeatedcv",
-        number = 10,
-        repeats = 10,
-        returnData = FALSE,
-        summaryFunction = mnLogLoss,
-        classProbs = TRUE,
-        trim = TRUE
-    )
+    number = 10,
+    repeats = 10
 )
+printCoefmat(doe_gartzke_2007$summary)
 
-## Don't save cross-validation indices (takes tons of space with large N)
-doe_gartzke_2007$control$index <- NULL
-doe_gartzke_2007$control$indexOut <- NULL
-
-prettyNum(coef(doe_gartzke_2007$finalModel))
-
-save(data_gartzke_2007,
-     cr_gartzke_2007,
+save(cr_gartzke_2007,
      doe_gartzke_2007,
      file = "results-gartzke-2007.rda")

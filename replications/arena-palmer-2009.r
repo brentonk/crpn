@@ -25,6 +25,53 @@ data_arena_palmer_2009 <- left_join(raw_arena_palmer_2009,
                                            year = "year"))
 stopifnot(with(data_arena_palmer_2009, sum(is.na(VictoryA)) == 0))
 
+## Analogue of glm_and_cv() for hetglm() models
+hetglm_and_cv <- function(form,
+                          data,
+                          number = 10,
+                          repeats = 10)
+{
+    ## Fit the original model
+    fit <- hetglm(formula = form,
+                  data = data)
+
+    ## Extract individual log-likelihoods
+    pred_probs <- predict(fit, type = "response")
+    pred_probs <- ifelse(fit$y == 1, pred_probs, 1 - pred_probs)
+    log_lik <- log(pred_probs)
+
+    ## Make single coefficient table
+    summ <- coef(summary(fit))
+    rownames(summ[[2]]) <- paste0("(scale)_", rownames(summ[[2]]))
+    summ <- do.call(rbind, summ)
+
+    ## Cross-validate manually
+    fold_id <- createMultiFolds(y = fit$y, k = number, times = repeats)
+    cv_loss <- foreach (idx = fold_id, .combine = "c") %do% {
+        ## Split sample according to fold IDs
+        dat_in <- fit$model[idx, , drop = FALSE]
+        dat_out <- fit$model[-idx, , drop = FALSE]
+        y_out <- fit$y[-idx]
+
+        ## Refit model to fold
+        fit_in <- update(fit, data = dat_in)
+
+        ## Make out-of-fold predictions and calculate log loss
+        p_out <- predict(fit_in, newdata = dat_out, type = "response")
+        p_out <- ifelse(y_out == 1, p_out, 1 - p_out)
+        -1 * mean(log(p_out))
+    }
+
+    list(log_lik = log_lik,
+         summary = summ,
+         cv = data.frame(parameter = "none",
+                         logLoss = mean(cv_loss),
+                         logLossSD = sd(cv_loss)),
+         formula = form,
+         data = fit$model,
+         y = fit$y)
+}
+
 ## Set up model formulas for mean and variance
 f_mean <-
     init ~ gov + d_un + d_inf + d_gro + du_gov + di_gov + dg_gov + cap_1 + ipeace
@@ -33,65 +80,27 @@ f_var <-
 f_arena_palmer_2009 <- as.Formula(f_mean, f_var)
 
 ## Reproduce original model
-cr_arena_palmer_2009 <- hetglm(
-   f_arena_palmer_2009,
-   data = data_arena_palmer_2009
+set.seed(109)
+cr_arena_palmer_2009 <- hetglm_and_cv(
+   form = f_arena_palmer_2009,
+   data = data_arena_palmer_2009,
+   number = 10,
+   repeats = 10
 )
-
-summary(cr_arena_palmer_2009)
+printCoefmat(cr_arena_palmer_2009$summary)
 
 ## Replicate with DOE scores
-doe_arena_palmer_2009 <- hetglm(
-    update(f_arena_palmer_2009,
-           . ~ . - cap_1 + VictoryA + VictoryB | . - cap_1 + VictoryA + VictoryB),
-    data = data_arena_palmer_2009
-)
-
-summary(doe_arena_palmer_2009)
-
-## Cross-validate each
-cv_hetglm <- function(model, folds, repeats) {
-    ## Create folds
-    fold_id <- createMultiFolds(y = model$y, k = folds, times = repeats)
-
-    ## Calculate CV error for each fold
-    cv_loss <- foreach (idx = fold_id, .combine = "c") %do% {
-        ## Split sample according to fold IDs
-        dat_in <- model$model[idx, , drop = FALSE]
-        dat_out <- model$model[-idx, , drop = FALSE]
-        y_out <- model$y[-idx]
-
-        ## Refit model to fold
-        fit <- update(model, data = dat_in)
-
-        ## Make out-of-fold predictions and calculate log loss
-        pp <- predict(fit, newdata = dat_out, type = "response")
-        pp <- ifelse(y_out == 1, pp, 1 - pp)
-        -1 * mean(log(pp))
-    }
-
-    ## Arrange into data frame, like the resample element of train() output
-    data.frame(logLoss = cv_loss)
-}
-
-set.seed(109)
-cr_cv <- cv_hetglm(cr_arena_palmer_2009, 10, 10)
-
 set.seed(901)
-doe_cv <- cv_hetglm(doe_arena_palmer_2009, 10, 10)
-
-## Assemble output to be caret-like
-cr_arena_palmer_2009 <- list(
-    finalModel = cr_arena_palmer_2009,
-    resample = cr_cv
+doe_arena_palmer_2009 <- hetglm_and_cv(
+    form = update(f_arena_palmer_2009,
+                  . ~ . - cap_1 + VictoryA + VictoryB |
+                      . - cap_1 + VictoryA + VictoryB),
+    data = data_arena_palmer_2009,
+    number = 10,
+    repeats = 10
 )
+printCoefmat(doe_arena_palmer_2009$summary)
 
-doe_arena_palmer_2009 <- list(
-    finalModel = doe_arena_palmer_2009,
-    resample = doe_cv
-)
-
-save(data_arena_palmer_2009,
-     cr_arena_palmer_2009,
+save(cr_arena_palmer_2009,
      doe_arena_palmer_2009,
      file = "results-arena-palmer-2009.rda")
