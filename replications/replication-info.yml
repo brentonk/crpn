@@ -1,0 +1,111 @@
+# Information about each replication
+#
+# Used to create table in paper and appendix entries
+- name: arena-palmer-2009
+  author: Arena and Palmer
+  year: 2009
+  journal: &isq ISQ
+  citekey: "Arena:2009gk"
+  repeats: 10
+- name: bennett-2006
+  author: Bennett
+  year: 2006
+  journal: *isq
+  citekey: "Bennett:2006gp"
+  repeats: 10
+- name: dreyer-2010
+  author: Dreyer
+  year: 2010
+  journal: *isq
+  citekey: "Dreyer:2010cu"
+  repeats: 100
+- name: fordham-2008
+  author: Fordham
+  year: 2008
+  journal: *isq
+  citekey: "Fordham:2008gs"
+  repeats: 100
+- name: fuhrmann-sechser-2014
+  author: Fuhrmann and Sechser
+  year: 2014
+  journal: &ajps AJPS
+  citekey: "Fuhrmann:2014kd"
+  repeats: 100
+- name: gartzke-2007
+  author: Gartzke
+  year: 2007
+  journal: *ajps
+  citekey: "gartzke2007"
+  repeats: 10
+- name: huth-2012
+  author: Huth et al.
+  year: 2012
+  journal: *isq
+  citekey: "Huth:2012gf"
+  repeats: 100
+- name: jung-2014
+  author: Jung
+  year: 2014
+  journal: *isq
+  citekey: "Jung:2014jq"
+  repeats: 10
+- name: morrow-2007
+  author: Morrow
+  year: 2007
+  journal: &apsr APSR
+  citekey: "morrow2007"
+  repeats: 100
+- name: oswiak-2012
+  author: Owsiak
+  year: 2012
+  journal: *isq
+  citekey: "Owsiak:2012dx"
+  repeats: 100
+- name: park-colaresi-2014
+  author: Park and Colaresi
+  year: 2014
+  journal: *isq
+  citekey: "Park:2014gg"
+  repeats: 10
+- name: salehyan-2008
+  author: Saleyhan
+  year: 2008
+  journal: &jop JOP
+  citekey: "salehyan2008"
+  repeats: 100
+- name: salehyan-2008a
+  author: Salehyan
+  year: 2008
+  journal: *ajps
+  citekey: "Salehyan:2008es"
+  repeats: 100
+- name: sobek-abouharb-ingram-2006
+  author: Sobek et al.
+  year: 2006
+  journal: *jop
+  citekey: "Sobek:2006cn"
+  repeats: 10
+- name: uzonyi-souva-golder-2012
+  author: Uzonyi et al.
+  year: 2012
+  journal: *isq
+  citekey: "Uzonyi:2012im"
+  repeats: 100
+- name: weeks-2008
+  author: Weeks
+  year: 2008
+  journal: &io IO
+  citekey: "Weeks:2008cj"
+  repeats: 100
+- name: weeks-2012
+  author: Weeks
+  year: 2012
+  journal: *apsr
+  citekey: "Weeks:2012be"
+  repeats: 10
+- name: zawahri-mitchell
+  author: Zawahri and Mitchell
+  year: 2011
+  journal: *isq
+  citekey: "Zawahri:2011iy"
+  repeats: 100
