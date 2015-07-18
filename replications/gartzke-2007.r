@@ -45,6 +45,12 @@ data_gartzke_2007 <- left_join(data_gartzke_2007,
            VictoryMin = pmin(VictoryA, VictoryB))
 stopifnot(with(data_gartzke_2007, sum(is.na(VictoryA)) == 0))
 
+## Drop cases where capability ratio is missing but DOE is not
+##
+## TODO: What is going on here?
+data_gartzke_2007 <- data_gartzke_2007 %>%
+    filter(!is.na(lncaprt))
+
 ## Replicate original model and cross-validate
 set.seed(707)
 f_gartzke_2007 <-
@@ -69,6 +75,10 @@ doe_gartzke_2007 <- glm_and_cv(
     repeats = 10
 )
 printCoefmat(doe_gartzke_2007$summary)
+
+## Check that response is the same across runs
+stopifnot(identical(as.vector(cr_gartzke_2007$y),
+                    as.vector(doe_gartzke_2007$y)))
 
 save(cr_gartzke_2007,
      doe_gartzke_2007,

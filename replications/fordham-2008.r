@@ -49,6 +49,14 @@ data_fordham_2008 <- left_join(data_fordham_2008,
 stopifnot(with(data_fordham_2008,
                sum(is.na(VictoryA) & !is.na(lncap_2)) == 0))
 
+## Eliminate cases where CINC is missing but not DOE
+##
+## TODO: What's going on here?  Almost all of 2002 seems to fall into this
+## category, for starters
+data_fordham_2008 <- data_fordham_2008 %>%
+    filter(!is.na(lncap_1),
+           !is.na(lncap_2))
+
 ## Reproduce original model and cross-validate
 set.seed(608)
 f_fordham_2008 <-
@@ -75,6 +83,10 @@ doe_fordham_2008 <- glm_and_cv(
     probit = TRUE
 )
 printCoefmat(doe_fordham_2008$summary)
+
+## Check that response is identical across runs
+stopifnot(identical(as.vector(cr_fordham_2008$y),
+                    as.vector(doe_fordham_2008$y)))
 
 save(cr_fordham_2008,
      doe_fordham_2008,

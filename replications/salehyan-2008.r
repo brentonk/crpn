@@ -57,6 +57,13 @@ length(which(is.na(data_salehyan_2008$VictoryA)))
 data_salehyan_2008$logVictoryMax <- log(data_salehyan_2008$VictoryMax)
 data_salehyan_2008$logVictoryMin <- log(data_salehyan_2008$VictoryMin)
 
+## Remove cases where CINC is missing but DOE is not
+##
+## In particular, there are two cases where cinc1 == cinc2, both observed, but
+## lcaprat is NA
+data_salehyan_2008 <- data_salehyan_2008 %>%
+    filter(!is.na(lcaprat))
+
 set.seed(8032)
 doeForm <- update(f_salehyan_2008,
                    . ~ . - lcaprat + logVictoryMax + logVictoryMin)
@@ -67,6 +74,10 @@ doe_salehyan_2008 <- glm_and_cv(
   repeats = 100
 )
 printCoefmat(doe_salehyan_2008$summary)
+
+## Confirm that response is the same across runs
+stopifnot(identical(as.vector(cr_salehyan_2008$y),
+                    as.vector(doe_salehyan_2008$y)))
 
 save(cr_salehyan_2008,
      doe_salehyan_2008,

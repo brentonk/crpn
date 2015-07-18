@@ -38,6 +38,12 @@ data_zawahri_mitchell_2011 <- data_zawahri_mitchell_2011 %>%
            VictoryDown = ifelse(upstreamstate == "B", VictoryA, VictoryB))
 stopifnot(with(data_zawahri_mitchell_2011, sum(is.na(VictoryUp)) == 0))
 
+## Remove cases where CINC is missing but DOE is not (appears to be post-2001
+## cases)
+data_zawahri_mitchell_2011 <- data_zawahri_mitchell_2011 %>%
+    filter(!is.na(downstreampower),
+           !is.na(upstreampower))
+
 ## Reproduce original model
 set.seed(2611)
 f_zawahri_mitchell_2011 <-
@@ -61,6 +67,10 @@ doe_zawahri_mitchell_2011 <- glm_and_cv(
     repeats = 100
 )
 printCoefmat(doe_zawahri_mitchell_2011$summary)
+
+## Check that reponse is the same across runs
+stopifnot(identical(as.vector(cr_zawahri_mitchell_2011$y),
+                    as.vector(doe_zawahri_mitchell_2011$y)))
 
 save(cr_zawahri_mitchell_2011,
      doe_zawahri_mitchell_2011,
