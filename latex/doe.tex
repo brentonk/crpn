@@ -8,6 +8,8 @@
 \usepackage[labelsep=period,font=small,labelfont=bf]{caption}
 \usepackage[charter]{mathdesign}
 \usepackage[scaled]{helvet}
+\usepackage{pdflscape}
+\usepackage{afterpage}
 \usepackage[hyphens]{url}
 \usepackage[colorlinks=true,citecolor=black]{hyperref}
 
@@ -32,7 +34,8 @@
   \thanks{%
     We thank Zach Jones and Marc Ratkovic for helpful discussions and advice.
     Bryan Rooney provided excellent research assistance.
-    All code and data necessary to replicate the analyses here, along with a version history of the project, are available at \url{https://github.com/brentonk/doe}.
+    We also thank the authors listed in Table~\ref{tab:replications} for making their replication data publicly available.
+    Replication data and DOE scores are available at \url{https://dataverse.harvard.edu/dataverse/crpn}, and replication code and a version history of the project are available at \url{https://github.com/brentonk/crpn}.
   }%
 }
 \author{%
@@ -60,6 +63,7 @@
   We find that the traditional ratio of capability indices has almost no predictive power relative to null models. 
   Conversely, the score we construct via our approach---the Dispute Outcome Expectations score, or DOE---improves out-of-sample predictive performance. 
   This holds even though our approach introduces no new covariates to the analysis, indicating the usefulness of our methodological approach.
+  In replications of 18 empirical studies of international relations, we find that replacing standard capability measures with DOE scores usually improves both in-sample and out-of-sample goodness of fit.
 \end{abstract}
 
 \clearpage
