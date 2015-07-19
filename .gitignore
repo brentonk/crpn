@@ -54,3 +54,6 @@ latex/tab-*.tex
 
 # Stata files
 *.dta
+
+# SLURM submission scripts
+*.slurm
