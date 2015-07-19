@@ -22,12 +22,12 @@ In their analysis, Poole and Rosenthal estimate ideal points within a single Con
 While many of the correct classifications reflect the spatial model's explanatory virtues, others may arise due to overfitting to the data within that Congressional session.
 
 It is for these reasons that we advocate the train-validate-test approach common in machine learning.
-While orthodox approaches conform to maximization or minimization of relevant error or likelihood within the entire data set, we instead aim to optimize predictive performance.\footnote{Our formal criterion for predictive performance, the log loss function, is explicitly described in the methods section.}
+While traditional statistical approaches to measurement conform to maximization or minimization of relevant error or likelihood within the entire data set, we instead aim to optimize predictive performance.\footnote{Our formal criterion for predictive performance, the log loss function, is explicitly described in the methods section.}
 First, we split our data into a larger \emph{training set} used for model fitting and selection and a smaller \emph{test set} that we use to assess the predictive performance of our chosen model.
 We then fit a variety of models to the training set in order to find the one with the best predictive performance.
 At this point, if we were to pick the model that best fits the training data, we would likely end up with one that is overfit.
 To prevent this, we assess model fit through cross-validation, which amounts to another layer of sample-splitting.
-Finally, once we have chosen a model from the training set, we apply it to the test set to yield an accurate measure of its true predictive power when brought to previously unseen data.
+Finally, once we have chosen a model from the training set, we apply it to the test set to yield an unbiased measure of its true predictive power when brought to previously unseen data.
 
 This approach explicitly addresses the problems enumerated above: it avoids the overfitting problems associated with traditional measurement techniques and the model selection problems associated with attempts to bring new data to bear for predictive purposes.
 We believe that the costs of our approach---additional computation, interpretative nuance, and conservatism in inference---pale in comparison to these benefits.
