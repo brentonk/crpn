@@ -49,6 +49,9 @@ abstract-polmeth.md
 # xtable output
 latex/tab-*.tex
 
+# Other programmatically generated LaTeX
+latex/list-*.tex
+
 # R history files
 .Rhistory
 

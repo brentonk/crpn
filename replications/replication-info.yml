@@ -1,111 +1,315 @@
+################################################################################
 # Information about each replication
 #
 # Used to create table in paper and appendix entries
+################################################################################
+
+# Variable definitions
+---
+- journal:
+    - &isq ISQ
+    - &ajps AJPS
+    - &apsr APSR
+    - &jop JOP
+    - &io IO
+  method:
+    - &hetprob Heteroskedastic Probit
+    - &logit Logistic Regression
+    - &probit Probit Regression
+    - &multinom Multinomial Logistic Regression
+    - &oprobit Ordered Probit Regression
+  units:
+    - &ddyad Directed Dyads
+    - &udyad Undirected Dyads
+  terms:
+    - &cinc_a $\CINC_A$
+    - &cinc_b $\CINC_B$
+    - &cr_a $\CINC_A / (\CINC_A + \CINC_B)$
+    - &cr_diff $(\CINC_{\max} - \CINC_{\min}) / (\CINC_{\max} + \CINC_{\min})$
+    - &cr_minmax $\CINC_{\min} / \CINC_{\max}$
+    - &doe_a $p_A$
+    - &doe_b $p_B$
+    - &doe_max $p_{\max}$
+    - &doe_min $p_{\min}$
+    - &doe_parity $|p_A - p_B|$
+    - &log_cr_max $\log (\CINC_{\max} / (\CINC_{\max} + \CINC_{\min}))$
+    - &log_cr_maxmin $\log (\CINC_{\max} / \CINC_{\min})$
+    - &log_cr_minmax $\log (\CINC_{\min} / \CINC_{\max})$
+    - &log_doe_max $\log p_{\max}$
+    - &log_doe_min $\log p_{\min}$
+
+# Data
+---
+!main
 - name: arena-palmer-2009
   author: Arena and Palmer
   year: 2009
-  journal: &isq ISQ
+  journal: *isq
   citekey: "Arena:2009gk"
   repeats: 10
+  method: *hetprob
+  which: Table 3
+  units: *ddyad
+  terms_cinc:
+    - *cinc_a
+  terms_doe:
+    - *doe_a
+    - *doe_b
+  notes: >-
+    CINC and DOE terms are included in both the mean and dispersion equations.
 - name: bennett-2006
   author: Bennett
   year: 2006
   journal: *isq
   citekey: "Bennett:2006gp"
   repeats: 10
+  method: *logit
+  which: Table 1, Column 1
+  units: *ddyad
+  terms_cinc:
+    - *cinc_a
+    - *cinc_b
+    - *cr_minmax
+  terms_doe:
+    - *doe_a
+    - *doe_b
+    - *doe_parity
 - name: dreyer-2010
   author: Dreyer
   year: 2010
   journal: *isq
   citekey: "Dreyer:2010cu"
   repeats: 100
+  method: *logit
+  which: Table 2, Model 2
+  units: *udyad
+  terms_cinc:
+    - *log_cr_minmax
+  terms_doe:
+    - *log_doe_min
+    - *log_doe_max
 - name: fordham-2008
   author: Fordham
   year: 2008
   journal: *isq
   citekey: "Fordham:2008gs"
   repeats: 100
+  method: *probit
+  which: Table 2, third column (alliance onset with full set of controls)
+  units: *udyad
+  terms_cinc:
+    - $\log \CINC_{\text{US}}$
+    - $\log \CINC_2$
+  terms_doe:
+    - $\log p_{\text{US}}$
+    - $\log p_2$
 - name: fuhrmann-sechser-2014
   author: Fuhrmann and Sechser
   year: 2014
-  journal: &ajps AJPS
+  journal: *ajps
   citekey: "Fuhrmann:2014kd"
   repeats: 100
+  method: *probit
+  which: Table 2, Model 1
+  units: *ddyad
+  terms_cinc:
+    - *cr_a
+  terms_doe:
+    - *doe_a
+    - *doe_b
 - name: gartzke-2007
   author: Gartzke
   year: 2007
   journal: *ajps
   citekey: "gartzke2007"
   repeats: 10
+  method: *logit
+  which: Table 1, Model 4
+  units: *udyad
+  terms_cinc:
+    - *log_cr_maxmin
+  terms_doe:
+    - *log_doe_min
+    - *log_doe_max
 - name: huth-2012
   author: Huth et al.
   year: 2012
   journal: *isq
   citekey: "Huth:2012gf"
   repeats: 100
+  method: *multinom
+  which: Table 2
+  units: *ddyad
+  terms_cinc:
+    - "Average of $A$'s respective shares of total dyadic military personnel, military expenditures, and military expenditures per soldier"
+  terms_doe:
+    - *doe_a
+    - *doe_b
 - name: jung-2014
   author: Jung
   year: 2014
   journal: *isq
   citekey: "Jung:2014jq"
   repeats: 10
+  method: *logit
+  which: Table 1, Model 1
+  units: *ddyad
+  terms_cinc:
+    - *cr_a
+  terms_doe:
+    - *doe_a
+    - *doe_b
 - name: morrow-2007
   author: Morrow
   year: 2007
-  journal: &apsr APSR
+  journal: *apsr
   citekey: "morrow2007"
   repeats: 100
+  method: *oprobit
+  which: Table 1, first column (no weighting for data quality)
+  units: *ddyad
+  terms_cinc:
+    - *cr_a
+    - interaction with joint ratification
+  terms_doe:
+    - *doe_a
+    - *doe_b
+    - interactions of each with joint ratification
+  notes: >-
+    Capability ratio is ``corrected for distance to the battlefield and aggregated across actors with a unified command.''  We drop the cases with coalitional actors in both models, hence the difference in sample size from the original article.  No distance correction is applied to the DOE scores.
 - name: oswiak-2012
   author: Owsiak
   year: 2012
   journal: *isq
   citekey: "Owsiak:2012dx"
   repeats: 100
+  method: *logit
+  which: Table 3, Model 3
+  units: *udyad
+  terms_cinc:
+    - *log_cr_minmax
+  terms_doe:
+    - *log_doe_min
+    - *log_doe_max
 - name: park-colaresi-2014
   author: Park and Colaresi
   year: 2014
   journal: *isq
   citekey: "Park:2014gg"
   repeats: 10
+  method: *logit
+  which: Table 1, Model 2
+  units: *udyad
+  terms_cinc:
+    - *cr_minmax
+    - interaction with contiguity
+  terms_doe:
+    - *doe_parity
+    - interaction with contiguity
 - name: salehyan-2008
   author: Saleyhan
   year: 2008
-  journal: &jop JOP
+  journal: *jop
   citekey: "salehyan2008"
   repeats: 100
+  method: *logit
+  which: Table 1, Model 1
+  units: *udyad
+  terms_cinc:
+    - *log_cr_max
+  terms_doe:
+    - *log_doe_min
+    - *log_doe_max
 - name: salehyan-2008a
   author: Salehyan
   year: 2008
   journal: *ajps
   citekey: "Salehyan:2008es"
   repeats: 100
+  method: *probit
+  which: Table 1, Model 2
+  units: *ddyad
+  terms_cinc:
+    - *cr_a
+    - interaction with refugee stock in $A$
+    - interaction with refugee stock from $A$
+  terms_doe:
+    - *doe_a
+    - *doe_b
+    - interaction of each with refugee stock in $A$
+    - interaction of each with refugee stock from $A$
 - name: sobek-abouharb-ingram-2006
   author: Sobek et al.
   year: 2006
   journal: *jop
   citekey: "Sobek:2006cn"
   repeats: 10
+  method: *logit
+  which: Table 1, first row (political prisoners model)
+  units: *udyad
+  terms_cinc:
+    - *cr_diff
+  terms_doe:
+    - *doe_min
+    - *doe_max
 - name: uzonyi-souva-golder-2012
   author: Uzonyi et al.
   year: 2012
   journal: *isq
   citekey: "Uzonyi:2012im"
   repeats: 100
+  method: *logit
+  which: Table 3, Model 3
+  units: *ddyad
+  terms_cinc:
+    - *cr_a
+  terms_doe:
+    - *doe_a
+    - *doe_b
 - name: weeks-2008
   author: Weeks
   year: 2008
-  journal: &io IO
+  journal: *io
   citekey: "Weeks:2008cj"
   repeats: 100
+  method: *logit
+  which: Table 4, Model 3
+  units: *ddyad
+  terms_cinc:
+    - *cr_a
+  terms_doe:
+    - *doe_a
+    - *doe_b
 - name: weeks-2012
   author: Weeks
   year: 2012
   journal: *apsr
   citekey: "Weeks:2012be"
   repeats: 10
+  method: *logit
+  which: Table 1, Model 2
+  units: *ddyad
+  terms_cinc:
+    - *cinc_a
+    - *cinc_b
+    - *cr_a
+  terms_doe:
+    - *doe_a
+    - *doe_b
 - name: zawahri-mitchell
   author: Zawahri and Mitchell
   year: 2011
   journal: *isq
   citekey: "Zawahri:2011iy"
   repeats: 100
+  method: *logit
+  which: Table 2, Model 1
+  units: *ddyad
+  terms_cinc:
+    - *cinc_a
+    - *cinc_b
+  terms_doe:
+    - *doe_a
+    - *doe_b
+  notes: >-
+    Dyads are directed, but $A$ is the upstream state in a river basin rather than the (prospective) initiator of conflict, so we use the undirected form of the DOE scores.

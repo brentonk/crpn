@@ -6,6 +6,7 @@
 
 library("dplyr")
 library("foreach")
+library("iterators")
 library("xtable")
 library("yaml")
 
@@ -37,12 +38,25 @@ replication_table <- foreach (x = replication_files, .combine = "rbind") %do% {
                stringsAsFactors = FALSE)
 }
 
+## Show some basic summaries
+replication_table %>%
+    summarise(better_aic = sum(aic_doe < aic_cr),
+              better_vuong = sum(vuong >= 1.96),
+              worse_vuong = sum(vuong <= -1.96),
+              better_prl = sum(prl_doe > prl_cr))
+
 ## Retrieve data frame of replication characteristics
 replication_info <- yaml.load_file(
     "replication-info.yml",
     handlers = list(
-        map = function(x) data.frame(x, stringsAsFactors = FALSE),
-        seq = function(x) do.call(rbind, x)
+        seq = function(x) paste(x, collapse = ", "),
+        map = function(x) {
+            x <- data.frame(x, stringsAsFactors = FALSE)
+            if (is.null(x$notes))
+                x$notes <- NA_character_
+            x
+        },
+        main = function(x) do.call("rbind", x)
     ))
 
 ## Merge the tables
@@ -75,11 +89,11 @@ paper_table <- replication_table %>%
     select(-repeats) %>%
     rename("Replication" = citekey,
            "$N$" = n,
-           "AIC (CINC)" = aic_cr,
-           "AIC (DOE)" = aic_doe,
+           "CINC" = aic_cr,
+           "DOE" = aic_doe,
            "Vuong" = vuong,
-           "P.R.L.\\ (CINC)" = prl_cr,
-           "P.R.L.\\ (DOE)" = prl_doe)
+           "CINC " = prl_cr,
+           "DOE " = prl_doe)
 
 paper_xtable <- paper_table %>%
     xtable(align = c("l", "l", rep("r", ncol(paper_table) - 1)))
@@ -87,7 +101,12 @@ paper_xtable <- paper_table %>%
 print(
     paper_xtable,
     floating = FALSE,
+    hline.after = c(0, nrow(paper_xtable)),
     include.rownames = FALSE,
     sanitize.text.function = identity,
+    add.to.row = list(
+        pos = list(-1),
+        command = "\\hline\n&& \\multicolumn{2}{c}{AIC} && \\multicolumn{2}{c}{P.R.L.} \\\\\n"
+    ),
     file = file.path("..", "latex", "tab-replications.tex")
 )
