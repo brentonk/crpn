@@ -1,40 +1,39 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-In this paper, we have argued that proxies should be constructed using predictive power as the criterion of interest, provided a method for doing so, and demonstrated the usefulness of the method in an application to measuring dispute outcomes. 
+In this paper, we have argued that proxies should be constructed using predictive power as the criterion of interest, provided a method for doing so, and demonstrated the usefulness of the method in an application to measuring dispute outcomes.
 We hope that our efforts will be of use both for the DOE scores we provide and for the theoretical merits of our general argument.
 
-In our application, the DOE scores outperform the extant proxy---the CINC-based capability ratio---in a number of important ways. 
-In pure terms, the DOE score more closely relates to what international relations scholars care about: the expected outcome of a dispute between two nations. 
-It therefore has a more natural interpretation than the capability ratio. 
-It also lacks the \emph{ad hoc} assumptions imposed by both the CINC score and the ratio-based transformation used in most studies. 
-On the practical side, our replications suggest that the DOE score is a better contributor to the usual battery of variables included in the ever-expanding universe of international relations regressions. 
-We hope, then, that it will find use as scholars advance and test new claims.  
+In our application, the DOE scores outperform the extant proxy---the CINC-based capability ratio---in a number of important ways.
+In pure terms, the DOE score more closely relates to what international relations scholars care about: the expected outcome of a dispute between two nations.
+It therefore has a more natural interpretation than the capability ratio.
+It also lacks the \emph{ad hoc} assumptions imposed by both the CINC score and the ratio-based transformation used in most studies.
+On the practical side, our replications suggest that the DOE score is a better contributor to the usual battery of variables included in the ever-expanding universe of international relations regressions.
+We hope, then, that it will find use as scholars advance and test new claims.
 
-Though it represents a massive improvement over the \emph{status quo}, the DOE score could still be improved. 
-We have only included those variables that could be extracted from the data used to construct the capability ratio---namely, the six Correlates of War National Material Capabilities variables. 
-We did so consciously, as we wanted to demonstrate that our general approach could improve measures without introducing new covariates. 
-Having made our point, we look forward to seeing what the future holds for coming versions of DOE when new data is brought to bear on the problem. 
+Though it represents a massive improvement over the \emph{status quo}, the DOE score could still be improved.
+We have only included those variables that could be extracted from the data used to construct the capability ratio---namely, the six Correlates of War National Material Capabilities variables.
+We did so consciously, as we wanted to demonstrate that our method could improve measures without introducing new covariates.
+Having made our point, we look forward to seeing what the future holds for coming versions of DOE when new data is brought to bear on the problem.
 At the risk of belaboring: we created DOE using open-source software and have made our replication code available, and so anybody with a computer---and some patience!---could create a new version with new covariates.
 
-On the theoretical side, we believe that our data-driven approach to measurement will prove useful for those wishing to proxy for other quantities. 
-All one needs is a set of predictor variables $\boldsymbol{x}$ and some outcome of interest $\boldsymbol{y}$---the $f$ we provide to map $\boldsymbol{x}$ to $\boldsymbol{y}$ will work. 
-Just as with introducing new covariates in any given application, future scholars can improve their proxies by including new models for evaluation in the super learner. 
-The general approach, however, remains unchanged. 
-Our application tasked us to create a proxy of a probabilistic expectation like those seen in formal models of choice under uncertainty, and similar applications provide a natural starting point for our method. 
-Doing so, however, requires good theory for just what it is that we hope to predict with our abstractions---for example, what outcome could we use variables related to democracy, like those used in the Polity score \citep{marshall2014}, to predict? 
+On the theoretical side, we believe that our data-driven approach to measurement will prove useful for those wishing to proxy for other quantities.
+All one needs is a set of predictor variables $\boldsymbol{x}$ and some outcome of interest $\boldsymbol{y}$---the $f$ we provide to map $\boldsymbol{x}$ to $\boldsymbol{y}$ will work.
+Just as with introducing new covariates in any given application, future scholars can improve their proxies by including new models for evaluation in the super learner---the general approach remains unchanged.
+Our application tasked us to create a proxy of a probabilistic expectation like those seen in formal models of choice under uncertainty, and similar applications provide a natural starting point for our method.
+Doing so, however, requires good theory for just what it is that we hope to predict with our abstractions---for example, what outcome could we use variables related to democracy, like those used in the Polity score \citep{marshall2014}, to predict?
 We hope political scientists across subfields will turn their attention to examples like these as they construct new measures and improve existing ones.
 
-We would like to conclude with a still broader point. 
+We would like to conclude with a still broader point.
 \citet{Breiman:2001fd} argues that statistical modelers fall into one of two cultures: data modelers, who interpret models' estimates after assessing overall quality via in-sample goodness of fit; and algorithmic modelers, who seek algorithms that predict responses as well as possible given some set of covariates.\footnote{
   In case it is not obvious from our previous citations, Breiman self-identifies as an algorithmic modeler.
   He claims that 98\% of statisticians fall into the data modeling camp, or at least did as of 2001.
   We are comfortable positing that the percentage is similar, if not greater, for empirical political scientists in 2015.
-} 
-The method we advance is certainly algorithmic. 
-Our decision to adopt algorithmic modeling based on prediction, however, was not culture-driven---it was purpose-driven \citep{clarke2012}. 
-Most simply, many quantities to be proxied for are expectations, so they should be constructed with prediction in mind. 
-However, as we show in the replication analysis, an algorithmically constructed proxy can be useful to include in traditional models.
+}
+The method we advance is certainly algorithmic.
+Our decision to adopt algorithmic modeling based on prediction, however, was not culture-driven---it was purpose-driven \citep{clarke2012}.
+Most simply, many quantities to be proxied for are expectations, so they should be constructed with prediction in mind.
+But as we show in the replication analysis, an algorithmically constructed proxy can be useful to include in traditional models.
 As new problems emerge and new solutions arise to solve them, we believe methodological pragmatism will be an important virtue.
 We do not expect (nor encourage) empirical political science to turn its focus from causal hypothesis testing to prediction.
 But good hypothesis testing depends on good measures, and sometimes the best way to build a measure is to assume the persona of the algorithmic modeler.
