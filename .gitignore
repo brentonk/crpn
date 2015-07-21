@@ -23,6 +23,7 @@ Icon*
 *.snm
 *.synctex
 *.toc
+*.vrb
 
 # All PDFs
 *.pdf
@@ -39,6 +40,7 @@ Icon*
 /slides/roc.tex
 /slides/*.png
 /latex/fig-*.tex
+/slides/fig-*.tex
 
 # Polmeth abstract file
 abstract-polmeth.md
