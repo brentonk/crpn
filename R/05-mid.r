@@ -212,6 +212,20 @@ print(xtable_MID,
       file = file.path("..", "latex", "tab-mid.tex"),
       floating = FALSE)
 
+## Make version for slides
+slide_table <- table_MID %>%
+    prop.table(margin = 2) %>%
+    "*"(100) %>%
+    round() %>%
+    paste0(table_MID, " (", ., "\\%)") %>%
+    matrix(nrow = 3, dimnames = dimnames(table_MID)) %>%
+    xtable(align = c("l", "r", "r", "r"))
+
+print(slide_table,
+      file = file.path("..", "slides", "tab-mid.tex"),
+      floating = FALSE,
+      sanitize.text.function = identity)
+
 
 ###-----------------------------------------------------------------------------
 ### Sample MID data for slides

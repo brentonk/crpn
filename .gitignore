@@ -50,6 +50,7 @@ abstract-polmeth.md
 
 # xtable output
 latex/tab-*.tex
+slides/tab-*.tex
 
 # Other programmatically generated LaTeX
 latex/list-*.tex
