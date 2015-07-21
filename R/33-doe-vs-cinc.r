@@ -98,3 +98,30 @@ plot_data %>%
           legend.position = "bottom",
           legend.box = "horizontal")
 dev.off()
+
+## Make simpler version for slides: just USA vs Russia
+tikz(file = file.path("..", "slides", "fig-usa-russia.tex"),
+     width = 4.25,
+     height = 3.25,
+     packages = c(getOption("tikzLatexPackages"),
+                  "\\usepackage{amsmath}"))
+plot_data %>%
+    filter(ccode_a == "USA", ccode_b == "Russia") %>%
+    gather(quantity, probability, VictoryA:VictoryB) %>%
+    ggplot(aes(x = year, y = probability)) +
+    geom_area(aes(fill = quantity),
+              alpha = 0.8) +
+    geom_line(aes(y = capratio, colour = factor(1))) +
+    scale_x_continuous("Year") +
+    scale_y_continuous("Probability") +
+    scale_fill_manual("DOE",
+                      values = rev(brewer.pal(3, "Blues")),
+                      labels = c("Pr(US Wins)", "Pr(Stalemate)", "Pr(Russia Wins)")) +
+    scale_colour_manual("CINC",
+                        values = "black",
+                        labels = "Capability Ratio") +
+    ggtitle("Hypothetical US--Russian Dispute") +
+    theme_grey(base_size = 8) +
+    theme(plot.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA))
+dev.off()
