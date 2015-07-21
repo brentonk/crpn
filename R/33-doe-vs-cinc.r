@@ -31,12 +31,16 @@ pred_dir_dyad <- make_capratio(pred_dir_dyad)
 pred_dyad <- make_capratio(pred_dyad)
 
 ## Calculate correlations
-##
-## We want these for the directed dyads, since the identities of A and B are
-## arbitrary in the undirected cases (lower number is A) -- this way the
-## correlation doesn't depend on the arbitrary numbering scheme
 with(pred_dir_dyad, cor(VictoryA, capratio, use = "complete"))
 with(pred_dir_dyad, cor(VictoryB, capratio, use = "complete"))
+with(pred_dyad, cor(VictoryA, capratio, use = "complete"))
+with(pred_dyad, cor(VictoryB, capratio, use = "complete"))
+
+## Calculate canonical correlations
+with(pred_dir_dyad[!is.na(pred_dir_dyad$capratio), ],
+     cancor(cbind(VictoryA, VictoryB), capratio))
+with(pred_dyad[!is.na(pred_dyad$capratio), ],
+     cancor(cbind(VictoryA, VictoryB), capratio))
 
 ## Plot each quantity for all pairings of:
 ##   * USA (2)
