@@ -51,7 +51,6 @@ plot_data <-
     expand.grid(ccode_a = countries,
                 ccode_b = countries,
                 year = 1860:2007) %>%
-    filter(ccode_a < ccode_b) %>%
     left_join(pred_dyad,
               by = c("ccode_a", "ccode_b", "year")) %>%
     select(-cinc_a, -cinc_b) %>%
@@ -60,16 +59,6 @@ plot_data <-
                             labels = names(countries))),
                 ccode_a,
                 ccode_b)
-
-## Also include the reverses (copies some information, but makes plot easier to
-## read across or down)
-plot_data_flip <- plot_data %>%
-    rename(ccode_b = ccode_a,
-           ccode_a = ccode_b,
-           VictoryA = VictoryB,
-           VictoryB = VictoryA) %>%
-    mutate(capratio = 1 - capratio)
-plot_data <- rbind(plot_data, plot_data_flip)
 
 tikz(file = file.path("..", "latex", "fig-vs.tex"),
      width = 5,
