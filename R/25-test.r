@@ -9,6 +9,7 @@ library("caret")
 library("dplyr")
 library("foreach")
 library("ggtern")
+library("RColorBrewer")
 library("tikzDevice")
 library("xtable")
 
@@ -172,4 +173,69 @@ ggtern(plot_data,
     theme(axis.tern.ticks = element_blank(),
           axis.tern.text = element_text(size = rel(0.8)),
           legend.position = "bottom")
+dev.off()
+
+## Versions for slides
+slide_width <- 4.25
+slide_height <- 3.25
+slide_size <- 8
+slide_theme <-
+    theme(plot.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA))
+
+tikz(file = file.path("..", "slides", "fig-tern-all.tex"),
+     width = slide_width,
+     height = slide_height)
+ggtern(plot_data %>% filter(sample == "All Disputes"),
+       aes(x = VictoryA,
+           y = Stalemate,
+           z = VictoryB)) +
+    geom_point(aes(shape = obs,
+                   colour = obs),
+              alpha = 0.5) +
+    scale_colour_brewer("Observed Outcome",
+                        palette = "Set1",
+                        labels = c("Stalemate", "A Wins", "B Wins")) +
+    scale_shape("Observed Outcome",
+                labels = c("Stalemate", "A Wins", "B Wins")) +
+    scale_T_continuous("$\\emptyset$") +
+    scale_L_continuous("$A$") +
+    scale_R_continuous("$B$") +
+    ggtitle("Predictions: All Disputes") +
+    facet_grid(~ model) +
+    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+    theme_grey(base_size = slide_size) +
+    theme(axis.tern.ticks = element_blank(),
+          axis.tern.text = element_text(size = rel(0.8)),
+          legend.position = "bottom") +
+    slide_theme
+dev.off()
+
+tikz(file = file.path("..", "slides", "fig-tern-ab.tex"),
+     width = slide_width,
+     height = slide_height)
+ggtern(plot_data %>% filter(sample == "No Stalemates"),
+       aes(x = VictoryA,
+           y = Stalemate,
+           z = VictoryB)) +
+    geom_point(aes(shape = obs,
+                   colour = obs),
+              alpha = 0.5) +
+    scale_colour_manual("Observed Outcome",
+                        values = brewer.pal(3, "Set1")[-1],
+                        labels = c("A Wins", "B Wins")) +
+    scale_shape_manual("Observed Outcome",
+                       values = c(17, 15),
+                       labels = c("A Wins", "B Wins")) +
+    scale_T_continuous("$\\emptyset$") +
+    scale_L_continuous("$A$") +
+    scale_R_continuous("$B$") +
+    ggtitle("Predictions: No Stalemates") +
+    facet_grid(~ model) +
+    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+    theme_grey(base_size = slide_size) +
+    theme(axis.tern.ticks = element_blank(),
+          axis.tern.text = element_text(size = rel(0.8)),
+          legend.position = "bottom") +
+    slide_theme
 dev.off()
