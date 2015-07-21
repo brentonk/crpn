@@ -6,9 +6,13 @@
 
 library("dplyr")
 library("foreach")
+library("ggplot2")
 library("iterators")
+library("tikzDevice")
 library("xtable")
 library("yaml")
+
+Sys.unsetenv("TEXINPUTS")
 
 source("fn-collect.r")
 
@@ -110,3 +114,103 @@ print(
     ),
     file = file.path("..", "latex", "tab-replications.tex")
 )
+
+
+###-----------------------------------------------------------------------------
+### Plots for slides
+###-----------------------------------------------------------------------------
+
+## Define common plot elements
+tikz_width <- 4.25
+tikz_height <- 3.25
+tikz_size <- 8
+tikz_theme <-
+    theme(plot.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA))
+tikz_package = c(getOption("tikzLatexPackages"),
+                 "\\usepackage{amsmath}",
+                 "\\usepackage{amssymb}")
+
+## Subset data and prettify names
+plot_data <- replication_table %>%
+    mutate(author_year = paste(author, year),
+           author_year = ifelse(duplicated(author_year) |
+                                    duplicated(author_year, fromLast = TRUE),
+                                paste0(author_year, " (", journal, ")"),
+                                author_year),
+           aic_diff = aic_doe - aic_cr,
+           prl_diff = prl_doe - prl_cr) %>%
+    select(author_year,
+           n,
+           aic_diff,
+           vuong,
+           prl_diff)
+
+## Plot differences in AIC
+tikz(file = file.path("..", "slides", "fig-replication-aic.tex"),
+     width = tikz_width,
+     height = tikz_height,
+     packages = tikz_package)
+plot_data %>%
+    arrange(aic_diff) %>%
+    mutate(author_year = factor(author_year,
+                                levels = rev(author_year))) %>%
+    ggplot(aes(x = author_year, y = -aic_diff)) +
+    geom_point(aes(size = log10(n))) +
+    geom_hline(yintercept = 0, linetype = 2) +
+    scale_size("$N$",
+               range = c(1, 4),
+               breaks = 3:6,
+               labels = paste0("$10^", 3:6, "$")) +
+    scale_x_discrete("") +
+    scale_y_continuous("AIC ($\\text{CINC} - \\text{DOE}$)") +
+    coord_flip() +
+    theme_grey(base_size = tikz_size) +
+    tikz_theme
+dev.off()
+
+## Plot Vuong test statistic
+tikz(file = file.path("..", "slides", "fig-replication-vuong.tex"),
+     width = tikz_width,
+     height = tikz_height,
+     packages = tikz_package)
+plot_data %>%
+    arrange(desc(vuong)) %>%
+    mutate(author_year = factor(author_year,
+                                levels = rev(author_year))) %>%
+    ggplot(aes(x = author_year, y = vuong)) +
+    geom_point(aes(size = log10(n))) +
+    geom_hline(yintercept = c(-1.96, 1.96), linetype = 2) +
+    scale_size("$N$",
+               range = c(1, 4),
+               breaks = 3:6,
+               labels = paste0("$10^", 3:6, "$")) +
+    scale_x_discrete("") +
+    scale_y_continuous("Vuong test statistic") +
+    coord_flip() +
+    theme_grey(base_size = tikz_size) +
+    tikz_theme
+dev.off()
+
+## Plot difference in CV loss
+tikz(file = file.path("..", "slides", "fig-replication-prl.tex"),
+     width = tikz_width,
+     height = tikz_height,
+     packages = tikz_package)
+plot_data %>%
+    arrange(desc(prl_diff)) %>%
+    mutate(author_year = factor(author_year,
+                                levels = rev(author_year))) %>%
+    ggplot(aes(x = author_year, y = prl_diff)) +
+    geom_point(aes(size = log10(n))) +
+    geom_hline(yintercept = 0, linetype = 2) +
+    scale_size("$N$",
+               range = c(1, 4),
+               breaks = 3:6,
+               labels = paste0("$10^", 3:6, "$")) +
+    scale_x_discrete("") +
+    scale_y_continuous("Proportional Reduction in CV Loss ($\\text{DOE} - \\text{CINC}$)") +
+    coord_flip() +
+    theme_grey(base_size = tikz_size) +
+    tikz_theme
+dev.off()
