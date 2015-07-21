@@ -92,13 +92,13 @@ test_table <- data.frame(
 )
 
 ## Prettify numeric values
-test_table <- test_table %>%
+test_xtable <- test_table %>%
     mutate_each(funs(sprintf("%.3f", .)),
                 -model) %>%
     mutate_each(funs(ifelse(. == "NA", "", .)))
 
 ## Convert to LaTeX
-test_xtable <- xtable(test_table,
+test_xtable <- xtable(test_xtable,
                       align = c("l", "l", "r", "r", "r", "r"))
 colnames(test_xtable) <- c("Model",
                            "Log Loss",
@@ -109,6 +109,21 @@ colnames(test_xtable) <- c("Model",
 ## Write to file
 print(test_xtable,
       file = file.path("..", "latex", "tab-test.tex"),
+      floating = FALSE,
+      include.rownames = FALSE)
+
+## Simpler version for slides
+slide_xtable <- test_table %>%
+    dplyr::select(model, logLoss, PRL) %>%
+    mutate_each(funs(sprintf("%.2f", .)), -model) %>%
+    mutate_each(funs(ifelse(. == "NA", "", .))) %>%
+    rename("Model" = model,
+           "Log Loss" = logLoss,
+           "PRL" = PRL) %>%
+    xtable(align = c("l", "l", "r", "r"))
+
+print(slide_xtable,
+      file = file.path("..", "slides", "tab-test.tex"),
       floating = FALSE,
       include.rownames = FALSE)
 
