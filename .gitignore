@@ -10,6 +10,9 @@ Icon*
 /articles/
 /poster/fig/
 
+# Raw data
+/data/
+
 # LaTeX auxiliary files
 *.aux
 *.bak
