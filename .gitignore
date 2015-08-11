@@ -67,3 +67,6 @@ slides/list-*.tex
 
 # SLURM submission scripts
 *.slurm
+
+# Benchmarking output
+R/results-benchmark.txt
