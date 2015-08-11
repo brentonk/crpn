@@ -48,6 +48,11 @@ args_to_train <- function(arg_list,
         ## Train the model
         fit <- do.call("train.formula", train_args)
 
+        ## Remove cross-validation indices, which aren't needed for further
+        ## prediction and may take up a lot of space
+        fit$control$index <- NULL
+        fit$control$indexOut <- NULL
+
         ## Calculate out-of-fold probabilities, if requested
         ##
         ## In this case, the probabilities will be returned as output, not the
