@@ -22,7 +22,20 @@ Table~\ref{tab:summary} lists the proportions of zeroes and missing values among
 
 All six variables are strongly right-skewed.
 Since five of the six variables are sometimes zero-valued (though all are non-negative), a logarithmic transformation is not appropriate.
-Instead, we transform each according to the inverse hyperbolic sine to correct for skewness \citep{Burbidge:1988gu}.
+Instead, to correct for skewness, we apply an inverse hyperbolic sine transformation \citep{Burbidge:1988gu} to each component:
+\begin{equation}
+  \label{eq:asinh}
+  h(x, \theta)
+  =
+  \sinh^{-1} (\theta x)
+  =
+  \log \left(
+    \theta x + \sqrt{(\theta x)^2 + 1}
+  \right).
+\end{equation}
+We set the scale~$\theta$ separately for each component variable with the aim of making the transformed variable approximately normally distributed.
+Specifically, for each variable, we choose the value of $\theta \in \{2^d\}_{d=-10}^{10}$ that minimizes the Kolmogorov--Smirnov test statistic \citep{MasseyJr:2012jo} against a normal distribution with the same mean and variance.
+Table~\ref{tab:summary} gives the scale selected for each component.
 We use the transformed components in both the multiple imputation (see below) and the super learner training.
 
 \subsection{Militarized Interstate Dispute Data}

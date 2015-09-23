@@ -14,6 +14,13 @@ library("stringr")
 library("tidyr")
 library("xtable")
 
+component_names <- c("irst",
+                     "milex",
+                     "milper",
+                     "pec",
+                     "tpop",
+                     "upop")
+
 ###-----------------------------------------------------------------------------
 ### Load and clean
 ###-----------------------------------------------------------------------------
@@ -51,18 +58,46 @@ data_NMC %>%
                                         # so a logarithmic transformation won't
                                         # work
 
-## To try and normalize, calculate an inverse hyperbolic sine transformation of
-## each variable
+###-----------------------------------------------------------------------------
+### Transform component variables
+###
+### Using inverse hyperbolic sines for everything except CINC, which gets
+### logged.  See Burbidge et al, "Alternative Transformations to Handle Extreme
+### Values of the Dependent Variable," JASA 1988
+### ----------------------------------------------------------------------------
+
+## Function to calculate the Kolmogorov-Smirnov test statistic for a vector of
+## numeric values, compared to a normal distribution with the same mean and
+## variance (among observed values)
 ##
-## The exception is cinc, because its values are all very small (between 0 and 1
-## by definition) and it has no zeroes -- so cinc gets logged
-##
-## On the asinh() transform, see Burbidge et al, "Alternative Transformations to
-## Handle Extreme Values of the Dependent Variable," JASA 1988
-data_NMC <- data_NMC %>%
-  mutate_each(funs(asinh),
-              irst:upop) %>%
-  mutate(cinc = log(cinc))
+## Lower values <-> More normally distributed
+ks_stat <- function(x) {
+    x <- x[!is.na(x)]
+    ans <- ecdf(x)(x) - pnorm(x, mean = mean(x), sd = sd(x))
+    max(abs(ans))
+}
+
+## For each CINC component, search across potential scales to find the one that
+## makes the asinh transformation most normal
+theta_candidates <- 2^seq(-10, 10)
+theta <- foreach (component = component_names, .combine = "c") %do% {
+    x <- data_NMC[[component]]
+    loss <- foreach (s = theta_candidates) %do% {
+        ks_stat(asinh(s * x))
+    }
+    theta_candidates[which.min(loss)]
+}
+names(theta) <- component_names
+
+## Transform each component variable using the chosen scale
+for (component in component_names) {
+    x <- data_NMC[[component]]
+    s <- theta[component]
+    data_NMC[[component]] <- asinh(s * x)
+}
+
+## Since the CINC score is strictly positive, log-transform it
+data_NMC$cinc <- log(data_NMC$cinc)
 
 ## Examine the distributions of the transformed variables
 if (interactive()) {
@@ -77,13 +112,6 @@ if (interactive()) {
 ###-----------------------------------------------------------------------------
 ### Multiply impute
 ###-----------------------------------------------------------------------------
-
-component_names <- c("irst",
-                     "milex",
-                     "milper",
-                     "pec",
-                     "tpop",
-                     "upop")
 
 ## asinh()-transformed variables are bounded below by 0
 bds <- cbind(which(names(data_NMC) %in% component_names),
@@ -206,6 +234,13 @@ names(totals_NMC) <- ifelse(names(totals_NMC) %in% component_names,
                             paste0("total_", names(totals_NMC)),
                             names(totals_NMC))
 
+## Apply the scaling factors used in the transformation process (so that the
+## proportions sum to roughly 1 within each year)
+for (component in component_names) {
+    total <- paste0("total_", component)
+    totals_NMC[[total]] <- theta[component] * totals_NMC[[total]]
+}
+
 ## Function to compute proportions for a given (transformed) set of data and
 ## merge them into it
 ##
@@ -262,39 +297,55 @@ save(impute_NMC_new,
 ### Make table of summary statistics of raw components
 ###-----------------------------------------------------------------------------
 
-## Compute and prettify summary statistics
+component_pretty_names <- c("Iron and Steel Production",
+                            "Military Expenditures",
+                            "Military Personnel",
+                            "Primary Energy Consumption",
+                            "Total Population",
+                            "Urban Population")
+
+## Compute summary statistics for each component variable
 table_NMC <- raw_NMC %>%
     select_(.dots = component_names) %>%
     gather(component, value, everything()) %>%
     group_by(component) %>%
     summarise(zero = sum(value == 0, na.rm = TRUE) / length(value),
-              miss = mean(is.na(value))) %>%
+              miss = mean(is.na(value)))
+
+## Add the scale used in the transformation of each variable
+table_NMC <- left_join(table_NMC,
+                       data.frame(component = component_names,
+                                  theta = theta))
+
+## Prettify numbers and names
+table_NMC <- table_NMC %>%
     mutate(component = factor(component,
                               levels = component_names,
-                              labels = c("Iron and Steel Production",
-                                         "Military Expenditures",
-                                         "Military Personnel",
-                                         "Primary Energy Consumption",
-                                         "Total Population",
-                                         "Urban Population")),
+                              labels = component_pretty_names),
+           theta = round(log2(theta)),
+           theta = paste0("$2^{", theta, "}$"),
            zero = sprintf("%.3f", zero),
            miss = sprintf("%.3f", miss)) %>%
     rename(Component = component,
            "Pr(Zero)" = zero,
-           "Pr(Missing)" = miss)
+           "Pr(Missing)" = miss,
+           "$\\theta$" = theta)
 
 ## Convert to LaTeX
 xtable_NMC <- xtable(table_NMC,
-                     align = c("l", "l", "r", "r"))
+                     align = c("l", "l", "r", "r", "r"))
 
 print(xtable_NMC,
       file = file.path("..", "latex", "tab-summary.tex"),
       floating = FALSE,
-      include.rownames = FALSE)
+      include.rownames = FALSE,
+      sanitize.text.function = identity)
 
 
 ###-----------------------------------------------------------------------------
 ### Sample data for slides
+###
+### TODO: Fix scaling when applying sinh()
 ###-----------------------------------------------------------------------------
 
 data_NMC %>%
