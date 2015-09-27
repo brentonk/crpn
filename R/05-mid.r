@@ -1,7 +1,6 @@
 ################################################################################
 ###
-### Merge imputed NMC data into COW data, and split sample into training and
-### test sets
+### Merge imputed NMC data into COW data
 ###
 ################################################################################
 
@@ -128,60 +127,11 @@ data_MID <- select(data_MID,
 load("results-data-nmc.rda")
 load("results-impute-nmc.rda")
 
-## Identify cases with no missingness in either country-year
-completeness_NMC <- select(data_NMC,
-                           ccode,
-                           year)
-completeness_NMC$complete <- apply(impute_NMC$missMatrix,
-                                   1,
-                                   function(x) !any(x))
-
-## Merge completion indicators for each side into the base MID data, and
-## calculate a summary variable for fully observed cases
-data_MID <- data_MID %>%
-  merge_NMC_dyad(completeness_NMC, ., capratio = FALSE) %>%
-  mutate(complete = complete_a & complete_b) %>%
-  select(-complete_a, -complete_b)
-mean(data_MID$complete)                 # 83% of cases are complete
-
-## Create test sample from the complete cases, amounting to 20% of the total
-## data
-##
-## No longer need the complete variable once this is done
-data_MID_complete <- data_MID %>%
-  filter(complete == TRUE) %>%
-  select(-complete)
-data_MID_incomplete <- data_MID %>%
-  filter(complete == FALSE) %>%
-  select(-complete)
-
-set.seed(2004)                          # For exact replicability
-p <- 0.2 / mean(data_MID$complete)
-obs_test <- createDataPartition(data_MID_complete$Outcome,
-                                times = 1,
-                                p = p)[[1]]
-data_test <- data_MID_complete[obs_test, ]
-data_train <- rbind(data_MID_complete[-obs_test, ],
-                    data_MID_incomplete)
-dim(data_test)
-dim(data_train)
-table(data_test$Outcome)
-table(data_train$Outcome)
-
-## Merge COW components into test data
-data_test <- merge_NMC_dyad(data_NMC, data_test)
-head(data_test)
-sum(is.na(data_test))                   # 0 (as expected)
-
-## Save test data, and don't touch it again until model is trained
-save(data_test,
-     file = "results-data-test.rda")
-
 ## Create 10 imputed training sets by merging imputations of COW components into
 ## training data
 imputations_train <- lapply(imputations_NMC,
                             merge_NMC_dyad,
-                            dyad = data_train)
+                            dyad = data_MID)
 lapply(imputations_train, dim)
 lapply(imputations_train, head)
 
@@ -193,11 +143,10 @@ save(imputations_train,
 ### Make table of MID outcome distributions
 ###-----------------------------------------------------------------------------
 
-table_MID <- cbind(
-    Full = table(data_MID$Outcome),
-    Training = table(data_train$Outcome),
-    Test = table(data_test$Outcome)
-)
+table_MID <- table(data_MID$Outcome)
+table_MID <- cbind(Count = table_MID,
+                   Proportion = prop.table(table_MID))
+table_MID <- data.frame(table_MID)
 
 ## Reorganize and clean up names
 table_MID <- table_MID[3:1, ]
@@ -206,29 +155,19 @@ rownames(table_MID) <- c("A Wins",
                          "B Wins")
 
 xtable_MID <- xtable(table_MID,
-                     align = c("l", "r", "r", "r"))
+                     align = c("l", "r", "r"),
+                     display = c("s", "d", "f"))
 
 print(xtable_MID,
       file = file.path("..", "latex", "tab-mid.tex"),
-      floating = FALSE)
-
-## Make version for slides
-slide_table <- table_MID %>%
-    prop.table(margin = 2) %>%
-    "*"(100) %>%
-    round() %>%
-    paste0(table_MID, " (", ., "\\%)") %>%
-    matrix(nrow = 3, dimnames = dimnames(table_MID)) %>%
-    xtable(align = c("l", "r", "r", "r"))
-
-print(slide_table,
-      file = file.path("..", "slides", "tab-mid.tex"),
       floating = FALSE,
-      sanitize.text.function = identity)
+      include.rownames = TRUE)
 
 
 ###-----------------------------------------------------------------------------
 ### Sample MID data for slides
+###
+### TODO: Fix sinh un-transformation
 ###-----------------------------------------------------------------------------
 
 ccode_powers <- c(2, 200, 365, 710, 740)
