@@ -52,3 +52,18 @@ n_folds <- 10
 cat("\nEstimated hours for single run:",
     n_imputations * (n_folds + 1) * sum(timings) / 60,
     "\n")
+
+## Print the CV resampling results for each model
+##
+## Used to evaluate if the tuning parameter grid seems wide enough and not too
+## coarse
+cv_results <- foreach(fit = fits) %do% {
+    cv <- fit$results
+    which_min <- which.min(cv[, "logLoss"])
+    cv$min <- ""
+    cv$min[which_min] <- "*"
+    cv
+}
+names(cv_results) <- names(fits)
+
+print(cv_results)
