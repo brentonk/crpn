@@ -70,3 +70,7 @@ slides/list-*.tex
 
 # Benchmarking output
 R/results-benchmark.txt
+
+# UL/DL scripts
+R/accre-push.sh
+R/accre-pull.sh
