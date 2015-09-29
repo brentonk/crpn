@@ -10,6 +10,11 @@
 ###
 ################################################################################
 
+## Force plyr (which some of the ML packages load) to load before dplyr to avoid
+## problems
+library("plyr")
+library("dplyr")
+
 library("foreach")
 
 source("10-fn-train.r")

@@ -1,35 +1,89 @@
-# Information about each ML model, for an eventual table
+################################################################################
+# Information about each ML model, merged with results to make informative
+# tables
+################################################################################
+
+# Variable definitions
+---
+- method:
+    - &polr Ordered Logit
+    - &c5 C5.0
+    - &svm Support Vector Machine
+    - &knn $k$-Nearest Neighbors
+    - &nb Naive Bayes
+    - &cart CART
+    - &rf Random Forests
+    - &avnnet Averaged Neural Nets
+  data:
+    - &comps Components
+    - &props Proportions
+
+# Data
+---
+!main
 - name: "null"
   method: Null Model
-  data: Intercept only
+  data: Intercept Only
   year: false
 - name: polr_capratio
-  method: &polr Ordered Logit
+  method: *polr
   data: Capability Ratio
   year: false
 - name: polr
   method: *polr
-  data: &components Components
+  data: *comps
   year: false
 - name: polr_t
   method: *polr
-  data: *components
+  data: *comps
   year: true
 - name: polr_props
   method: *polr
-  data: &props Proportions
+  data: *props
   year: false
 - name: polr_props_t
   method: *polr
   data: *props
   year: true
+- name: c5
+  method: *c5
+  data: *comps
+  year: false
+- name: c5_t
+  method: *c5
+  data: *comps
+  year: true
+- name: c5_props
+  method: *c5
+  data: *props
+  year: false
+- name: c5_props_t
+  method: *c5
+  data: *props
+  year: true
+- name: svm
+  method: *svm
+  data: *comps
+  year: false
+- name: svm_t
+  method: *svm
+  data: *comps
+  year: true
+- name: svm_props
+  method: *svm
+  data: *props
+  year: false
+- name: svm_props_t
+  method: *svm
+  data: *props
+  year: true
 - name: knn
-  method: &knn $k$-Nearest Neighbors
-  data: *components
+  method: *knn
+  data: *comps
   year: false
 - name: knn_t
   method: *knn
-  data: *components
+  data: *comps
   year: true
 - name: knn_props
   method: *knn
@@ -39,13 +93,45 @@
   method: *knn
   data: *props
   year: true
+- name: nb
+  method: *nb
+  data: *comps
+  year: false
+- name: nb_t
+  method: *nb
+  data: *comps
+  year: true
+- name: nb_props
+  method: *nb
+  data: *props
+  year: false
+- name: nb_props_t
+  method: *nb
+  data: *props
+  year: true
+- name: cart
+  method: *cart
+  data: *comps
+  year: false
+- name: cart_t
+  method: *cart
+  data: *comps
+  year: true
+- name: cart_props
+  method: *cart
+  data: *props
+  year: false
+- name: cart_props_t
+  method: *cart
+  data: *props
+  year: true
 - name: rf
-  method: &rf Random Forest
-  data: *components
+  method: *rf
+  data: *comps
   year: false
 - name: rf_t
   method: *rf
-  data: *components
+  data: *comps
   year: true
 - name: rf_props
   method: *rf
@@ -55,52 +141,20 @@
   method: *rf
   data: *props
   year: true
-- name: nnet
-  method: &nnet Neural Network
-  data: *components
+- name: avnnet
+  method: *avnnet
+  data: *comps
   year: false
-- name: nnet_t
-  method: *nnet
-  data: *components
+- name: avnnet_t
+  method: *avnnet
+  data: *comps
   year: true
-- name: nnet_props
-  method: *nnet
+- name: avnnet_props
+  method: *avnnet
   data: *props
   year: false
-- name: nnet_props_t
-  method: *nnet
-  data: *props
-  year: true
-- name: gpr
-  method: &gpr Gaussian Process
-  data: *components
-  year: false
-- name: gpr_t
-  method: *gpr
-  data: *components
-  year: true
-- name: gpr_props
-  method: *gpr
-  data: *props
-  year: false
-- name: gpr_props_t
-  method: *gpr
-  data: *props
-  year: true
-- name: svm
-  method: &svm Support Vector Machine
-  data: *components
-  year: false
-- name: svm_t
-  method: *svm
-  data: *components
-  year: true
-- name: svm_props
-  method: *svm
-  data: *props
-  year: false
-- name: svm_props_t
-  method: *svm
+- name: avnnet_props_t
+  method: *avnnet
   data: *props
   year: true
 - name: ensemble

@@ -10,10 +10,13 @@
 library("caret")
 
 ## ML packages
-library("kernlab")                      # svm, gausspr
 library("MASS")                         # polr
-library("nnet")                         # nnet
+library("C50")                          # C5.0
+library("kernlab")                      # svm
+library("klaR")                         # nb
+library("rpart")                        # rpart
 library("randomForest")                 # rf
+library("nnet")                         # nnet
 
 ## train() arguments to pass to every model
 common_args <- list(
@@ -71,31 +74,82 @@ method_args <- list(
         method = "polr",
         doNotTune = TRUE
     ),
-    ## Ordered logit on the capability index components
+    ## Ordered logits
     polr = list(
         form = f_components,
         method = "polr",
         doNotTune = TRUE
     ),
-    ## Ordered logit on the capability index components, interacted with time
     polr_t = list(
         form = f_components_times_t,
         method = "polr",
         doNotTune = TRUE
     ),
-    ## Ordered logit on capability proportions
     polr_props = list(
         form = f_props,
         method = "polr",
         doNotTune = TRUE
     ),
-    ## Ordered logit on capability proportions, interacted with time
     polr_props_t = list(
         form = f_props_times_t,
         method = "polr",
         doNotTune = TRUE
     ),
-    ## k-nearest neighbors on the capability index components
+    ## C5.0
+    c5 = list(
+        form = f_components,
+        method = "C5.0",
+        tuneLength = 6
+    ),
+    c5_t = list(
+        form = f_components_t,
+        method = "C5.0",
+        tuneLength = 6
+    ),
+    c5_props = list(
+        form = f_props,
+        method = "C5.0",
+        tuneLength = 6
+    ),
+    c5_props_t = list(
+        form = f_props_t,
+        method = "C5.0",
+        tuneLength = 6
+    ),
+    ## Support vector machine with radial basis kernel
+    svm = list(
+        form = f_components,
+        method = "svmRadial",
+        tuneGrid = expand.grid(
+            sigma = seq(0.2, 1, by = 0.2),
+            C = 2^seq(-2, 2)
+        )
+    ),
+    svm_t = list(
+        form = f_components_t,
+        method = "svmRadial",
+        tuneGrid = expand.grid(
+            sigma = seq(0.2, 1, by = 0.2),
+            C = 2^seq(-2, 2)
+        )
+    ),
+    svm_props = list(
+        form = f_props,
+        method = "svmRadial",
+        tuneGrid = expand.grid(
+            sigma = seq(0.2, 1, by = 0.2),
+            C = 2^seq(-2, 2)
+        )
+    ),
+    svm_props_t = list(
+        form = f_props_t,
+        method = "svmRadial",
+        tuneGrid = expand.grid(
+            sigma = seq(0.2, 1, by = 0.2),
+            C = 2^seq(-2, 2)
+        )
+    ),
+    ## k-nearest neighbors
     knn = list(
         form = f_components,
         method = "knn",
@@ -104,7 +158,6 @@ method_args <- list(
             k = seq(25, 250, by = 25)
         )
     ),
-    ## k-nearest neighbors on the capability index components and time
     knn_t = list(
         form = f_components_t,
         method = "knn",
@@ -113,7 +166,6 @@ method_args <- list(
             k = seq(25, 250, by = 25)
         )
     ),
-    ## k-nearest neighbors on the capability proportions
     knn_props = list(
         form = f_props,
         method = "knn",
@@ -122,7 +174,6 @@ method_args <- list(
             k = seq(25, 250, by = 25)
         )
     ),
-    ## k-nearest neighbors on the capability proportions and time
     knn_props_t = list(
         form = f_props_t,
         method = "knn",
@@ -131,7 +182,53 @@ method_args <- list(
             k = seq(25, 250, by = 25)
         )
     ),
-    ## Random forest on the capability index components
+    ## Naive Bayes
+    nb = list(
+        form = f_components,
+        method = "nb"
+    ),
+    nb_t = list(
+        form = f_components_t,
+        method = "nb"
+    ),
+    nb_props = list(
+        form = f_props,
+        method = "nb"
+    ),
+    nb_props_t = list(
+        form = f_props_t,
+        method = "nb"
+    ),
+    ## CART (tuning over maximum tree depth)
+    cart = list(
+        form = f_components,
+        method = "rpart2",
+        tuneGrid = data.frame(
+            maxdepth = 2:9
+        )
+    ),
+    cart_t = list(
+        form = f_components_t,
+        method = "rpart2",
+        tuneGrid = data.frame(
+            maxdepth = 2:10
+        )
+    ),
+    cart_props = list(
+        form = f_props,
+        method = "rpart2",
+        tuneGrid = data.frame(
+            maxdepth = 2:9
+        )
+    ),
+    cart_props_t = list(
+        form = f_props_t,
+        method = "rpart2",
+        tuneGrid = data.frame(
+            maxdepth = 2:10
+        )
+    ),
+    ## Random forests
     rf = list(
         form = f_components,
         method = "rf",
@@ -140,16 +237,14 @@ method_args <- list(
         ),
         ntree = 1000
     ),
-    ## Random forest on the capability index components and time
     rf_t = list(
         form = f_components_t,
         method = "rf",
         tuneGrid = data.frame(
-            mtry = c(2, seq(3, 13, by = 2))
+            mtry = seq(2, 12, by = 2)
         ),
         ntree = 1000
     ),
-    ## Random forest on the capability proportions
     rf_props = list(
         form = f_props,
         method = "rf",
@@ -158,105 +253,49 @@ method_args <- list(
         ),
         ntree = 1000
     ),
-    ## Random forest on the capability proportions and time
     rf_props_t = list(
         form = f_props_t,
         method = "rf",
         tuneGrid = data.frame(
-            mtry = c(2, seq(3, 13, by = 2))
+            mtry = seq(2, 12, by = 2)
         ),
         ntree = 1000
     ),
-    ## Neural network on the capability index components
-    nnet = list(
+    ## Neural network ensemble
+    avnnet = list(
         form = f_components,
-        method = "nnet",
+        method = "avNNet",
         tuneLength = 5,
         maxit = 1000,
-        trace = FALSE
+        repeats = 10,
+        trace = FALSE,
+        allowParallel = FALSE
     ),
-    ## Neural network on the capability index components and time
-    nnet_t = list(
+    avnnet_t = list(
         form = f_components_t,
-        method = "nnet",
+        method = "avNNet",
         tuneLength = 5,
         maxit = 1000,
-        trace = FALSE
+        repeats = 10,
+        trace = FALSE,
+        allowParallel = FALSE
     ),
-    ## Neural network on the capability proportions
-    nnet_props = list(
+    avnnet_props = list(
         form = f_props,
-        method = "nnet",
+        method = "avNNet",
         tuneLength = 5,
         maxit = 1000,
-        trace = FALSE
+        repeats = 10,
+        trace = FALSE,
+        allowParallel = FALSE
     ),
-    ## Neural network on the capability proportions and time
-    nnet_props_t = list(
+    avnnet_props_t = list(
         form = f_props_t,
-        method = "nnet",
+        method = "avNNet",
         tuneLength = 5,
         maxit = 1000,
-        trace = FALSE
-    ),
-    ## Gaussian process with radial basis function kernel on the capability
-    ## index components
-    gpr = list(
-        form = f_components,
-        method = "gaussprRadial",
-        preProcess = c("center", "scale")
-    ),
-    ## Gaussian process with radial basis function kernel on the capability
-    ## index components and time
-    gpr_t = list(
-        form = f_components_t,
-        method = "gaussprRadial",
-        preProcess = c("center", "scale")
-    ),
-    ## Gaussian process with radial basis function kernel on the capability
-    ## proportions
-    gpr_props = list(
-        form = f_props,
-        method = "gaussprRadial",
-        preProcess = c("center", "scale")
-    ),
-    ## Gaussian process with radial basis function kernel on the capability
-    ## proportions and time
-    gpr_props_t = list(
-        form = f_props_t,
-        method = "gaussprRadial",
-        preProcess = c("center", "scale")
-    ),
-    ## Support vector machine with radial basis function kernel on the
-    ## capability index components
-    svm = list(
-        form = f_components,
-        method = "svmRadial",
-        preProcess = c("center", "scale"),
-        tuneLength = 15
-    ),
-    ## Support vector machine with radial basis function kernel on the
-    ## capability index components and time
-    svm_t = list(
-        form = f_components_t,
-        method = "svmRadial",
-        preProcess = c("center", "scale"),
-        tuneLength = 15
-    ),
-    ## Support vector machine with radial basis function kernel on the
-    ## capability proportions
-    svm_props = list(
-        form = f_props,
-        method = "svmRadial",
-        preProcess = c("center", "scale"),
-        tuneLength = 15
-    ),
-    ## Support vector machine with radial basis function kernel on the
-    ## capability index components
-    svm_props_t = list(
-        form = f_props_t,
-        method = "svmRadial",
-        preProcess = c("center", "scale"),
-        tuneLength = 15
+        repeats = 10,
+        trace = FALSE,
+        allowParallel = FALSE
     )
 )
