@@ -96,56 +96,56 @@ args_to_train <- function(arg_list,
     ans
 }
 
+## Objective function for choosing weights on each model to minimize the
+## log-loss of out-of-fold predicted probabilities
+ll_ensemble_weights <- function(w, pr_mat)
+{
+    ## Compute the last weight -- not including in `w` because constrOptim()
+    ## doesn't do equality constraints and must be initialized on the
+    ## interior
+    w <- c(w, 1 - sum(w))
+
+    ## Calculate predicted probability of the observed outcome for each
+    ## observation
+    pred <- drop(pr_mat %*% w)
+
+    ## Log-likelihood of each observation is log(w * p_i)
+    ##
+    ## Multiplied by -1 since constrOptim() minimizes, and divided by number
+    ## of observations for consistency with mnLogLoss()
+    -1 * sum(log(pred)) / length(pred)
+}
+
+## Derivative w.r.t. w_j is the sum of
+##   (p_j - p_J) / (w * p_i)
+## across observations i
+grad_ensemble_weights <- function(w, pr_mat)
+{
+    ## Calculate each w * p_i
+    w <- c(w, 1 - sum(w))
+    pred <- drop(pr_mat %*% w)
+
+    ## Subtract p_J from the preceding columns
+    pr_mat <- sweep(pr_mat,
+                    1,
+                    pr_mat[, ncol(pr_mat)],
+                    "-")
+    pr_mat <- pr_mat[, -ncol(pr_mat)]
+
+    ## Divide by each w * p_i
+    pr_mat <- sweep(pr_mat,
+                    1,
+                    pred,
+                    "/")
+
+    ## Multiplied by -1 again since constrOptim() minimizes
+    -1 * colSums(pr_mat) / length(pred)
+}
+
 ## Learn optimal ensemble weights for a matrix of out-of-fold predicted
 ## probabilities of observed outcomes
 learn_ensemble <- function(probs, outer.eps = 1e-8)
 {
-    ## Objective function for choosing weights on each model to minimize the
-    ## log-loss of out-of-fold predicted probabilities
-    ll_ensemble_weights <- function(w, pr_mat)
-    {
-        ## Compute the last weight -- not including in `w` because constrOptim()
-        ## doesn't do equality constraints and must be initialized on the
-        ## interior
-        w <- c(w, 1 - sum(w))
-
-        ## Calculate predicted probability of the observed outcome for each
-        ## observation
-        pred <- drop(pr_mat %*% w)
-
-        ## Log-likelihood of each observation is log(w * p_i)
-        ##
-        ## Multiplied by -1 since constrOptim() minimizes, and divided by number
-        ## of observations for consistency with mnLogLoss()
-        -1 * sum(log(pred)) / length(pred)
-    }
-
-    ## Derivative w.r.t. w_j is the sum of
-    ##   (p_j - p_J) / (w * p_i)
-    ## across observations i
-    grad_ensemble_weights <- function(w, pr_mat)
-    {
-        ## Calculate each w * p_i
-        w <- c(w, 1 - sum(w))
-        pred <- drop(pr_mat %*% w)
-
-        ## Subtract p_J from the preceding columns
-        pr_mat <- sweep(pr_mat,
-                        1,
-                        pr_mat[, ncol(pr_mat)],
-                        "-")
-        pr_mat <- pr_mat[, -ncol(pr_mat)]
-
-        ## Divide by each w * p_i
-        pr_mat <- sweep(pr_mat,
-                        1,
-                        pred,
-                        "/")
-
-        ## Multiplied by -1 again since constrOptim() minimizes
-        -1 * colSums(pr_mat) / length(pred)
-    }
-
     ## Constraints for weight selection:
     ##   w_j >= 0 for all j
     ##   -w_1 - ... - w_(J-1) + 1 >= 0 [ensures w_J is positive]
