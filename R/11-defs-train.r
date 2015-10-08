@@ -13,7 +13,6 @@ library("caret")
 library("MASS")                         # polr
 library("C50")                          # C5.0
 library("kernlab")                      # svm
-library("klaR")                         # nb
 library("rpart")                        # rpart
 library("randomForest")                 # rf
 library("nnet")                         # nnet
@@ -181,23 +180,6 @@ method_args <- list(
         tuneGrid = data.frame(
             k = seq(25, 250, by = 25)
         )
-    ),
-    ## Naive Bayes
-    nb = list(
-        form = f_components,
-        method = "nb"
-    ),
-    nb_t = list(
-        form = f_components_t,
-        method = "nb"
-    ),
-    nb_props = list(
-        form = f_props,
-        method = "nb"
-    ),
-    nb_props_t = list(
-        form = f_props_t,
-        method = "nb"
     ),
     ## CART (tuning over maximum tree depth)
     cart = list(
