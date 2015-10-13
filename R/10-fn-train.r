@@ -60,6 +60,14 @@ args_to_train <- function(arg_list,
         if (for_probs) {
             pred <- predict(fit, newdata = data_test, type = "prob")
 
+            ## Hack to normalize predicted probabilities from avNNet models --
+            ## should be fixed in an upcoming version of caret
+            ##
+            ## See https://github.com/topepo/caret/issues/261
+            if (fit$method == "avNNet") {
+                pred <- pred / rowSums(pred)
+            }
+
             ## `predict()` gives us three columns of output, one per class.  We
             ## want this to be in key-value format instead, to ease the process
             ## of backing out the estimated probability of the *observed*
