@@ -4,6 +4,7 @@
 ###
 ################################################################################
 
+library("plyr")
 library("dplyr")
 library("foreach")
 library("iterators")
@@ -14,7 +15,8 @@ source("20-predict-from-ensemble.r")
 load("results-dir-dyad-year.rda")
 load("results-data-nmc.rda")
 load("results-impute-nmc-new.rda")
-load("results-full-ensemble.rda")
+load("results-trained-models.rda")
+load("results-trained-weights.rda")
 
 
 ###-----------------------------------------------------------------------------
@@ -58,7 +60,8 @@ cat("Started complete cases", as.character(Sys.time()), "\n")
 
 system.time(
     pred_complete <- predict_from_ensemble(dat = dat_complete,
-                                           ensemble = full_ensemble)
+                                           models = trained_models,
+                                           wts = trained_weights)
 )
 
 ## For the incomplete cases, loop over imputations
@@ -72,7 +75,8 @@ if (!all(dir_dyad_year$complete)) {
                               capratio = TRUE)
 
         pred <- predict_from_ensemble(dat = dat,
-                                      ensemble = full_ensemble)
+                                      models = trained_models,
+                                      wts = trained_weights)
 
         pred
     }
