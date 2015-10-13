@@ -9,18 +9,28 @@ library("caret")
 library("foreach")
 library("iterators")
 
-predict_from_ensemble <- function(dat, ensemble)
+predict_from_ensemble <- function(dat, models, wts)
 {
     ## Loop through each of the 10 imputed ensembles
-    ans <- foreach (fit = ensemble, i = icount()) %do% {
+    ans <- foreach (imp_models = models, imp_wts = wts, i = icount()) %do% {
         ## Calculate predicted probabilities from each individual model
-        pred <- foreach (model = fit$models, j = icount()) %do% {
-            predict(model, newdata = dat, type = "prob")
+        pred <- foreach (model = imp_models) %do% {
+            pp <- predict(model, newdata = dat, type = "prob")
+
+            ## Hack to normalize predicted probabilities from avNNet models --
+            ## should be fixed in an upcoming version of caret
+            ##
+            ## See https://github.com/topepo/caret/issues/261
+            if (model$method == "avNNet") {
+                pp <- pp / rowSums(pp)
+            }
+
+            pp
         }
 
         ## Multiply each set of predicted probabilities by the corresponding
         ## ensemble weight
-        wt <- fit$weights$par
+        wt <- imp_wts$weights$par
         wt <- c(wt, 1 - sum(wt))
         pred <- Map("*", pred, wt)
 
@@ -34,7 +44,7 @@ predict_from_ensemble <- function(dat, ensemble)
 
     ## Average across the imputations
     ans <- Reduce("+", ans)
-    ans <- ans / length(ensemble)
+    ans <- ans / length(models)
 
     ans
 }
