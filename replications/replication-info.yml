@@ -12,6 +12,7 @@
     - &apsr APSR
     - &jop JOP
     - &io IO
+    - &jcr JCR
   method:
     - &hetprob Heteroskedastic Probit
     - &logit Logistic Regression
@@ -313,3 +314,17 @@
     - *doe_b
   notes: >-
     Dyads are directed, but $A$ is the upstream state in a river basin rather than the (prospective) initiator of conflict, so we use the undirected form of the DOE scores.
+- name: hafner-burton-montgomery-2006
+  author: Hafner-Burton and Montgomery
+  year: 2006
+  journal: *jcr
+  citekey: "HafnerBurton:2006fy"
+  repeats: 10
+  method: *logit
+  which: Table 1, Model 2
+  units: *udyad
+  terms_cinc:
+    - *log_cr_maxmin
+  terms_doe:
+    - *log_doe_min
+    - *log_doe_max
