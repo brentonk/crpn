@@ -6,19 +6,9 @@
 
 sessionInfo()
 
-## Set up cluster
-##
-## For local use, comment out this block and the next one
-library("Rmpi", quietly = TRUE)
-library("doMPI", quietly = TRUE)
-cl <- startMPIcluster()
-registerDoMPI(cl)
-
-## Set up error handling with Rmpi
-##
-## Without this code, the MPI session may fail to shut down properly in case an
-## error occurs, and then the script won't terminate until it hits the walltime
-options(error=quote(assign(".mpi.err", FALSE, env = .GlobalEnv)))
+## Local parallelization
+library("doMC")
+registerDoMC(min(5, parallel::detectCores() - 1))
 
 ## Load plyr before dplyr -- forcing this here since some of the ML packages
 ## call plyr
@@ -74,6 +64,3 @@ print(time_end - time_start)
 
 save(trained_models,
      file = "results-trained-models.rda")
-
-closeCluster(cl)
-mpi.quit()
