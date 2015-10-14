@@ -52,13 +52,22 @@ predict_dyad_flip <- predict_dir_dyad %>%
 ##
 ## Keeping all pairings in the table, even though every observation is
 ## effectively there twice, for ease of merging later on
-predict_dyad <- predict_dyad_orig %>%
-    left_join(predict_dyad_flip,
-              by = c("ccode_a", "ccode_b", "year")) %>%
-    mutate(VictoryB = 0.5 * (VictoryB_orig + VictoryB_flip),
+##
+## Splitting this into pieces because of weird dplyr behavior that seems to be
+## memory-related -- couldn't totally eliminate the bugs, which don't repeat
+## consistently, but got it to work at least once
+predict_dyad <-
+    left_join(predict_dyad_orig,
+              predict_dyad_flip,
+              by = c("ccode_a", "ccode_b", "year"))
+predict_dyad <-
+    mutate(predict_dyad,
+           VictoryB = 0.5 * (VictoryB_orig + VictoryB_flip),
            Stalemate = 0.5 * (Stalemate_orig + Stalemate_flip),
-           VictoryA = 0.5 * (VictoryA_orig + VictoryA_flip)) %>%
-    select(ccode_a, ccode_b, year, VictoryB, Stalemate, VictoryA)
+           VictoryA = 0.5 * (VictoryA_orig + VictoryA_flip))
+predict_dyad <-
+    select(predict_dyad,
+           ccode_a, ccode_b, year, VictoryB, Stalemate, VictoryA)
 
 ## Sanity checks
 stopifnot(nrow(predict_dyad) == nrow(predict_dir_dyad))
