@@ -1,11 +1,13 @@
 ################################################################################
 ###
-### Compare OINC scores with capability ratios
+### Compare DOE scores with capability ratios
 ###
 ################################################################################
 
+library("MASS")
 library("dplyr")
 library("ggplot2")
+library("ggtern")
 library("RColorBrewer")
 library("tidyr")
 library("tikzDevice")
@@ -13,9 +15,15 @@ library("tikzDevice")
 Sys.unsetenv("TEXINPUTS")
 
 load("results-data-nmc.rda")
+load("results-imputations-train.rda")
 
 pred_dir_dyad <- read.csv("results-predict-dir-dyad.csv")
 pred_dyad <- read.csv("results-predict-dyad.csv")
+
+
+###-----------------------------------------------------------------------------
+### Basic correlations
+###-----------------------------------------------------------------------------
 
 ## Calculate capability ratios for all dyads
 make_capratio <- function(pred) {
@@ -42,86 +50,126 @@ with(pred_dir_dyad[!is.na(pred_dir_dyad$capratio), ],
 with(pred_dyad[!is.na(pred_dyad$capratio), ],
      cancor(cbind(VictoryA, VictoryB), capratio))
 
-## Plot each quantity for all pairings of:
-##   * USA (2)
-##   * UK (200)
-##   * Russia (365)
-##   * China (710)
-##   * Japan (740)
-## Want to use undirected dyads for this since the capability ratio isn't
-## initiator-specific
-countries <- c(USA = 2, UK = 200, Russia = 365, China = 710, Japan = 740)
-plot_data <-
-    expand.grid(ccode_a = countries,
-                ccode_b = countries,
-                year = 1860:2007) %>%
-    left_join(pred_dyad,
-              by = c("ccode_a", "ccode_b", "year")) %>%
-    select(-cinc_a, -cinc_b) %>%
-    mutate_each(funs(factor(.,
-                            levels = countries,
-                            labels = names(countries))),
-                ccode_a,
-                ccode_b)
+
+###-----------------------------------------------------------------------------
+### In-sample predicted probabilities
+###-----------------------------------------------------------------------------
+
+## Re-running the capability ratio model to avoid having to load the huge
+## ensemble into memory
+##
+## No need to combine across imputations since there's no missingness in the
+## capability ratio
+polr_capratio <- polr(Outcome ~ capratio,
+                      data = imputations_train[[1]])
+
+## Calculate predicted probabilities from capability ratio model
+pp_capratio <- predict(polr_capratio, type = "prob") %>%
+    data.frame() %>%
+    select(VictoryA, Stalemate, VictoryB) %>%
+    mutate(method = "capratio")
+
+## Merge in DOE scores
+pp_doe <- imputations_train[[1]] %>%
+    left_join(pred_dir_dyad, by = c("ccode_a", "ccode_b", "year")) %>%
+    select(VictoryA, Stalemate, VictoryB) %>%
+    mutate(method = "doe")
+
+## Make data to pass to ggplot
+pp_data <- rbind(pp_capratio, pp_doe)
+pp_data$Outcome <- factor(imputations_train[[1]]$Outcome,
+                          levels = c("VictoryA", "Stalemate", "VictoryB"),
+                          labels = c("A Wins", "Stalemate", "B Wins"))
+pp_data$method <- factor(pp_data$method,
+                         levels = c("capratio", "doe"),
+                         labels = c("Ordered Logit on Capability Ratio",
+                                    "Super Learner"))
+
+tikz(file = file.path("..", "latex", "fig-in-sample.tex"),
+     width = 5,
+     height = 4)
+ggtern(pp_data,
+       aes(x = VictoryA,
+           y = Stalemate,
+           z = VictoryB)) +
+    geom_point(aes(shape = Outcome,
+                   colour = Outcome),
+               alpha = 0.3) +
+    scale_colour_brewer("Observed Outcome",
+                        palette = "Set1") +
+    scale_shape("Observed Outcome") +
+    scale_T_continuous("$\\emptyset$") +
+    scale_L_continuous("$A$") +
+    scale_R_continuous("$B$") +
+    facet_wrap(~ method) +
+    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+    theme_grey(base_size = 10) +
+    theme(axis.tern.ticks = element_blank(),
+          axis.tern.text = element_text(size = rel(0.8)),
+          legend.position = "bottom")
+dev.off()
+
+
+###-----------------------------------------------------------------------------
+### Dyadic predictions over time
+###-----------------------------------------------------------------------------
+
+## Extract the USA-Russia dyadic data
+##
+## Using the undirected scores since we don't want to presume an initiator
+pp_usa_russia_doe <- pred_dyad %>%
+    filter(ccode_a == 2,
+           ccode_b == 365) %>%
+    mutate(capratio = log(capratio))
+
+## Calculate predicted probabilities under the capability ratio model
+##
+## Need to do it twice to average, same way the undirected DOE scores are
+## calculated
+pp_usa_russia_cr_a <- predict(polr_capratio,
+                              newdata = pp_usa_russia_doe,
+                              type = "prob")
+pp_usa_russia_cr_b <- predict(polr_capratio,
+                              newdata = pp_usa_russia_doe %>%
+                                  mutate(capratio = log(1 - exp(capratio))),
+                              type = "prob")
+pp_usa_russia_cr <- 0.5 * pp_usa_russia_cr_a + 0.5 * pp_usa_russia_cr_b[, 3:1]
+stopifnot(all.equal(range(rowSums(pp_usa_russia_cr)), c(1, 1)))
+
+## Format data for ggplot
+dat_usa_russia_doe <- pp_usa_russia_doe %>%
+    select(year, VictoryUS = VictoryA, Stalemate, VictoryRussia = VictoryB) %>%
+    mutate(method = "doe")
+dat_usa_russia_cr <- pp_usa_russia_cr %>%
+    data.frame() %>%
+    select(VictoryUS = VictoryA, Stalemate, VictoryRussia = VictoryB) %>%
+    mutate(year = pp_usa_russia_doe$year, method = "capratio")
+
+dat_usa_russia <- rbind(dat_usa_russia_cr, dat_usa_russia_doe) %>%
+    gather(quantity, probability, VictoryUS:VictoryRussia) %>%
+    mutate(method = factor(method,
+                           levels = c("capratio", "doe"),
+                           labels = c("Ordered Logit on Capability Ratio",
+                                      "Super Learner")),
+           quantity = factor(quantity,
+                             levels = c("VictoryUS", "Stalemate", "VictoryRussia"),
+                             labels = c("USA Wins", "Stalemate", "Russia Wins")))
 
 tikz(file = file.path("..", "latex", "fig-vs.tex"),
      width = 5,
-     height = 4.5,
+     height = 3.5,
      packages = c(getOption("tikzLatexPackages"),
                   "\\usepackage{amsmath}"))
-plot_data %>%
-    gather(quantity, probability, VictoryA:VictoryB) %>%
-    mutate(ccode_a = factor(ccode_a,
-                            labels = paste("1:", levels(ccode_a))),
-           ccode_b = factor(ccode_b,
-                            labels = paste("2:", levels(ccode_b)))) %>%
-    ggplot(aes(x = year, y = probability)) +
-    geom_area(aes(fill = quantity),
-              alpha = 0.8) +
-    geom_line(aes(y = capratio, colour = factor(1))) +
-                                        # Created a dummy aesthetic mapping to
-                                        # get the capability ratio to show up in
-                                        # the legend
-    facet_grid(ccode_b ~ ccode_a) +
-    scale_x_continuous("Year",
-                       breaks = c(1900, 2000)) +
+ggplot(dat_usa_russia, aes(x = year, y = probability)) +
+    geom_area(aes(fill = quantity), alpha = 0.8) +
+    facet_wrap(~ method) +
+    scale_x_continuous("Year") +
     scale_y_continuous("Probability") +
-    scale_fill_manual(values = rev(brewer.pal(3, "Blues")),
-                      labels = c("Pr(1 Wins)", "Pr(Stalemate)", "Pr(2 Wins)")) +
-    scale_colour_manual(values = "black",
-                        labels = "$\\text{CINC}_1/(\\text{CINC}_1 + \\text{CINC}_2)$") +
-    guides(fill = guide_legend(reverse = TRUE, title = NULL, order = 1),
-           colour = guide_legend(title = NULL, order = 2)) +
+    scale_fill_manual("",
+                      values = rev(brewer.pal(3, "Blues"))) +
     theme_grey(base_size = 10) +
     theme(axis.text.y = element_blank(),
           axis.ticks.y = element_blank(),
           legend.position = "bottom",
           legend.box = "horizontal")
-dev.off()
-
-## Make simpler version for slides: just USA vs Russia
-tikz(file = file.path("..", "slides", "fig-usa-russia.tex"),
-     width = 4.25,
-     height = 3.25,
-     packages = c(getOption("tikzLatexPackages"),
-                  "\\usepackage{amsmath}"))
-plot_data %>%
-    filter(ccode_a == "USA", ccode_b == "Russia") %>%
-    gather(quantity, probability, VictoryA:VictoryB) %>%
-    ggplot(aes(x = year, y = probability)) +
-    geom_area(aes(fill = quantity),
-              alpha = 0.8) +
-    geom_line(aes(y = capratio, colour = factor(1))) +
-    scale_x_continuous("Year") +
-    scale_y_continuous("Probability") +
-    scale_fill_manual("DOE",
-                      values = rev(brewer.pal(3, "Blues")),
-                      labels = c("Pr(US Wins)", "Pr(Stalemate)", "Pr(Russia Wins)")) +
-    scale_colour_manual("CINC",
-                        values = "black",
-                        labels = "Capability Ratio") +
-    ggtitle("Hypothetical US--Russian Dispute") +
-    theme_grey(base_size = 8) +
-    theme(plot.background = element_rect(fill = "transparent", colour = NA),
-          legend.background = element_rect(fill = "transparent", colour = NA))
 dev.off()
