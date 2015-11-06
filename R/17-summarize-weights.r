@@ -149,3 +149,60 @@ print(model_xtable,
       include.rownames = FALSE,
       sanitize.text.function = identity,
       hline.after = c(-1, 0, nrow(model_xtable) - 2, nrow(model_xtable)))
+
+
+###-----------------------------------------------------------------------------
+### Plots for slides
+###-----------------------------------------------------------------------------
+
+## Parameters common across plots
+tikz_width <- 4.25
+tikz_height <- 3.25
+tikz_size <- 8
+tikz_theme <-
+    theme(plot.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA))
+tikz_package <- c(getOption("tikzLatexPackages"),
+                  "\\usepackage{amsmath}",
+                  "\\usepackage{amssymb}")
+
+## Bar plot of proportional reduction in loss
+tikz(file = file.path("..", "slides", "fig-prl.tex"),
+     width = tikz_width,
+     height = tikz_height,
+     package = tikz_package)
+print(
+    ggplot(model_table %>%
+           arrange(prl) %>%
+           mutate(cr = name == "polr_capratio",
+                  name = gsub("_", "\\textunderscore{}", name, fixed = TRUE),
+                  name = factor(name, levels = name)),
+           aes(x = name, y = prl)) +
+    geom_bar(stat = "identity",
+             aes(fill = cr)) +
+    scale_fill_manual(values = c("gray50", "black"), guide = FALSE) +
+    xlab("") +
+    ylab("Proportional Reduction in CV Loss") +
+    coord_flip() +
+    theme_grey(base_size = tikz_size) +
+    tikz_theme
+)
+dev.off()
+
+## Scatterplot of PRL vs SL weight
+tikz(file = file.path("..", "slides", "fig-wt.tex"),
+     width = tikz_width,
+     height = tikz_height,
+     package = tikz_package)
+print(
+    ggplot(model_table %>%
+           mutate(cr = name == "polr_capratio"),
+           aes(x = prl, y = weight)) +
+    geom_point(aes(colour = cr)) +
+    scale_colour_manual(values = c("gray50", "black"), guide = FALSE) +
+    xlab("Proportional Reduction in CV Loss") +
+    ylab("Super Learner Weight") +
+    theme_grey(base_size = tikz_size) +
+    tikz_theme
+)
+dev.off()

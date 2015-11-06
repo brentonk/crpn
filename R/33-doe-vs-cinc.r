@@ -109,6 +109,32 @@ ggtern(pp_data,
           legend.position = "bottom")
 dev.off()
 
+## Version for slides
+tikz(file = file.path("..", "slides", "fig-in-sample.tex"),
+     width = 4.25,
+     height = 3.25)
+ggtern(pp_data,
+       aes(x = VictoryA,
+           y = Stalemate,
+           z = VictoryB)) +
+    geom_point(aes(shape = Outcome,
+                   colour = Outcome),
+               alpha = 0.3) +
+    scale_colour_brewer("Observed Outcome",
+                        palette = "Set1") +
+    scale_shape("Observed Outcome") +
+    scale_T_continuous("$\\emptyset$") +
+    scale_L_continuous("$A$") +
+    scale_R_continuous("$B$") +
+    facet_wrap(~ method) +
+    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+    theme_grey(base_size = 8) +
+    theme(axis.tern.ticks = element_blank(),
+          axis.tern.text = element_text(size = rel(0.8)),
+          plot.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA),
+          legend.position = "bottom")
+dev.off()
 
 ###-----------------------------------------------------------------------------
 ### Dyadic predictions over time
