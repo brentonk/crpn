@@ -74,3 +74,6 @@ R/results-benchmark.txt
 # UL/DL scripts
 R/accre-push.sh
 R/accre-pull.sh
+
+# Utility scripts that don't contribute to the analysis
+R/zz-*.r
