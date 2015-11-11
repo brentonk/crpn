@@ -77,3 +77,6 @@ R/accre-pull.sh
 
 # Utility scripts that don't contribute to the analysis
 R/zz-*.r
+
+# Rob's slides
+/slides-rjc/
