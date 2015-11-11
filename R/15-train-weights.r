@@ -27,6 +27,7 @@ sessionInfo()
 ## call plyr
 library("plyr")
 library("dplyr")
+library("tidyr")
 
 ## Analysis packages
 library("caret")
@@ -79,7 +80,8 @@ cv_folds <- createFolds(y = dat$Outcome,
                         list = TRUE,
                         returnTrain = TRUE)
 
-out_probs <- foreach (fold = seq_len(n_folds)) %do% {
+## Calculate out-of-fold predicted probabilities for each candidate model
+all_probs <- foreach (fold = seq_len(n_folds)) %do% {
     cat("FOLD", fold, as.character(Sys.time()), "\n")
 
     ## Retrieve the training and test sets corresponding to the given fold
@@ -99,6 +101,31 @@ out_probs <- foreach (fold = seq_len(n_folds)) %do% {
 
     fold_probs
 }
+
+## Form the matrix of out-of-fold probabilities of *observed* outcomes -- this
+## is what we'll use to calculate optimal super learner weights
+##
+## Each element of `out_probs` is a list of matrices of predicted probabilities
+## (one list per fold, one matrix per candidate model), hence the nested loop
+out_probs <- foreach (fold_probs = all_probs) %do% {
+    foreach (pred = fold_probs, .combine = "cbind") %do% {
+        ## Translate into key-value format
+        pred <- gather_(pred,
+                        key_col = "Outcome",
+                        value_col = "prob",
+                        gather_cols = levels(pred$obs))
+
+        ## Extract the predicted values for the observed outcomes only
+        pred <- filter(pred,
+                       as.character(obs) == as.character(Outcome))
+
+        pred$prob
+    }
+    ## TODO: Work backward from fold assignments to put back in the same order
+    ## as the original dataset
+}
+
+## TODO: Set out_probs colnames
 
 ## Calculate optimal ensemble weights
 out_mat <- do.call("rbind", out_probs)
@@ -125,7 +152,8 @@ print(time_end - time_start)
 ## each imputation, but will help reduce rewriting of older code
 trained_weights <- list(out_probs = out_mat,
                         weights = imputation_weights,
-                        bias_min_cv = bias_min_cv)
+                        bias_min_cv = bias_min_cv,
+                        all_probs = all_probs)
 
 save_dir <- "results-weights"
 save_file <- paste0("imp",

@@ -5,7 +5,9 @@
 ################################################################################
 
 library("MASS")
+library("caret")
 library("dplyr")
+library("foreach")
 library("ggplot2")
 library("ggtern")
 library("RColorBrewer")
@@ -16,6 +18,7 @@ Sys.unsetenv("TEXINPUTS")
 
 load("results-data-nmc.rda")
 load("results-imputations-train.rda")
+load("results-trained-weights.rda")
 
 pred_dir_dyad <- read.csv("results-predict-dir-dyad.csv")
 pred_dyad <- read.csv("results-predict-dyad.csv")
@@ -52,56 +55,138 @@ with(pred_dyad[!is.na(pred_dyad$capratio), ],
 
 
 ###-----------------------------------------------------------------------------
-### In-sample predicted probabilities
+### Out-of-fold predicted probabilities
 ###-----------------------------------------------------------------------------
 
-## Re-running the capability ratio model to avoid having to load the huge
-## ensemble into memory
+dat <- imputations_train[[1]]
+
+## Calculate out-of-fold predictions for the capability ratio model
+capratio_folds <- createFolds(y = dat$Outcome,
+                              k = 10,
+                              list = TRUE,
+                              returnTrain = TRUE)
+pp_capratio <- foreach (fold = capratio_folds, .combine = "rbind") %do% {
+    ## Fit the capability ratio model
+    polr_capratio <- polr(Outcome ~ capratio,
+                          data = dat[fold, , drop = FALSE])
+
+    ## Calculate out-of-fold predictions
+    pred <- predict(polr_capratio,
+                    newdata = dat[-fold, , drop = FALSE],
+                    type = "prob")
+
+    ## Convert to data frame and include observed outcome
+    pred <- data.frame(pred)
+    pred$method <- "capratio"
+    pred$Outcome <- dat$Outcome[-fold]
+
+    pred
+}
+
+## Calculate out-of-fold predictions from the Super Learner
 ##
-## No need to combine across imputations since there's no missingness in the
-## capability ratio
-polr_capratio <- polr(Outcome ~ capratio,
-                      data = imputations_train[[1]])
+## This uses the tuning parameters that were trained by CV on the full sample,
+## but the candidate model predictions being averaged are purely out-of-fold
+pp_doe <- foreach (i = seq_along(trained_weights)) %do% {
+    imp <- trained_weights[[i]]
 
-## Calculate predicted probabilities from capability ratio model
-pp_capratio <- predict(polr_capratio, type = "prob") %>%
+    ## The `all_probs` object is a list with n_fold elements, each of which is a
+    ## list of n_model data frames of predictions and observed outcomes for each
+    ## fold.
+    ##
+    ## First we'll switch the order, so we have a list of folds by model instead
+    ## of vice versa
+    all_models <- foreach (model = names(imp$all_probs[[1]])) %do% {
+        foreach (fold = imp$all_probs) %do% {
+            fold[[model]]
+        }
+    }
+
+    ## Now we want to put the observations back in their original order, since
+    ## the fold assignments are different across imputations.  We foolishly
+    ## forgot to save the fold assignments, so we'll need to reverse-engineer
+    ## them from the code in `15-train-weights.r`.
+    set.seed(100 * i)
+    cv_folds <- createFolds(y = dat$Outcome,
+                            k = length(imp$all_probs),
+                            list = TRUE,
+                            returnTrain = TRUE)
+    all_models <- foreach(model = all_models) %do% {
+        ## Piece back together the matrix, fold by fold
+        ##
+        ## Need to convert to matrix so we can assemble the storage in advance
+        n_obs <- sum(sapply(model, nrow))
+        pred_mat <- matrix(NA, nrow = n_obs, ncol = 4)
+        for (fold in seq_along(model))
+            pred_mat[-cv_folds[[fold]], ] <- data.matrix(model[[fold]])
+        colnames(pred_mat) <- c("VictoryB", "Stalemate", "VictoryA", "obs")
+
+        pred_mat
+    }
+
+    ## Double-check ordering of the matrices by making sure the outcomes are
+    ## consistent with those in the original data
+    ##
+    ## This also allows us not to save the outcome variable, and just work with
+    ## the probabilities, since we can re-retrieve the outcome from the source
+    ## data
+    for (model in all_models) {
+        obs <- ordered(model[, "obs"],
+                       levels = 1:3,
+                       labels = c("VictoryB", "Stalemate", "VictoryA"))
+        stopifnot(obs == dat$Outcome)
+    }
+
+    ## Calculate weighted average of predictions
+    wts <- imp$weights$par
+    wts <- c(wts, 1 - sum(wts))
+    weighted_preds <- Map("*", all_models, wts)
+    weighted_preds <- Reduce("+", weighted_preds)
+
+    weighted_preds[, 1:3]
+}
+
+## Average across imputations and validate
+pp_doe <- Reduce("+", pp_doe)
+pp_doe <- pp_doe / length(trained_weights)
+stopifnot(all.equal(range(rowSums(pp_doe)), c(1, 1)))
+
+## Convert to data frame
+pp_doe <- pp_doe %>%
     data.frame() %>%
-    select(VictoryA, Stalemate, VictoryB) %>%
-    mutate(method = "capratio")
-
-## Merge in DOE scores
-pp_doe <- imputations_train[[1]] %>%
-    left_join(pred_dir_dyad, by = c("ccode_a", "ccode_b", "year")) %>%
-    select(VictoryA, Stalemate, VictoryB) %>%
     mutate(method = "doe")
+pp_doe$Outcome <- dat$Outcome
 
 ## Make data to pass to ggplot
-pp_data <- rbind(pp_capratio, pp_doe)
-pp_data$Outcome <- factor(imputations_train[[1]]$Outcome,
-                          levels = c("VictoryA", "Stalemate", "VictoryB"),
-                          labels = c("A Wins", "Stalemate", "B Wins"))
-pp_data$method <- factor(pp_data$method,
-                         levels = c("capratio", "doe"),
-                         labels = c("Ordered Logit on Capability Ratio",
-                                    "Super Learner"))
+pp_data <- rbind(pp_capratio, pp_doe) %>%
+    mutate(Outcome = factor(
+               Outcome,
+               levels = c("VictoryA", "Stalemate", "VictoryB"),
+               labels = c("Outcome: A Wins", "Outcome: Stalemate", "Outcome: B Wins")
+           ),
+           method = factor(
+               method,
+               levels = c("capratio", "doe"),
+               labels = c("Ordered Logit on Capability Ratio",
+                          "Super Learner")
+           ))
+pp_data <- rbind(
+    pp_data[pp_data$Outcome == "Stalemate", ],
+    pp_data[pp_data$Outcome != "Stalemate", ]
+)
 
-tikz(file = file.path("..", "latex", "fig-in-sample.tex"),
-     width = 5,
-     height = 4)
+tikz(file = file.path("..", "latex", "fig-oof-pred.tex"),
+     width = 5.25,
+     height = 6.75)
 ggtern(pp_data,
        aes(x = VictoryA,
            y = Stalemate,
            z = VictoryB)) +
-    geom_point(aes(shape = Outcome,
-                   colour = Outcome),
-               alpha = 0.3) +
-    scale_colour_brewer("Observed Outcome",
-                        palette = "Set1") +
-    scale_shape("Observed Outcome") +
+    geom_point(alpha = 0.3) +
     scale_T_continuous("$\\emptyset$") +
     scale_L_continuous("$A$") +
     scale_R_continuous("$B$") +
-    facet_wrap(~ method) +
+    facet_grid(Outcome ~ method) +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) +
     theme_grey(base_size = 10) +
     theme(axis.tern.ticks = element_blank(),
@@ -110,7 +195,7 @@ ggtern(pp_data,
 dev.off()
 
 ## Version for slides
-tikz(file = file.path("..", "slides", "fig-in-sample.tex"),
+tikz(file = file.path("..", "slides", "fig-oof-pred.tex"),
      width = 4.25,
      height = 3.25)
 ggtern(pp_data,
@@ -152,6 +237,8 @@ pp_usa_russia_doe <- pred_dyad %>%
 ##
 ## Need to do it twice to average, same way the undirected DOE scores are
 ## calculated
+polr_capratio <- polr(Outcome ~ capratio,
+                      data = dat)
 pp_usa_russia_cr_a <- predict(polr_capratio,
                               newdata = pp_usa_russia_doe,
                               type = "prob")
@@ -183,7 +270,7 @@ dat_usa_russia <- rbind(dat_usa_russia_cr, dat_usa_russia_doe) %>%
 
 tikz(file = file.path("..", "latex", "fig-vs.tex"),
      width = 5,
-     height = 3.5,
+     height = 3.25,
      packages = c(getOption("tikzLatexPackages"),
                   "\\usepackage{amsmath}"))
 ggplot(dat_usa_russia, aes(x = year, y = probability)) +

@@ -73,16 +73,8 @@ args_to_train <- function(arg_list,
             ## of backing out the estimated probability of the *observed*
             ## outcome.
             pred$obs <- data_test$Outcome
-            pred <- gather_(pred,
-                            key_col = "Outcome",
-                            value_col = "prob",
-                            gather_cols = levels(pred$obs))
 
-            ## Extract the predicted values for the observed outcomes
-            pred <- filter(pred,
-                           as.character(obs) == as.character(Outcome))
-
-            fit <- pred$prob
+            fit <- pred
         }
 
         if (!is.null(logfile)) {
@@ -94,12 +86,7 @@ args_to_train <- function(arg_list,
     }
 
     ## Process output
-    if (for_probs) {
-        ans <- do.call("cbind", ans)
-        colnames(ans) <- names(arg_list)
-    } else {
-        names(ans) <- names(arg_list)
-    }
+    names(ans) <- names(arg_list)
 
     ans
 }
