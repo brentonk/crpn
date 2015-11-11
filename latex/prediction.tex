@@ -14,21 +14,17 @@ Much recent progress is due to the development of measurement models.\footnote{O
   ``All of us are comfortable with the notion of statistical \emph{models} that provide representations of structural relationships between variables.  But, modern social science also regards measurement as a model that pertains to each of the individual variables.  Careful attention and rigorous approaches are just as important for the latter type of models, as they are for the former.''
 \end{quote}
 Moreover, when the unobserved quantity is an abstraction, appropriate measurement models allow the analyst to perform direct tests that follow from the same set of assumptions as those used in the original, theoretical model.
-As \citet[355]{clinton2004} put it in the context of testing legislative behavior, ``it is inappropriate to use ideal points estimated under one set of assumptions...to test a different behavioral model....''  \citet[530]{shor2011} note that the close relationship between statistical and theoretical models of legislative behavior (and their requisite assumptions) ``has contributed to a much tighter link between theory and empirics in these subfields of political science.''
+As \citet[355]{clinton2004} put it in the context of testing legislative behavior, ``it is inappropriate to use ideal points estimated under one set of assumptions...to test a different behavioral model....''  \citet[530]{shor2011} note that the close relationship between statistical and theoretical models of legislative behavior (and their requisite assumptions) ``has contributed to a much tighter link between theory and empirics in these subfields of political science.''  
 
 While better models (and better ways to estimate their parameters) have improved our measures of a variety of important quantities, it remains problematic that modern political measurement has ignored the importance of predictive power in producing proxies.
 This is odd, as seminal contributions to the literature utilize classification---a criterion often used in machine learning, where the focus is usually on prediction---as a way to prove a new measure's superiority over extant ones. For example, in the classic paper on ideal point estimation in American legislatures, \citet[Table 3]{poole1985} report that a simple classification approach based on their NOMINATE scores correctly predicts over 80\% of legislative votes in most years in their data. Though their procedure estimates ideal points via the method of maximum likelihood rather than via a classification criterion, it remains that this analysis lies prone to textbook overfitting problems.
 In their paper, Poole and Rosenthal estimate ideal points within a single Congressional session, and their classification test then uses those ideal points to assess voting within the same Congressional session.
 While many of the correct classifications reflect the spatial model's explanatory virtues, others may arise due to overfitting to the data within that Congressional session.
 
-It is for these reasons that we advocate a data-driven approach based on predictive performance.  While traditional statistical approaches to measurement minimize error or maximize likelihood within the entire data set, we instead aim to optimize out-of-sample prediction.\footnote{Our formal criterion for predictive performance, the log loss function, is explicitly described in the methods section.}
-We do so through cross-validation.
-Each observation in our data is assigned to a ``fold,'' and each fold is given a battery of predictions based on models fit to data not including the fold.  
-That is, each observation is assigned a set of predictions from models fit to other data.
-Our battery of predictions include a variety of estimators, including traditional models like ordered logit but also more flexible algorithms like random forests or averaged neural nets. 
-We determine the best weighted average of these estimators by using the out-of-sample predictions assigned to each observation.
-With models fit, predictions assessed, and weights derived, we use the results to produce a final estimate.
-
+It is for these reasons that we advocate a data-driven approach based on predictive performance.  While traditional statistical approaches to measurement minimize error or maximize likelihood within the entire data set, we instead aim to optimize out-of-sample prediction.
+We do so through cross-validation, a statistical learning procedure that allows us to simulate out-of-sample prediction without withholding any data in the model fitting process.
+We fit a variety of models to the data, including highly flexible machine learning algorithms, and assess each of their predictive performance through cross-validation.
+We then make our final predictions by taking a weighted average of these many individual models.
 This approach explicitly addresses the problems enumerated above: it avoids the overfitting problems associated with traditional measurement techniques and the model selection problems associated with attempts to bring new data to bear for predictive purposes.
 We believe that the costs of our approach---additional computation and difficulty in interpreting the results---pale in comparison to these benefits.
 
