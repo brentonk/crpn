@@ -6,12 +6,13 @@
 \usepackage{sectsty}
 \usepackage{tikz}
 \usepackage[labelsep=period,font=small,labelfont=bf]{caption}
-\usepackage[charter]{mathdesign}
+\usepackage[charter, cal = cmcal]{mathdesign}
 \usepackage[scaled]{helvet}
 \usepackage{pdflscape}
 \usepackage{afterpage}
 \usepackage[hyphens]{url}
 \usepackage[colorlinks=true,citecolor=black]{hyperref}
+\usepackage{booktabs}
 
 % Highlighted notes
 \usepackage{xcolor}
@@ -58,16 +59,17 @@
 \maketitle
 
 \begin{abstract}
-  Modern approaches to political measurement have generally ignored the importance of out-of-sample predictive performance. 
+  \noindent Modern approaches to political measurement have generally ignored the importance of out-of-sample predictive performance.
   This is problematic for two reasons: first, many of the abstractions scholars attempt to proxy for are themselves expectations; and second, the resulting measures are prone to overfitting.
-  We advocate a data-driven approach to measurement based on the train-validate-test paradigm from machine learning. 
-  We demonstrate the effectiveness of the approach as it applies to proxying the expected outcome of militarized interstate disputes. 
+  We advocate a data-driven approach to measurement focused on out-of-sample prediction.
+  We demonstrate the effectiveness of the approach as it applies to proxying the expected outcome of militarized interstate disputes.
   The standard proxy for expected dispute outcomes, the ratio of material capability indices, has almost no predictive power.
   We use ensemble learning to construct a new measure from the same underlying covariates---the Dispute Outcome Expectations score, or DOE---whose predictive power far exceeds that of the standard measure.
   In replications of 18 empirical studies of international relations, we find that replacing standard capability measures with DOE scores usually improves both in-sample and out-of-sample goodness of fit.
 \end{abstract}
-
-\clearpage
+\thispagestyle{empty}
+\newpage
+\setcounter{page}{1}
 
 
 \input{introduction}

@@ -1,40 +1,39 @@
-\section{Introduction}
+%\section{Introduction}
 
 Of all the challenges in political science, perhaps none is more difficult and rewarding than measuring theoretical quantities.
 Sometimes the most important concepts are the most elusive to measure.
 Many analyses tackle the measurement problem by using (or producing) the simplest measure possible, often in the form of summated rating scales.\footnote{For a brief introduction, see \citet{spector2006}.}
 The practice persists even though these simple measures often introduce \emph{ad hoc} assumptions (such as those regarding the weights to attribute to each item in the rating scale), and authors are often apologetic for their use.
 Over the years, methodologists have mitigated old frustrations by developing better models for measuring a variety of quantities, from ideal points \citep{clinton2004} to judicial independence \citep{linzer2014} to democracy \citep{jackman2008}.
-At the same time, the discipline has amassed an impressive amount of data, particularly historical data.
+At the same time, scholars have amassed an impressive amount of data, particularly historical data.
 Ideal points now use roll calls back to the American Constitutional Convention \citep{heckelman2013}; conflict scholars can access industrial output figures for each state dating back to the Napoleonic Wars \citep{singer1972}.
 Improvements in computing power, coupled with scholarly ingenuity, ensure that this progress will continue for the foreseeable future.
 
 We should feel sanguine given these advances, but we should also pause to consider the nature of the measurement enterprise.
 Our new data sets enable us to ask and answer meaningful measurement questions, and this often means doing more than taking unweighted averages of our new variables.
-Put differently, when imposed on new and interesting data, crude measures seem especially crude---we cannot complain that they are underfit, since they are not fit to data at all.
+Put differently, when imposed on new and interesting data, crude measures seem especially crude---we cannot even complain that they are underfit, since they are not fit to data at all.
 At the other extreme, measurement models with an abundance of parameters run the risk of overfitting: the attribution of systematic importance to random error.
-Likewise, as our datasets grow, so too do we run the risk of attributing too much reliability (sociologically speaking) to our potentially overfit results.
-Yet, to our knowledge, none of the recent advances in political measurement have taken out-of-sample performance into account; rather, attention is paid to developing and interpreting measures that best reflect extant data.\footnote{In contrast, structural modelers have paid increasing attention to overfitting problems \citep{pitt2002,preacher2006}, though most instruction retains its focus on fit.}
-This is especially unfortunate given that many abstract quantities, particularly those based on formal models of decision under uncertainty, reflect expectations.
-However, the measurement of any quantity suffers when a data set's unique peculiarities are assigned too much explanatory import.
+Likewise, as our data sets grow, so too do we run the risk of attributing too much reliability (sociologically speaking) to our potentially overfit results.
+Yet, to our knowledge, none of the recent advances in political measurement have taken out-of-sample performance into account; rather, attention is paid to developing and interpreting measures that best reflect extant data.\footnote{In contrast, structural modelers have paid increasing attention to overfitting problems \citep{pitt2002,preacher2006}, though most instruction retains its focus on fit.  We should note that some have examined how \emph{unsupervised} learning relates to prediction; see \citet{tibshirani2005}.}
+We aim to provide an approach to measurement that strikes a balance between the severely underfit approaches common to applied work and the potentially overfit approaches developed by specialized technicians.
+Doing so requires us to pay close attention to prediction from the outset.
 
-Theoretical expectations present unique measurement challenges. 
-Consider the statistical model of militarized interstate dispute onset analyzed by \citet{leeds2003}. 
-Though she is interested in the effect of outside alliances on dispute onset, Leeds argues that she (like so many other empirical conflict scholars) ``must embed [alliance] variables in an empirical model that predicts a base probability of dispute initiation'' (433). 
-One contributor to such a baseline model is a variable that ``compares the power of the potential challenger to the power of the potential target,'' which is justified ``because stronger states are more likely to \emph{expect military success}'' (434, emphasis added). 
-Unsurprisingly, then, Leeds constructs the ratio of the capabilities of one state to the sum of the capabilities of the dyad, which ranges from 0 to 1---as a probability does, highlighting the measure's theoretical roots as an expectation. 
-The capability measures, Composite Indices of National Capabilities \citep{singer1972}, are themselves transformations of summated rating scales that were constructed \textit{a priori}, without data-driven choices of weights or transformations. 
+Though any measure suffers when a data set's unique peculiarities are assigned too much explanatory import, theoretical expectations provide unique challenges.  To animate the situation, imagine a real-world leader that must decide whether to start a war against another state.
+Perhaps inspired by Santayana's observation that ``those who cannot remember the past are condemned to repeat it,'' the leader orders her statisticians to obtain data on the outcomes of previous conflicts and the material capabilities of their combatants.
+The statisticians, of course, could use the data in a variety of ways to produce a prediction, but the leader would care only that the prediction was the one that did the best job of predicting.
+More to the point, the leader would care less that estimates of the relevant parameters fit the historical data as well as possible (as would be the case if the statisticians ran traditional logit or probit models alone) and would care more that the prediction was of high quality.
+Indeed, to borrow another aphorism, we can reimagine the oft-lamented sin of ``fighting the last war'' \citep[e.g.][]{hart1972} as overfitting such historical models with excess weight placed on recent observations.
+Yet, when we write down formal models of choice under uncertainty featuring actors like this leader, we operate on the assumption that the expectation in question is, by definition, the predictor of the relevant outcome---and, as such, is neither under- nor overfit to some other relevant data at the hypothetical decision-maker's disposal.
+
+Just like the leader, empirically-minded scholars want the estimate of war outcomes that predicts best rather than the one that fights the last war.
+Consider the statistical model of militarized interstate dispute onset analyzed by \citet{leeds2003}.
+Though she is interested in the effect of outside alliances on dispute onset, Leeds argues that she ``must embed [alliance] variables in an empirical model that predicts a base probability of dispute initiation'' (433).
+One contributor to such a baseline model is a variable that ``compares the power of the potential challenger to the power of the potential target,'' which is justified ``because stronger states are more likely to \emph{expect military success}'' (434, emphasis added).
+Unsurprisingly, then, Leeds constructs the ratio of the capabilities of one state to the sum of the capabilities of the dyad, which ranges from 0 to 1---as a probability does, highlighting the measure's theoretical roots as an expectation.
+The capability measures, Composite Indices of National Capabilities \citep{singer1972}, are themselves transformations of summated rating scales that were constructed \textit{a priori}, without data-driven choices of weights or transformations.
 But if we were to construct a traditional measurement model for the CINC scores' underlying variables, we would run the risk of overfitting.
 
-Dispute expectations therefore put us in the middle of a measurement impasse.
-To animate the situation, imagine a real-world leader that must decide whether to start a war against another state.
-Perhaps inspired by Santayana's observation that ``those who cannot remember the past are condemned to repeat it,'' the leader orders her statisticians to obtain data on the outcomes of previous conflicts and the material capabilities of their combatants.
-The statisticians, of course, could use the data in a variety of ways to produce a prediction for the hypothetical war in question, but the leader would care only that the prediction was the one that did the best job of predicting.
-More to the point, the leader would care less that the relevant parameters fit the historical data as well as possible (as would be the case if the statisticians ran traditional logit or probit models alone) and would care more that the prediction was of high quality.
-Indeed, to borrow another aphorism, we can reimagine the oft-lamented sin of ``fighting the last war'' \citep[e.g.][]{hart1972} as overfitting such historical models with excess weight placed on recent observations.
-Just like the leader, users of the bargaining model want the estimate of war outcomes that predicts best rather than the one that fights the last war.
-
-We aim to do right by the leader. 
+We aim to do right by both the leader and the scholar.
 In this article, we argue that proxies should be constructed to predict well and that functional forms should be assessed on that criterion.
 We advocate a data-driven approach focused on out-of-sample prediction: a proxy for the expectation of some political outcome ought to be a good predictor of that outcome.
 When selecting from the variety of potential models to construct a proxy variable, the data used to \emph{assess} the model should not be same as the data used to \emph{fit} it.
@@ -44,27 +43,29 @@ Our focus, however, is on constructing measures rather than comparing them---in 
 
 We apply our approach to the measurement of political power, which arises in all areas of political science but is especially important in the study of international conflict.
 The bargaining model of war \citep{fearon1995}---long the workhorse model in modern IR theory---operationalizes power into expected dispute outcomes, most often represented by the probability that one state defeats another in battle, denoted $p$.
-Given the bargaining model's importance, it comes as no surprise that empirical scholars have sought to include a proxy for $p$ in their analyses.
-Most scholars have followed Leeds' lead and used ratios of CINC scores.\footnote{
+Given the bargaining model's importance, it comes as no surprise that empirical scholars have tried to proxy for $p$ in their analyses.
+Most scholars have followed Leeds' lead and used ratios of CINC scores, more commonly called capability ratios.\footnote{
   \label{fn:replications}
   In a search of some of the top journals for empirical work in international relations, we found at least 94 articles between 2005 and 2014 using CINC ratios or another function of CINC scores in a dyadic analysis.
   The journals examined were \emph{American Political Science Review}, \emph{American Journal of Political Science}, \emph{Journal of Politics}, \emph{International Organization}, and \emph{International Studies Quarterly}.
 }
-CINC ratios are inappropriate as a proxy for expected dispute outcomes for a variety of reasons, including problems with the CINC function itself, \emph{ad hoc} parameterizations, and issues of functional form.
+Capability ratios are inappropriate as a proxy for expected dispute outcomes for a variety of reasons, including problems with the CINC function itself, \emph{ad hoc} parameterizations, and issues of functional form.
 What is more, when evaluated on predictive performance, we find that \emph{capability ratios predict nothing}: they fail to predict any outcome other than the modal category (that the dispute ends in a stalemate) and barely improve out-of-sample predictive performance (1.2\%) over a null model.
-Conversely, the measure we construct---DOE (Dispute Outcome Expectations) scores---improves out-of-sample predictive performance by 16.8\%.
-It is notable that this is the case despite the fact that we use the same component variables from which the CINC score is constructed.
+Conversely, our method yields predictions with much larger spread and improves out-of-sample predictive performance by 20\%.
+It is notable that this is the case even though we use the same component variables from which the CINC score is constructed.
 
-DOE scores retain the simple, probabilistic flavor advanced in Leeds' justification for inclusion in her model. 
-For every dyad-year (or directed-dyad-year) covered by the Correlates of War data, we provide the probability that each state would win a hypothetical dispute as well as the probability of stalemate. 
+Our result is also of major substantive interest:  a scholar armed only with capability ratios and a logit routine would conclude that material capabilities have little effect on dispute outcomes, whereas our results suggest that material capabilities matter in a very real way.  That effect can only manifest itself, however, when the analyst uses tools that allow subtle and nuanced relationships among the predictors and the response to shine through---that is, through the use of flexible algorithms.  When deciding whether to roll the iron dice, decision-makers make calculations over the evidence in a way that we as analysts could never hope to understand through statistical machinery alone.  But at the very least, our analysis suggests that statistical flexibility can produce results that satisfy both the historical record and our scholarly priors.
+
+We use our method to construct a new measure:  the DOE (Dispute Outcome Expectations) score.  DOE scores retain the simple, probabilistic flavor advanced in Leeds' justification for inclusion in her model.
+For every dyad-year (or directed-dyad-year) covered by the Correlates of War data, we provide the probability that each state would win a hypothetical dispute as well as the probability of stalemate.
 Unlike other contrivances based on CINC ratios, our scores make intuitive sense when interpreted in plain language.
 
-In advocating for the DOE score over the capability ratio and its cousins, we are not asking applied international relations scholars to give anything up. 
-We replicated 18 recent empirical studies that utilized the capability ratio and then replaced it with the DOE score. 
-In 15 of the 18 replications, the DOE score improved both in- and out-of-sample goodness of fit.
-This means that DOE score is better than the capability ratio for four reasons: it comports better with scholars' theories of international relations; it avoids the underfitting of \emph{ad hoc} measures while avoiding the overfitting of traditional measurement models; it has a natural interpretation as the probability of each dispute outcome; and it usually performs better in the kinds of analyses most empirical international relations scholars care about.
+In advocating for the DOE score, we are not asking applied international relations scholars to give anything up.
+We replicated 18 recent empirical studies that utilized the capability ratio and then replaced it with the DOE score.
+In 14 of the 18 replications, the DOE score improved out-of-sample goodness of fit, and it improved in-sample fit 15 times.
+All told, the DOE score is preferable than the capability ratio for four reasons: it more directly reflects theories of international relations; it avoids the underfitting of \emph{ad hoc} measures while avoiding the overfitting of traditional measurement models; it has a natural, probabilistic interpretation; and it usually performs better in the kinds of analyses most applied scholars care about.
 
-The analysis proceeds in five sections.
+The paper proceeds in five sections.
 In the first two, we argue for the importance of predictive power in constructing proxies and assess the functional problems associated with capability ratios.
 Section~\ref{sec:methods} describes the data and methods we use to construct a new proxy for expected dispute outcomes, and section~\ref{sec:replications} provides the results of our replications.
 The final section addresses next steps and concludes.
