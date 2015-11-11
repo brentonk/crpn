@@ -1,10 +1,10 @@
 \section{Using the New Measure}
 \label{sec:replications}
 
-We have introduced a new measure of expected dispute outcomes and shown that it is a noticeably better proxy than the capability ratio.
-The next question that arises is whether, or in what situations, the new measure is useful for the empirical study of international relations.
-The capability ratio belongs to the standard battery of control variables in statistical analyses of conflict.
-Can we improve on these analyses---i.e., do they fit the data better---if we replace the capability ratio with our new measure?
+So far, we have focused on showing that DOE scores predict militarized dispute outcomes better than the capability ratio does.
+However, international relations scholars often control for the capability ratio as a proxy for expected outcomes when modeling dependent variables besides who wins, such as the onset or escalation of a dispute.
+We have shown that the DOE score is a better proxy than the capability ratio, but it does not follow immediately that it is a better control variable in studies of conflict more generally.
+Can we improve on these analyses---i.e., do our regressions fit the data better---if we replace the capability ratio with our new measure?
 To address this question, we replicate 18 recent analyses of conflict using DOE scores in place of the capability ratio or other functions of CINC scores.
 On the whole, we see that the models with DOE scores tend to have better in- and out-of-sample fit, though not always.
 In the remainder of this section, we describe the replication study and its findings, and we provide some guidance for selecting a measure in applied research.
@@ -32,12 +32,11 @@ In the remainder of this section, we describe the replication study and its find
 We constructed the set of replications by looking for empirical analyses of dyad-years (directed or undirected) that included the capability ratio or another function of CINC scores as a covariate.
 Each study was published recently in a prominent political science or international relations journal.\footnote{
   For details, see footnote~\ref{fn:replications}.
-  In future iterations of the project, we are planning to add replications of analyses from the \emph{Journal of Conflict Resolution}.
 }
 We examined only studies with publicly available replication data.
 If we could not reproduce a study's main result or were unable to merge the DOE scores into the replication data (because of missing dyad-year identifiers), we excluded it from the analysis.
 We also excluded studies that employed duration models or selection models, due to conceptual and technical problems with assessing their out-of-sample performance.
-Lastly, we excluded studies in which our measure of expected dispute outcomes would be endogenous, namely those whose dependent variable was the same as or closely related to the one we used to construct the DOE scores.
+Lastly, we excluded studies in which our measure of expected dispute outcomes would be endogenous, namely those whose dependent variable was MID outcomes---the same data we used to construct the DOE scores---or a closely related quantity.
 In the end, we were left with the 18 studies listed in Table~\ref{tab:replications}.
 
 For each analysis in our sample, we begin by identifying the main statistical model reported in the paper, or at least a representative one.\footnote{
@@ -59,19 +58,19 @@ In addition, we compute the \citet{Vuong:1989uf} test of the null hypothesis tha
   We employ the standard Bayesian Information Criterion \citep{Schwarz:1978kh} correction to the Vuong test statistic.
 }
 To estimate each model's out-of-sample fit, we perform repeated 10-fold cross-validation.
-Because each study has a discrete dependent variable, we again employ the log loss to measure out-of-sample fit.
+Because each study has a discrete dependent variable, we again employ the log loss (equation~\eqref{eq:log-loss}) to measure out-of-sample fit.
 
 Table~\ref{tab:replications} summarizes the results of the replication analysis.
 In general, the models that include DOE scores do better than those with CINC scores by both in- and out-of-sample criteria.
 Starting with in-sample fit, we see that the DOE model has a lower AIC than the CINC model in 15 of 18 cases.
-Moreover, in about half of those cases (7), under the Vuong test we would reject the null hypothesis that the models fit equally well at the 0.05~significance level.
-The difference in fit is also statistically significant in two of the three cases where the CINC model fits the sample better.
-The results are similar for out-of-sample fit, with the DOE model having a greater proportional reduction in log loss in the same 15 cases.
+Moreover, in more than half of those cases (8), under the Vuong test we would reject at the 0.05~significance level the null hypothesis that the models fit equally well.
+The difference in fit is also statistically significant in all three cases where the CINC model has a lower AIC.
+The results are similar for out-of-sample fit, with the DOE model having a greater proportional reduction in log loss in 14 cases.
 The improvement due to using DOE scores is typically modest---about a single percentage point increase in the proportional reduction in log loss.
 
 With such a small sample of replicated studies, we can only conjecture about why DOE performs better in some cases and worse in others.
 We see that the cases where DOE is significantly better according to the Vuong test tend to have large sample sizes---but, then again, the study where it does worst has the largest $N$ in our sample.
-When we look at the two replications where DOE performs worst, namely \citet{Bennett:2006gp} and \citet{Fordham:2008gs}, we see that both specifications include the raw CINC scores alongside or in lieu of the capability ratio.
+In two of the replications where DOE performs worst, namely \citet{Bennett:2006gp} and \citet{Fordham:2008gs}, we see that both specifications include the raw CINC scores alongside or in lieu of the capability ratio.
 These terms may be capturing monadic effects that the purely dyadic DOE scores miss.
 On the other hand, in the other three analyses that include raw CINC scores \citep{Arena:2009gk,Zawahri:2011iy,Weeks:2012be}, the replication with DOE scores performs better by both AIC and cross-validation loss.
 
