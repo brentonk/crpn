@@ -194,24 +194,40 @@ ggtern(pp_data,
           legend.position = "bottom")
 dev.off()
 
-## Version for slides
-tikz(file = file.path("..", "slides", "fig-oof-pred.tex"),
+## Versions for slides
+tikz(file = file.path("..", "slides", "fig-oof-pred-capratio.tex"),
      width = 4.25,
      height = 3.25)
-ggtern(pp_data,
+ggtern(pp_data %>% filter(method == "Ordered Logit on Capability Ratio"),
        aes(x = VictoryA,
            y = Stalemate,
            z = VictoryB)) +
-    geom_point(aes(shape = Outcome,
-                   colour = Outcome),
-               alpha = 0.3) +
-    scale_colour_brewer("Observed Outcome",
-                        palette = "Set1") +
-    scale_shape("Observed Outcome") +
+    geom_point(alpha = 0.3) +
     scale_T_continuous("$\\emptyset$") +
     scale_L_continuous("$A$") +
     scale_R_continuous("$B$") +
-    facet_wrap(~ method) +
+    facet_wrap(~ Outcome, nrow = 2) +
+    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+    theme_grey(base_size = 8) +
+    theme(axis.tern.ticks = element_blank(),
+          axis.tern.text = element_text(size = rel(0.8)),
+          plot.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA),
+          legend.position = "bottom")
+dev.off()
+
+tikz(file = file.path("..", "slides", "fig-oof-pred-sl.tex"),
+     width = 4.25,
+     height = 3.25)
+ggtern(pp_data %>% filter(method == "Super Learner"),
+       aes(x = VictoryA,
+           y = Stalemate,
+           z = VictoryB)) +
+    geom_point(alpha = 0.3) +
+    scale_T_continuous("$\\emptyset$") +
+    scale_L_continuous("$A$") +
+    scale_R_continuous("$B$") +
+    facet_wrap(~ Outcome, nrow = 2) +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) +
     theme_grey(base_size = 8) +
     theme(axis.tern.ticks = element_blank(),
@@ -285,4 +301,51 @@ ggplot(dat_usa_russia, aes(x = year, y = probability)) +
           axis.ticks.y = element_blank(),
           legend.position = "bottom",
           legend.box = "horizontal")
+dev.off()
+
+## Versions for slides
+tikz(file = file.path("..", "slides", "fig-usa-russia-capratio.tex"),
+     width = 4.25,
+     height = 3.25,
+     packages = c(getOption("tikzLatexPackages"),
+                  "\\usepackage{amsmath}"))
+ggplot(dat_usa_russia %>% filter(method == "Ordered Logit on Capability Ratio"),
+       aes(x = year, y = probability)) +
+    geom_area(aes(fill = quantity), alpha = 0.8) +
+    scale_x_continuous("Year") +
+    scale_y_continuous("Predicted Probability") +
+    scale_fill_manual("Outcome",
+                      values = rev(brewer.pal(3, "Blues")),
+                      guide = FALSE) +
+    annotate("text", x = 1911.5, y = 0.04, label = "USA Wins", size = 2.5) +
+    annotate("text", x = 1911.5, y = 0.5, label = "Stalemate", size = 2.5) +
+    annotate("text", x = 1911.5, y = 0.96, label = "Russia Wins", size = 2.5) +
+    ggtitle("Capability Ratio Model") +
+    theme_grey(base_size = 8) +
+    theme(axis.tern.ticks = element_blank(),
+          axis.tern.text = element_text(size = rel(0.8)),
+          plot.background = element_rect(fill = "transparent", colour = NA))
+dev.off()
+
+tikz(file = file.path("..", "slides", "fig-usa-russia-sl.tex"),
+     width = 4.25,
+     height = 3.25,
+     packages = c(getOption("tikzLatexPackages"),
+                  "\\usepackage{amsmath}"))
+ggplot(dat_usa_russia %>% filter(method == "Super Learner"),
+       aes(x = year, y = probability)) +
+    geom_area(aes(fill = quantity), alpha = 0.8) +
+    scale_x_continuous("Year") +
+    scale_y_continuous("Predicted Probability") +
+    scale_fill_manual("Outcome",
+                      values = rev(brewer.pal(3, "Blues")),
+                      guide = FALSE) +
+    annotate("text", x = 1911.5, y = 0.04, label = "USA Wins", size = 2.5) +
+    annotate("text", x = 1911.5, y = 0.5, label = "Stalemate", size = 2.5) +
+    annotate("text", x = 1911.5, y = 0.96, label = "Russia Wins", size = 2.5) +
+    ggtitle("DOE Scores") +
+    theme_grey(base_size = 8) +
+    theme(axis.tern.ticks = element_blank(),
+          axis.tern.text = element_text(size = rel(0.8)),
+          plot.background = element_rect(fill = "transparent", colour = NA))
 dev.off()
