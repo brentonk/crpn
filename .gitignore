@@ -25,6 +25,7 @@ Icon*
 *.out
 *.snm
 *.synctex
+*.synctex.gz
 *.toc
 *.vrb
 
