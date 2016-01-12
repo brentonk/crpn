@@ -1,0 +1,139 @@
+\documentclass{beamer}
+\usepackage{tikz}
+
+\usetheme[numbering=none]{m}
+
+\newcommand{\fhat}[4]{\hat{f}_{#2}^{(- #3)} (#4 \,|\, X_{#1})}
+\newcommand{\es}{\emptyset}
+\newcommand{\tsum}{\textstyle\sum}
+
+\title{Capability Ratios Predict Nothing}
+\date{January 7, 2016}
+\author{Robert J. Carroll \and Brenton Kenkel}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}
+  \frametitle{What We Want to Know}
+
+  In a hypothetical dispute between two states, how likely is each side to win?
+\end{frame}
+
+\begin{frame}
+  \frametitle{Our Approach}
+
+  \begin{enumerate}
+    \item Establish \textbf{predictive power} as the criterion
+    \item Show that the \textbf{capability ratio} fails
+    \item Use \textbf{machine learning} to make a new measure:\\
+    the Dispute Outcome Expectations score
+    \item Confirm its superiority in \textbf{replications} of conflict studies
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluating the Capability Ratio}
+
+  \begin{itemize}
+    \item Run ordered logit of MID outcomes on capability ratios
+    \item Compare predicted probabilities to actual outcomes
+    \item Cross-validate so predictions are out-of-sample
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluating the Capability Ratio}
+
+  \input{fig-oof-pred-capratio}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Building a Better Measure}
+
+  \begin{itemize}
+    \item Make CINC data more granular
+    \begin{itemize}
+      \item Individual components
+      \item Annual shares of components
+      \item Allow variation over time
+    \end{itemize}
+    \item Use machine learning to model MID outcomes flexibly
+    \begin{itemize}
+      \item Super Learner (van der Laan et al.\ 2007)
+      \item Predictively optimal weighted average of lots of models
+    \end{itemize}
+    \item Calculate predicted probabilities for every dyad--year: Dispute Outcome Expectations score
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluating the New Measure}
+
+  \input{fig-oof-pred-sl}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Expected Dispute Outcomes: USA vs. Russia}
+
+  \only<1>{\input{fig-usa-russia-capratio}}%
+  \only<2>{\input{fig-usa-russia-sl}}%
+\end{frame}
+
+\begin{frame}
+  \frametitle{Replications}
+
+  \begin{itemize}
+    \item Collect recent studies that control for capability ratio
+    \begin{itemize}
+      \item 18 papers total
+      \item Excludes those with MID outcome as dependent variable
+    \end{itemize}
+    \item Substitute DOE scores for capability ratio
+    \item See if models fit better
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Replications}
+
+  \input{fig-replication-prl}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary}
+
+  \begin{itemize}
+    \item Focus on out-of-sample prediction
+    \item Capability ratios predict (almost) nothing
+    \item Superiority of DOE scores:
+    \begin{itemize}
+      \item As a predictor of dispute outcomes
+      \item As a control in conflict regressions
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What's Next}
+
+  \begin{itemize}
+    \item Stricter forecasting
+    \item Additional variables
+    \begin{itemize}
+      \item Distance and contiguity
+      \item Nuclear weapons
+    \end{itemize}
+    \item Your suggestions!
+  \end{itemize}
+\end{frame}
+
+\plain{
+  thank you!
+
+  \vspace{2em}
+  \texttt{doe-scores.com}
+}
+
+\end{document}
