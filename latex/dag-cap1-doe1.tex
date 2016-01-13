@@ -1,0 +1,11 @@
+% Main document must include
+% \usepackage{tikz}  % for the graphics
+% \usepackage{etoolbox}  % for the if-then toggles
+
+\providetoggle{cap-to-dv}
+\providetoggle{doe-to-dv}
+
+\toggletrue{cap-to-dv}
+\toggletrue{doe-to-dv}
+
+\input{dag-common}
