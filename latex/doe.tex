@@ -34,9 +34,9 @@
 \renewcommand{\harvardurl}[1]{\textbf{URL:} \url{#1}}
 
 \title{
-  Capability Ratios Predict Nothing%
+  Predictive Power and the Performance of Proxies:  The Case of International Capabilities%
   \thanks{%
-    We thank Scott Bennett, Brett Benson, Inken von Borzyskowski, Kevin Clarke, Mark Fey, James Honaker, Zach Jones, Karen Jusko, Holger Kern, David Lewis, Adeline Lo, Matt Pietryka, Marc Ratkovic, Jim Ray, Mark Souva, and Hye Young You for helpful discussions and advice.
+    We thank Scott Bennett, Brett Benson, Bill Berry, Inken von Borzyskowski, Kevin Clarke, Mark Fey, James Honaker, Zach Jones, Karen Jusko, Holger Kern, David Lewis, Adeline Lo, Matt Pietryka, Marc Ratkovic, Jim Ray, Mark Souva, and Hye Young You for helpful discussions and advice.
     Bryan Rooney provided excellent research assistance.
     We also thank the authors listed in Table~\ref{tab:replications} for making their replication data publicly available.
     The current version of the Dispute Outcome Expectations data can be downloaded from \url{https://dataverse.harvard.edu/dataverse/doe-scores}.
@@ -46,7 +46,7 @@
 \author{%
   Robert J. Carroll%
   \thanks{%
-    Assistant Professor, Department of Political Science, Florida State University.  Email:  \nolinkurl{RobCarrollFSU@gmail.com}.
+    Assistant Professor, Department of Political Science, Florida State University.  Email:  \nolinkurl{rjcarroll@fsu.edu}.
   }%
   \and%
   Brenton Kenkel%
@@ -61,26 +61,21 @@
 \maketitle
 
 \begin{abstract}
-  \noindent Modern approaches to political measurement have generally ignored the importance of out-of-sample predictive performance.
-  This is problematic for two reasons: first, many of the abstractions scholars attempt to proxy for are themselves expectations; and second, the resulting measures are prone to overfitting.
-  We advocate a data-driven approach to measurement focused on out-of-sample prediction.
-  We demonstrate the effectiveness of the approach as it applies to proxying the expected outcome of militarized interstate disputes.
-  The standard proxy for expected dispute outcomes, the ratio of material capability indices, has almost no predictive power.
-  We use ensemble learning to construct a new measure from the same underlying covariates---the Dispute Outcome Expectations score, or DOE---whose predictive power far exceeds that of the standard measure.
-  In replications of 18 empirical studies of international relations, we find that replacing standard capability measures with DOE scores usually improves both in-sample and out-of-sample goodness of fit.
+  \noindent Drawing on the statistical learning literature, we develop a data-driven approach to measurement oriented around out-of-sample predictive performance.
+  The approach is especially useful for measuring theoretical quantities like expectations in formal models of choice under uncertainty; moreover, it avoids problems of both under- and overfitting common to extant approaches.
+  We apply our approach to measuring power in the context of international conflict, where the standard proxy for expected dispute outcome, the ratio of material capabilities, has almost no predictive power.
+  Our method greatly improves predictive power using the same covariates.
+  We use the technique to construct a new measure:  the Dispute Outcome Expectation, or DOE score.
+  In replications of 18 recent empirical studies in international relations, we find that replacing the standard capability measure with DOE scores usually improves both in-sample and out-of-sample goodness of fit.
 \end{abstract}
 \thispagestyle{empty}
 \newpage
 \setcounter{page}{1}
 
-
 \input{introduction}
 
 
-\input{prediction}
-
-
-\input{discontents}
+\input{proxy}
 
 
 \input{methods}

@@ -1,0 +1,94 @@
+%!TEX root = doe.tex
+
+\section{The Problem of Proxy Construction}
+\label{sec:proxy}
+Prior to launching into our application, we begin by considering the problem of proxy construction more generally.  
+We are often interested in questions that link observed data to some unobserved quantity.
+This latter quantity may be unobserved because it is difficult (or impossible) to measure directly (like wealth) or because it is an abstraction (like the ideal point of a voter in a spatial model).
+The latter is especially relevant in the social sciences; as \citet[13]{spector1992} argues:  ``if a construct is a theoretical abstraction, how then can one determine if a scale measures it?  This is a difficult problem that has undoubtedly hindered progress in the social sciences.''
+In either case, the applied analyst faces a choice between omitting some potentially important variable and including some proxy variable in its stead \citep{stahlecker1993}.
+There is no best choice: some theoretical econometricians \citep[e.g.][]{mccallum1972} argue for the inclusion of all proxies (including crude ones), while others \citep[e.g.][]{maddala1977} support only the use of reliable proxies.
+Even those in the former camp, however, admit that reliable proxies perform better than unreliable ones.
+
+\subsection{Weights and Functional Form}
+When a quantity cannot be measured directly, the most common way to proceed has been to measure for each observation $i$ a set of $k$ observable characteristics, $x_i = \left(x_{i1}, \ldots, x_{ik}\right)$, which resides in some set $X$; each characteristic is thought to relate to the unobserved quantity, but none relates well enough to serve as an indicator by itself.  
+The analyst chooses some indexing function $g:  X \rightarrow \mathbb{R}^m$, where $m < k$ (and ideally $m$ is very low), so that each observation, the measure $m_i = g(x_i)$.
+The hope, of course, is that $g(x_i)$ is a better indicator of the quantity of interest than is any given $x_i$.
+As an example, a summated rating scale $g_S:  X \rightarrow \mathbb{R}$ is simply
+\begin{align*}
+  g_S(x_i) &= \sum_{k} x_{ik}.
+\end{align*}
+More generally, the analyst may choose a set of weights $\alpha = (\alpha_k)$ to produce the weighted sum
+\begin{align*}
+  g_{W}(x_i; \alpha) &= \sum_{k} \alpha_k x_{ik} = \alpha \cdot x_i,
+\end{align*}
+where $g_W = g_S$ when $\alpha = 1$.  
+
+For example, consider the National Index of Material Capabilities, or CINC score.
+CINC scores are constructed with $k = 6$ indicators:  (1) proportion of world iron and steel production; (2) proportion of world personal energy consumption; (3) proportion of world military expenditures; (4) proportion of world military personnel; (5) proportion of world total population; and (6) proportion of world urban population.
+Weights are then assigned evenly at $\alpha_k = \frac{1}{6}$ for each $k$, so that
+\begin{align*}
+  g_{\text{CINC}}(x_i; \alpha) &= \sum_{k=1}^6 \frac{1}{6} x_{ik} = \frac{1}{6}\sum_{k=1}^6  x_{ik}.
+\end{align*}
+That is, the CINC score is the average of the six proportions enumerated above.
+
+It is unlikely that any parameter chosen \emph{a priori} is ideally suited for any measurement task, which is why we use techniques like principal components analysis to choose good weights given the data.
+A similar issue arises with functional form.
+For example, suppose we aim to proxy for $p$ in a bargaining model featuring countries $A$ and $B$.
+Most would proceed by creating a capability ratio out of the CINC scores:
+\begin{align*}
+	f_{\text{CR}}(x_A, x_B) &= \frac{g_{\text{CINC}}(x_A)}{g_{\text{CINC}}(x_A) + g_{\text{CINC}}(x_B)}.
+\end{align*}
+$f_{\text{CR}}$ falls in the unit interval, just as $p$ does; the choice of the functional form for $f$ itself flows from the theoretical point of emphasis.
+This separates the capability ratio from some other functional form choices; for example, in an enormously influential paper, \citet{bremer1992} uses the CINC ratio:
+\begin{align*}
+	f_{\text{Bremer}}(x_A, x_B) &= \frac{\max\left\{ g_{\text{CINC}}(x_A), g_{\text{CINC}}(x_B) \right\}}{ \min \left\{ g_{\text{CINC}}(x_A), g_{\text{CINC}}(x_B) \right\}}
+\end{align*}
+Unlike the capability ratio, $f_{\text{Bremer}}$ does not fall in the unit interval, which may or may not be problematic for any given application.
+Just as with the selection of weights when creating an index, the ``best'' functional form for a given purpose is dependent on the measurement and research context, and there is no reason to think that any given function selected \emph{a priori} is itself best.
+We next consider \emph{how} one evaluates models, their parameters, and their functional form impositions.
+
+\subsection{Evaluating Measurement Assumptions}
+The difficulties discussed above, of course, give measurement models their appeal: given some criterion to optimize over, the analyst can determine the best value of a parameter for the purpose at hand.
+It is natural to ask what makes for a good criterion to optimize over.
+This, too, depends on one's aims.
+Consider first the canonical measurement task:  variable reduction.
+To be specific, consider two well-known approaches to variable reduction:  principal components analysis and factor analysis.
+Though similar at face value, the two approaches to data reduction are quite different in their underlying models and in the criteria they optimize over.
+Principal components analyses find the weights of the variables that best explain their in-sample variation; conversely, factor analyses find linear combinations of abstract factors that best explain in-sample covariance among the variables.
+Though subtle, these differences in the underlying optimization problem imbue important differences into the two approaches to variable reduction:  principal components analyses tend to be best for pure reduction, while factor analyses often produce results with more substantively meaningful content.
+
+Like nearly any measurement technique, both principal components analysis and factor analysis feature an objective function evaluated entirely in sample, and the quality of fit is generally assessed in sample as well.
+We think that, in many measurement contexts, the criterion of interest should relate to out-of-sample predictive performance.
+The claim has intuitive appeal:  a country's underlying level of democracy should predict its future performance on democratic metrics; a legislator's underlying ideology should predict her future votes on the floor; a citizen's core values should predict future decisions made in the voting booth.
+Yet, when we evaluate measurement models on in-sample fit, we inherently choose explaining the past over predicting the future.
+Though both goals are laudable, focusing on in-sample fit exclusively can hinder our ability to achieve either of them.
+The problem, of course, is overfitting.
+Any sample has unique features that do not represent the population at large, and by fitting models on in-sample criteria and then evaluating them the same way, we run the risk of attributing real meaning to such random fluctuations.
+More to the point, many of the algorithms we employ below are capable of classifying dispute outcomes perfectly (or very close to perfectly) in the sample, but the results obtained from that analysis would surely generalize poorly to other data.
+It is difficult to imagine a good defense for a measure produced with a similar analysis, be it a measure of power, democracy, ideology, or anything else.
+
+We can think of the same issue from a different angle: the assumptions that undergird measurement techniques may be inappropriate for a general problem, but that inappropriateness may not manifest itself in a particular application.
+For example, consider again the canonical problem of variable reduction.
+The most intuitive approach---the summated rating scale introduced above---has a number of limitations, many of which hinder its goodness of in-sample fit.
+Other limitations, however, do not.
+As \citet[40]{jacoby1991} notes, the summated rating scale's \emph{a priori} assumption that all error is attributable to random fluctuation in one set of points assumes away the possibility that multiple dimensions exert simultaneous influence on the observables.
+This has consequences on our estimates of in-sample fit:  ``...the scale could appear to fit the data quite well (i.e., the reliability coefficient would take on a value close to 1.0), even though the `true' sources of variation stem from several underlying dimensions.'' 
+That is, the summated rating scale's underlying \emph{model} means that the analyst may attribute too much quality to the measure if in-sample fit is considered alone.
+Assumptions imposed \emph{a priori} may seem to work well in the context of a particular measurement problem, but the results will generalize poorly to other data.
+No model is perfect, but we should choose the model that imposes assumptions that seem to comport best with data beyond those included in the initial estimation.
+
+Our argument is especially relevant for proxies for theoretical expectations, which by definition predict an outcome that has not yet been realized.
+In the study of statistical decisions, the set of probabilities the decision-maker assigns to unobserved outcomes is both subjective and exogenous \citep[e.g.][Chapters 2--3]{pratt1995}, and optimal statistical decisions flow from consistency of preferences and behavior given sets of such subjective judgments.
+But, in the context of studying real-world behavior, it seems as though we should also think about what makes for the best estimates of outcome probabilities.
+In that case, we want the estimate that aligns most closely with with unobserved outcome rather than one that aligns most closely with the data at hand.
+
+In sum:  many simple approaches to measurement fall short because of \emph{a priori} assumptions about relevant parameters or the functional form itself.
+The analyst could avoid these problems by optimizing over some criterion, but choosing a criterion is itself a delicate task, and so long as that criterion relies solely on in-sample performance---as is the case in nearly all approaches to measurement---we run the risk of overfitting and thus overstating the quality of our measure.
+We argue that measurement should take out-of-sample performance into account, especially because of the unique challenges with proxying for theoretical expectations.
+In the next section, we demonstrate the usefulness of the approach with an application to dispute outcomes.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "doe"
+%%% End:
