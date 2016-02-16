@@ -37,7 +37,7 @@ On the whole, we see that the models with DOE scores tend to have better in- and
 }
 
 We constructed the set of replications by looking for empirical analyses of dyad-years (directed or undirected) that included the capability ratio or another function of CINC scores as a covariate.
-Each study was published recently in a prominent political science or international relations journal.\footnote{
+Each study was published recently in a prominent political science or international relations journal.\footnote{%
   For details, see footnote~\ref{fn:replications}.
 }
 We examined only studies with publicly available replication data.
@@ -46,13 +46,13 @@ We also excluded studies that employed duration models or selection models, due 
 Lastly, we excluded studies in which our measure of expected dispute outcomes would be endogenous, namely those whose dependent variable was MID outcomes---the same data we used to construct the DOE scores---or a closely related quantity.
 In the end, we were left with the 18 studies listed in Table~\ref{tab:replications}.
 
-For each analysis in our sample, we begin by identifying the main statistical model reported in the paper, or at least a representative one.\footnote{
+For each analysis in our sample, we begin by identifying the main statistical model reported in the paper, or at least a representative one.\footnote{%
   When no main model is apparent, our heuristic is to pick one on the log-likelihood--sample size frontier.
   Details of the model chosen from each paper and the functions of CINC and DOE scores used are in the Appendix.
 }
 We then estimate two models: the original model, and a replicated model where we replace any functions of CINC scores with their natural equivalents in DOE scores.
 For example, if the capability ratio is logged in the original model, we log the DOE scores in the replicated model.
-As a basic measure of each model's in-sample goodness of fit, we compute the \citet{Akaike:1974ih} Information Criterion,\footnote{
+As a basic measure of each model's in-sample goodness of fit, we compute the \citet{Akaike:1974ih} Information Criterion,\footnote{%
   Because DOE scores are ternary, the replicated models typically have more parameters than their original counterparts.
   Hence we measure in-sample fit with the AIC, which penalizes over-parameterization, rather than the log-likelihood.
 }
@@ -62,7 +62,7 @@ As a basic measure of each model's in-sample goodness of fit, we compute the \ci
   2(\text{number of coefficients}) - 2(\text{log-likelihood}).
 \end{displaymath}
 The AIC is commonly used in model selection, with lower values representing better fit.
-In addition, we compute the \citet{Vuong:1989uf} test of the null hypothesis that the original and replicated models fit equally well.\footnote{
+In addition, we compute the \citet{Vuong:1989uf} test of the null hypothesis that the original and replicated models fit equally well.\footnote{%
   We employ the standard Bayesian Information Criterion \citep{Schwarz:1978kh} correction to the Vuong test statistic.
 }
 To estimate each model's out-of-sample fit, we perform repeated 10-fold cross-validation.
@@ -137,7 +137,7 @@ The last possibility to consider is that expectations do not affect the outcome 
 In this case, empirical models should only include raw capability measures, not DOE scores.
 The clearest example is when the dispute outcome itself is the dependent variable.
 First, absent some kind of self-fulfilling prophecy effect, we would expect actual capability holdings to drive outcomes more so than expectations.
-Second, because DOE scores are calculated using the dispute outcome data, the DOE scores themselves are endogenous to observed outcomes, and thus should not be included as an independent variable when outcome is the dependent variable.\footnote{
+Second, because DOE scores are calculated using the dispute outcome data, the DOE scores themselves are endogenous to observed outcomes, and thus should not be included as an independent variable when outcome is the dependent variable.\footnote{%
   In principle, this latter problem could be solved, albeit at great computational expense, by only using data for years up to $t-1$ to calculate the DOE score for year~$t$.
 }
 

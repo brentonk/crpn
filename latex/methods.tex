@@ -9,7 +9,7 @@ So, to build our new measure, we augment traditional approaches with methods fro
 
 To evaluate the predictive performance of the capability ratio and then to build an alternative measure, we use data on the outcomes of international disputes.
 We combine the National Material Capabilities data \citep{singer1972} with information on the outcomes and participants of Militarized International Disputes between 1816 and 2007 \citep{Palmer:2015hp}.
-Our data consist of $N = 1{,}740$ disputes, each between an ``initiator,'' or Country~A, and a ``target,'' or Country~B.\footnote{
+Our data consist of $N = 1{,}740$ disputes, each between an ``initiator,'' or Country~A, and a ``target,'' or Country~B.\footnote{%
   See the Appendix for the data construction and coding specifics.
 }
 Every dispute outcome is either A~Wins, B~Wins, or Stalemate, which we denote by $Y_i \in \{A, B, \emptyset\}$, respectively.
@@ -25,7 +25,7 @@ Most disputes end in a stalemate, and victory by the initiator is more than twic
 \end{table}
 
 We model dispute outcomes as a function of the participants' military capabilities.
-Our data source, the National Material Capabilities dataset, records annual observations of six characteristics of a country's military capability: military expenditures, military personnel, iron and steel production, primary energy consumption, total population, and urban population.\footnote{
+Our data source, the National Material Capabilities dataset, records annual observations of six characteristics of a country's military capability: military expenditures, military personnel, iron and steel production, primary energy consumption, total population, and urban population.\footnote{%
   There are missing observations in the National Material Capabilities data.
   Consequently, about 17~percent of the disputes we observe contain at least one missing cell.
   We use multiple imputation to deal with missingness \citep{honaker_what_2010}; see the Appendix for details.
@@ -48,7 +48,7 @@ Classification metrics like the accuracy statistic, also known as the percentage
 Instead, we employ the log loss, which is the negative of the average log-likelihood, as our metric for predictive power \citep[221]{Hastie:2009wpa}.
 Let a \emph{model} be a function $\hat{f}$ that maps from the dispute-level predictors $X_i$ into the probability of each potential dispute outcome, $\hat{f}(X_i) = (\hat{f}_A(X_i), \hat{f}_B(X_i), \hat{f}_{\emptyset}(X_i))$.
 The ``hat'' on $\hat{f}$ is there to emphasize that the form of the function has been learned from the data, whether by estimating regression coefficients or by a more flexible predictive algorithm.
-The log loss of the model~$\hat{f}$ on the data~$(X, Y)$ is\footnote{
+The log loss of the model~$\hat{f}$ on the data~$(X, Y)$ is\footnote{%
   To avoid numerical problems, very low probabilities are trimmed at $\epsilon = 10^{-14}$.
 }
 \begin{equation}
@@ -67,7 +67,7 @@ But with as little data as we have, splitting the sample is ill-advised: we cann
 So, to measure out-of-sample predictive power without losing data, we turn to $K$-fold cross-validation \citep[241--249]{Hastie:2009wpa}.
 We randomly assign each dispute observation to a ``fold'' $k \in \{1, \ldots, K\}$, where we follow standard practice by setting $K = 10$.\footnote{Standard practice here stands on firm ground; \citet{molinaro2005} find that 10-fold cross-validation performs quite similarly to leave-one-out cross validation (the ``ideal case'' for cross-validation) without having to take on massive computational costs.  10-fold cross-validation also performs better than the .632+ bootstrap, split-sample techniques, and Monte Carlo cross-validation, particularly in smaller samples like ours.}
 For each~$k$, we split the data into a ``test'' sample containing fold~$k$ and a ``training'' sample containing the remainder of the data.
-We fit a model only on the training sample and then calculate its predicted probabilities for the data in the test sample.\footnote{
+We fit a model only on the training sample and then calculate its predicted probabilities for the data in the test sample.\footnote{%
   \label{fn:nested-cv}
   When dealing with models with tuning parameters that are themselves selected by cross-validation, we choose tuning parameters separately within each of the $K$ iterations via another cross-validation loop.
   This nested cross-validation is necessary to keep our estimates of generalization error from being too optimistic \citep{Varma:2006ch}.
@@ -130,11 +130,11 @@ So we use tools from machine learning that are designed to predict well without 
 Ideally, we would select the predictive model that is best for our data, but there are too many algorithms to try them all.
 To narrow it down, we defer to the machine learning experts on which algorithms are best.
 We draw our set of candidate models from the top-ten list by \citet{Wu:2007ev} and from the best performers in the tests by \citet{FernandezDelgado:2014ul}.
-After excluding those unsuited to our data,\footnote{
+After excluding those unsuited to our data,\footnote{%
   Four of the algorithms named in \citet{Wu:2007ev}---$k$-means, Apriori, expectation maximization, and PageRank---are not suited for the prediction task at hand.
   We also excluded AdaBoost due to long computation time and naive Bayes due to poor performance in initial tests.
 }
-we end up with six predictive algorithms to try: C5.0, support vector machines, $k$-nearest neighbors, classification and regression trees, random forests, and ensembles of neural nets.\footnote{
+we end up with six predictive algorithms to try: C5.0, support vector machines, $k$-nearest neighbors, classification and regression trees, random forests, and ensembles of neural nets.\footnote{%
   See the Appendix for full details of each method.
 }
 Each algorithm is widely used for prediction and can predict dispute outcome probabilities as a complex, potentially nonlinear function of the material capability components.
@@ -172,7 +172,7 @@ Given a set of $M$ candidate models $\hat{f}_1, \ldots, \hat{f}_M$, we select we
 \end{equation}
 Our final model is the super learner, $\hat{f} = \sum_m \hat{w}_m \hat{f}_m$.
 Each individual model is a special case of the super learner, with full weight $\hat{w}_m = 1$ placed on a single $\hat{f}_m$.
-Hence, by the cross-validation criterion, we should prefer the super learner over any individual model.\footnote{
+Hence, by the cross-validation criterion, we should prefer the super learner over any individual model.\footnote{%
   \label{fn:sl-bias}
   As usual when selecting tuning parameters via cross-validation, the value of equation~\eqref{eq:super-learner} is not an unbiased estimate of the generalization error of the super learner.
   Nested cross-validation is computationally infeasible for the super learner, so we calculate the bias correction recommended by \citet{Tibshirani:2009tz} to estimate its generalization error.
