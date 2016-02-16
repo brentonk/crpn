@@ -186,7 +186,7 @@ Certainly, we would not recommend the super learner as a means of testing hypoth
 However, our goal is not to test a hypothesis---it is to construct the best proxy possible for how a dispute between two countries is likely to end.
 In this context, it is worth sacrificing interpretability for the sake of predictive power.
 
-\subsection{Results}
+\subsection{Cross-Validation Results}
 
 We now turn to the cross-validation results, which are summarized along with the super learner weights in Table~\ref{tab:ensemble}.
 As the in-sample analysis hinted, the capability ratio is indeed a poor predictor of dispute outcomes.
@@ -204,20 +204,6 @@ With these results in hand, we feel comfortable dismissing the capability ratio 
   }
   \label{tab:ensemble}
 \end{table}
-
-We can glean a few basic intuitions about the relationship between capabilities and dispute outcomes from the cross-validation results.
-First, the relationship is too complex to capture in a linear model.
-The best of our ordered logits has a 10~percent proportional reduction in loss, about half that of the best nonlinear model (the neural net ensemble on capability components with year included).
-So we cannot fix the problems with the capability ratio just by disaggregating it into its component parts.
-Second, the capability--outcome relationship changes over time.
-Accounting for the year of the dispute improves our models' predictive power: in 13 out of 14 cases, the model that includes time predicts better than its time-less counterpart.\footnote{
-  The difference in log loss is statistically significant (paired $t = -3.25$, $p = 0.006$).
-}
-Unlike the capability ratio, flexible predictive algorithms can capture this variation.
-Finally, the models trained on the raw capability components tend to outperform those trained on the annual shares of components.\footnote{
-  The difference in log loss is statistically significant (paired $t = -3.14$, $p = 0.008$).
-}
-This runs contrary to way the CINC score is constructed---it is an average of capability shares---suggesting another reason why the capability ratio is such a poor predictor.
 
 As we expected, the super learner ensemble performs better than any of the candidate models from which it is constructed.
 The ensemble's proportional reduction in loss is about 23~percent, or four percentage points better than the best candidate model.
@@ -247,14 +233,39 @@ Seeing how narrow the capability ratio's predictive range is, it is little surpr
 Conversely, the super learner makes much better use of the material capability data.
 Its predictive range is greater, which in turn allows it to achieve a stronger, though hardly perfect, relationship between predicted and observed outcomes.
 
-What should we make of the fact that, even after all this predictive effort, about 80~percent of the variation in dispute outcomes remains unexplained?
-One problem is that our sample size is too small to fit flexible models without a loss of precision.
-For the sake of precise predictions (though certainly not that of humankind), it would be better to have far more dispute observations to use for model building.
-The bigger issue, however, is that material capabilities do not tell the whole story.
-No matter how many modeling tricks we pull out, we cannot change the fact that militarized dispute outcomes depend on much more than raw capabilities.
-Some of these other predictors, like the distance between the disputants, are easily measured; others, like the cleverness of their leaders, are not.
-In principle, it is possible to incorporate additional variables (at least those that can be quantified) into the super learner to attain even better outcome predictions.
-That goes beyond the scope of this paper, which only aims to show how we can best use the data underlying the capability ratio.
+\subsection{Implications for International Relations}
+
+Our main focus is on developing a proxy for relative power that predicts the outcomes of militarized disputes, and predictive approaches like ours are not optimal for testing specific hypotheses \citep{Shmueli:2010jd}.
+Nonetheless, we can glean from our results a few important insights about the nature of the relationship between capabilities and power.
+The first is that there \emph{is} a relationship---that variation in dispute outcomes is associated with variation in the disputants' raw capabilities.
+This finding contrasts with previous studies concluding that military capabilities do not affect dispute outcomes \citep{Maoz:1983cw}.
+The problem is the use of the capability ratio to measure material power.
+The capability ratio is at best weakly related to dispute outcomes, so studies that rely on it will conclude that material power is unimportant.
+We find, however, that material power is related to dispute outcomes but poorly measured by the capability ratio.
+
+But material power is not all that matters.
+Even after an intense, diverse predictive effort, we are only able to explain about 20 percent of the variation in dispute outcomes with material capability variables.
+To some extent this reflects the inherent unpredictability of military affairs; we would never expect to predict outcomes perfectly.
+We suspect, however, that we could better predict dispute outcomes even better by conditioning on even more observable indicators.
+That is a task for future work, as the purpose of this paper is only to develop a proxy for the material components of relative power.
+
+A second important finding is that the determinants of material power change over time.
+This conclusion may sound obvious, but it raises the question of why international relations scholars continue to use a proxy for power that assumes the relationship is unchanging.
+The simplest way to observe that time matters is to compare the predictive power of the models with and without the year variable: in 13 out of 14 cases, the model that includes time predicts better than its closest time-less counterpart.\footnote{%
+  The difference in log loss is statistically significant (paired $t = -3.25$, $p = 0.006$).
+}
+The improvement in performance does not just reflect the fact that the distribution of dispute outcomes has changed over time (though, to be clear, it has).
+All of our models that include the year of dispute allow for the effects of each individual capability component to vary with time.
+For example, in our random forests on the components and year, every single tree contains at least one node that splits on a capability component whose parent node splits on the year of dispute, indicating a capability effect that is time-dependent.
+In fact, in about 27~percent of trees, the initial split is on the year of dispute.
+
+Finally, our results show that a country's material power cannot be summarized in a single index.
+Our ordered logit models construct a flexible index that allows for different weights on the components, variation over time in those weights (in the model with year included), and different weights for initiators and targets.
+Nonetheless, even the best ordered logit model has less than half the predictive power of our flexible ensemble.
+What this means is that the relationship between each capability component and overall material power is conditional, not absolute.
+The usefulness of a particular component may depend in part on the composition of the opponent's capability holdings.
+The super learner results are too complex to allow us to dig into the specifics of these interactions, but they alert us to their existence---and to the limitations of monadic indices as a measure of power.
+
 
 %%% Local Variables:
 %%% mode: latex

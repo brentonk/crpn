@@ -69,8 +69,8 @@ slides/list-*.tex
 # SLURM submission scripts
 *.slurm
 
-# Benchmarking output
-R/results-benchmark.txt
+# R script output
+R/results-*.txt
 
 # UL/DL scripts
 R/accre-push.sh
