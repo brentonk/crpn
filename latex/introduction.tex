@@ -1,74 +1,63 @@
 %!TEX root = doe.tex
 
-Of all the great challenges in political science, perhaps none is more difficult than measuring theoretical quantities.
-Most analysts care more about assessing relationships among variables rather than the quality with which a single variable is measured, and so many proceed by producing the simplest measure possible, often in the form of summated rating scales.\footnote{For a brief introduction, see \citet{spector2006}.}
-The practice persists even though these simple measures often introduce \emph{ad hoc} assumptions that go untested, and authors are often apologetic for their use.
-Happily, methodologists have resolved many old frustrations by developing better models for measuring a variety of quantities, from ideal points \citep{clinton2004} to judicial independence \citep{linzer2014} to democracy \citep{jackman2008}.
-Meanwhile, scholars have amassed an impressive amount of data, particularly historical data.
-Ideal points now use roll calls dating back to the American Constitutional Convention \citep{heckelman2013}; conflict scholars can access industrial output figures for each state dating back to the Napoleonic Wars \citep{singer1972}.
-Improvements in computing power, coupled with scholarly ingenuity, ensure that this progress will continue for the forseeable future.
+One of the greatest challenges in political science is to measure theoretical quantities.
+Because important concepts like ideology, democracy, and power cannot be measured directly, measurement problems in political science often entail the construction of proxies.
+Recent advances in computing and modeling have allowed political scientists to build sophisticated, data-driven proxies for variables as diverse as legislator ideology \citep{clinton2004}, judicial independence \citep{linzer2014}, and country regime types \citep{jackman2008}.
+Yet there is no consensus on what makes for a good proxy, nor a common metric by which proxy variables are evaluated.
+Moreover, there has been relatively little progress improving our measurements of variables that do not fit the item-response paradigm.
 
-We should feel sanguine given these advances, but we should also pause to consider the nature of the measurement enterprise.
-Our new data sets enable us to ask and answer meaningful measurement questions, and this often means doing more than taking unweighted averages of our new variables.
-Put differently, when imposed on new and interesting data, crude measures seem especially crude---we cannot even complain that they are underfit, as they are not fit to data at all.
-At the other extreme, measurement models with an abundance of parameters run the risk of overfitting:  the attribution of systematic importance to the random error inherent in any sample.
-Likewise, as our data sets grow, we run the risk of attributing too much reliability (sociologically speaking) to our potentially overfit results.
-Yet, to our knowledge, none of the recent advances in political measurement have taken out-of-sample performance into account; rather, attention is paid to developing and interpreting measures that best reflect extant data.\footnote{In contrast, structural modelers have paid increasing attention to overfitting problems\citep{pitt2002,preacher2006}, though most instruction retains the focus on fit.}
+In this article, we argue for a predictive criterion for proxy quality.
+If the variable of interest is supposed to be associated with some observable outcome, then a proxy for that variable should be a good predictor of the outcome.
+By prediction we mean out-of-sample prediction, with data not used to construct the proxy itself.
+Happily, contemporary machine learning tools make it easy to construct proxy variables according to this criterion, as long as data on the relevant outcomes are available.
+The bulk of the article consists of an illustration of our approach, an application to the measurement of relative military power between countries.
+Though power is as important to international relations as legislator ideology is to American politics and regime type is to comparative politics, there has been little innovation in measuring military power.\footnote{%
+  A recent exception is \citet{Arena:2012}.
+}
+We show that the standard measure, the ratio of Composite Index of National Capability scores \citep{singer1972}, is a disaster by our predictive criterion.
+The capability ratio is only 1~percent better than a null model, or random guessing, at predicting militarized dispute outcomes.
+We use ensemble learning to develop a new proxy, the Dispute Outcome Expectations score, that provides a 20~percent predictive improvement.
 
-We aim to provide an approach to measurement that strikes a balance between the severely underfit and the potentially overfit.
-In this article, we argue that proxies should be constructed to predict well and that measurement functions should be assessed accordingly.
-We advocate a data-driven approach focused on out-of-sample prediction:  a proxy for the expectation of some political outcome ought to be a good predictor of that outcome.
-When choosing among the variety of models available to construct a proxy variable, the data used to assess the model should not be the same as the data used to fit it.
-Techniques that accomplish this division of labor through sample-splitting, such as cross-validation \citep{Efron:2012es}, should play a larger role in measurement construction.
-We employ such techniques in developing a supervised measurement method that learns from the data---thus avoiding underfitting---while sidestepping overfitting problems.
-Our arguments mirror those of \citet{Hill:2014ki}, who use cross-validation to assess the relative predictive power of many variables all thought to affect the same outcome.  Our focus, however, is on constructing measures rather than comparing them---in particular, we examine how to create proxies with the greatest ability to predict.
+Like Ulysses or Goldilocks, the creator of a new proxy variable must maintain a delicate balance.
+She must learn from historical data to construct the measure, lest it fail to capture important dimensions of the concept under study.
+\emph{A priori} measures like summed rating scales suffer from this \emph{underfitting} problem---they fail to take advantage of the wealth of data scholars now possess.
+But the scholar who uses a data model to construct a proxy faces pitfalls too.
+She runs the risk of mistaking chance features of her data to be systematic ones, or \emph{overfitting}.
+A good proxy should fit the data well, but not so well that it fails to generalize.
+The criterion we advocate, out-of-sample prediction, balances these two considerations.
+A proxy that learns too little will of course be a poor predictor, but so will a data-driven proxy that maximizes in-sample fit at the expense of generalizability.
 
-Though any measure suffers when a data set's unique peculiarities are assigned too much explanatory import, theoretical expectations provide special challenges.
-To animate the situation (and to introduce our application to international conflict), imagine a real-world leader that must decide whether to start a war against another state.  Perhaps inspired by Santayana's observation that ``those who cannot remember the past are doomed to repeat it,'' the leader orders her statisticians to obtain data on the outcomes of previous conflicts and the material capabilities of their combatants.
-The statisticians, of course, could use the data in a variety of ways, but the leader would care only that their results did the best job of predicting.
-More to the point, the leader would care less that estimates of the relevant parameters fit the historical data as well as possible (as would be the case if the statisticans ran traditional logit or probit models alone) but instead would care more that the prediction was of high quality.
-Indeed, to borrow another aphorism, we can reimagine the oft-lamented sin of ``fighting the last war'' \citep[e.g.][]{hart1972} as overfitting such historical models with excess weight placed on recent observations.
-Yet, when we write down formal models of choice under uncertainty featuring actors like this leader, we operate on the assumption that that the expectation in question is, by definition, the predictor of the outcome---and, as such, is neither under- nor overfit to some other relevant data at the hypothetical decision-maker's disposal.
+Supervised learning techniques, having been designed to navigate the straits between underfitting and overfitting, are ideal for data-driven proxy construction.
+Machine learning models are flexible enough to model relationships far more complex than possible in ordinary regression or measurement models.
+But they also guard against connecting the dots too aggressively, or misinterpreting noise in the data as a complex relationship.
+Virtually every supervised learning method has a set of tuning parameters that govern how much flexibility to allow for---in effect, to what extent to treat variation in the data as signal rather than noise.
+To develop a model that is optimal for out-of-sample prediction, all an analyst needs to do is choose appropriate tuning parameters, usually by a method like cross-validation that estimates prediction error \citep{Efron:2012es}.
+Our approach mirrors that of \citet{Hill:2014ki}, who use cross-validation to assess the relative predictive power of many variables all thought to affect the same outcome.
+Our focus, however, is on constructing measures rather than comparing them---in particular, we examine how to create proxies with the greatest ability to predict.
 
-Like the leader, empirically-minded conflict scholars, especially those inspired by the bargaining model of war \citep{fearon1995}, often want good measures of outcome expectations.  
-Consider the statistical model of power, status quo benefits, and militarized dispute onset analyzed by \citet{reed2008war}.
-This model is especially relevant in that the authors aim to directly test a functional form result from the formal analysis provided by \citet{powell1996stability,powell1999}.
-The question is as to how the effect of the distribution of capabilities, parameterized as $p$, on dispute onset varies with the distribution of status quo benefits, parameterized as $q$.
-The authors take great pains to provide a good estimate of the latter; for the former, they rely on the previous literature, which has proceeded by estimating $p$ via \emph{a priori} transformations of existing indices of capability data.\footnote{The capability measures, Composite Indices of National Capabilities \citep{singer1972}, combine six variables covering states' industrial capacity, their population, and their wealth.}
-Their resulting estimate ranges from 0 to 1---just as a probability does, highlighting the measure's theoretical roots as an expectation.
-Indeed, \citet[Footnote 11, p. 1211]{reed2008war} note that $p$ captures ``the chances of prevailing in the costly lottery of war.''
-They choose their preferred measure of $p$ because ``it is a simple description of the likelihood of either state's success in war,'' though whether this is more or less the case for any given measure is a question left unanswered.
-On the other hand, the authors note that different measurement choices yield different substantive results in their ultimate regression of interest, highlighting the importance of the problem at hand.
-Reed et al.'s approach is now quite standard; in a search of some of the top journals for empirical work in international relations,\footnote{These included the \emph{American Political Science Review}, \emph{American Journal of Political Science}, \emph{Journal of Politics}, \emph{International Organization}, and \emph{International Studies Quarterly}.} we found at least 94 articles published between 2005 and 2014 that construct similar proxies using the same data.
-Since so many scholars care so deeply about dispute expectations, and since dispute expectations themselves provide so many measurement challenges, we believe our application to be relevant for theorists and empiricists alike.
+The end result of our analysis is the Dispute Outcome Expectation score, or DOE score.
+We use the data on the outcomes of militarized interstate disputes \citep{Palmer:2015hp} to model the relationship between material capability holdings and dispute outcomes, all while optimizing for predictive power.
+For every dyad-year from 1816 to 2007, we use this model to estimate the probability that each state would win a hypothetical dispute (and the probability it would end in a stalemate).
+DOE scores therefore have the same temporal and spatial coverage as the current state of the art, the capability ratio, but with two additional advantages.
+First, in the cases where disputes did occur, the DOE scores are much better predictors of the outcome than the capability ratio.
+Second, the DOE score is directly interpretable as the probability of victory, an important concept in the literature on bargaining and war \citep{fearon1995,powell1996stability}.
 
-Our results suggest that time spent doing right by the leader and the scholar is time well spent.  
-We find that the typical CINC transformation---the capability ratio---fails to predict any dispute outcome other than the modal category of stalemate and barely improves out-of-sample predictive performance (0.8\%) over a null model.
-Conversely, our method yields predictions with much more variation and improves out-of-sample predictive performance by 20\%.  This is especially noteworthy given that we use the same component variables from which the CINC score is constructed. 
-This result is of major substantive interest:  a scholar armed only with the traditional measure and a logit routine would conclude that material capabilities have little effect on dispute outcomes, whereas our results suggest that material capabilities matter in a very real way.
-More broadly, our results suggest that materiel remains an important component in a measure of power, which remains an especially murky concept in political science.
-\citet[420]{singer1963inter} argues that ``power is to [political scientists] what money is to the economist,'' and in particular that ``power is a useful concept only in its relative sense;'' later, \citet[25]{singer1972} argued that relative power is ``not nearly as measurable'' as wealth.  
-Our efforts, then, make a substantive contribution by advancing the discourse on the measurement of a key concept that has proven most elusive in the decades since these claims were first made.
+When we construct a new proxy by optimizing over predictive power, it is almost tautological that it will predict the given outcome better than the existing alternatives.
+For a more even-handed comparison, we can take a sample of typical applications of the old proxy and see whether the new one accomplishes them even better.
+For example, international relations scholars include the capability ratio, the standard proxy for relative military power, in models of dependent variables other than dispute outcomes (most commonly, whether a dispute takes place at all).
+We reanalyze 18 such empirical models to see whether they fit better when we replace the standard proxy with DOE scores.
+Since these studies examine outcomes besides the one we use to construct our proxy---namely, victory or loss in international disputes---there is no guarantee that our new proxy will do better.
+Nonetheless, we yield an improvement in fit in at least 14 of the 18 cases.
+We encourage the creators of future proxies, both in this domain and others, to conduct similarly systematic and comparative studies of their variables' performance in typical use cases.
 
-We also find that the factors that influence victory in battle are not static and unchanging but rather have evolved over time.
-We say this for two reasons.
-First, in comparing pairs of models that include and omit time, models with time perform significantly better out-of-sample than models that do not include time.
-This indicates that dispute outcomes have varied over time, but it does not imply that the effect of material components has.
-However, we also find that many of the best-performing tree-based models feature time prominently in their resulting regression trees.
-This \emph{does} suggest that other features' effects vary with time.
-Though our results are sufficiently abstract that we cannot make strong claims about the nature of this evolution, we think this result is interesting enough to warrant further attention as scholars enhance our understanding of material power.
-
-We also produce a new measure:  the Dispute Outcome Expectation, or DOE.
-DOE scores retain the simple, probabilistic flavor advanced in Reed et al.'s description of the relationship between theory and data.
-For every dyad-year (or directed-dyad year) covered by the Correlates of War data, we provide the probability that each state would win a hypothetical dispute and the probability of stalemate.
-DOE scores therefore make intuitive sense when interpreted in plain language.
-The DOE score also tends to work better in the kinds of regressions empirical conflict scholars care most about.
-We replicated 18 recent empirical studies that utilized traditional measures and then replaced them with the DOE score.  
-In 14 of them, the DOE score improved out-of-sample goodness of fit, and it improved in-sample fit 15 times.
-In other words, in advocating for the DOE score, we are not asking applied scholars to give anything up at the bottom line.
+Although our main goal is to develop a better proxy for military power rather than to test hypotheses about the determinants of power, we do gain some broad substantive insights from the model-building process.
+One is that material capabilities indeed matter for military power, as we can explain a substantial amount of the variation in militarized dispute outcomes just with variables on material capabilities.
+This finding runs in contrast to the classic study by \citet{Maoz:1983cw}, who finds no relationship between matériel and militarized dispute outcomes.
+Our results suggest that this finding is the artifact of relying on ratios of capability holdings, which are a poor proxy for relative material power.
+Another important conclusion from our results is that the martial effectiveness of the various material capability components varies over time, which the standard measure does not allow for.
 
 The paper proceeds in five sections.
-In the first, we argue for the importance of predictive power in constructing proxies and assessing measurement models' assumptions.
+In the first, we lay out our general argument about proxy construction and its application to the case of military power.
 Section~\ref{sec:methods} describes the data and methods we use to construct a new proxy for expected dispute outcomes.
 In Section~\ref{sec:scores}, we discuss the advantages and disadvantages of our new measure, the DOE score.
 Section~\ref{sec:replications} provides the results of our replications.
