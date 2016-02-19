@@ -1,66 +1,77 @@
 %!TEX root = doe.tex
 
-One of the greatest challenges in political science is to measure theoretical quantities.
-Because important concepts like ideology, democracy, and power cannot be measured directly, measurement problems in political science often entail the construction of proxies.
-Recent advances in computing and modeling have allowed political scientists to build sophisticated, data-driven proxies for variables as diverse as legislator ideology \citep{clinton2004}, judicial independence \citep{linzer2014}, and country regime types \citep{jackman2008}.
-Yet there is no consensus on what makes for a good proxy, nor a common metric by which proxy variables are evaluated.
-Moreover, there has been relatively little progress improving our measurements of variables that do not fit the item-response paradigm.
+For all its progress---more nuanced arguments, more useful theories, bigger data and more systematic ways to analyze them---international relations remains, in many ways, a study of power.
+This is best reflected in the questions that have endured.
+Is the world safer when power is concentrated in a few states or broadly distributed \citep{waltz}?
+How does the balance of power between states, or shifts thereof, affect the likelihood of war \citep{organski1980,powell1999,powell2006war}?
+Do international organizations allow states to gain benefits they would not receive from power politics alone \citep{keohane}?
+But without good measures of power, we cannot provide good empirical answers to these fundamental questions.
+Consequently, the importance of measuring power to the study of international politics cannot be overstated.
 
-In this article, we argue for a predictive criterion for proxy quality.
-If the variable of interest is supposed to be associated with some observable outcome, then a proxy for that variable should be a good predictor of the outcome.
-By prediction we mean out-of-sample prediction, with data not used to construct the proxy itself.
-Happily, contemporary machine learning tools make it easy to construct proxy variables according to this criterion, as long as data on the relevant outcomes are available.
-The bulk of the article consists of an illustration of our approach, an application to the measurement of relative military power between countries.
-Though power is as important to international relations as legislator ideology is to American politics and regime type is to comparative politics, there has been little innovation in measuring military power.\footnote{%
+Like many other important concepts in political science---say, ideology or democracy---power cannot be measured directly.
+Indeed, measurement problems in political science often entail the construction of proxies.
+Recent advances in computing and modeling have allowed political scientists to build sophisticated, data-driven proxies for variables as diverse as legislator ideology \citep{clinton2004}, judicial independence \citep{linzer2014}, and country regime types \citep{jackman2008}.
+But despite the centrality of power to many important hypotheses in international relations, its measurement has seen far less innovation.\footnote{%
   A recent exception is \citet{Arena:2012}.
 }
-We show that the standard measure, the ratio of Composite Index of National Capability scores \citep{singer1972}, is a disaster by our predictive criterion.
-The capability ratio is only 1~percent better than a null model, or random guessing, at predicting militarized dispute outcomes.
-We use ensemble learning to develop a new proxy, the Dispute Outcome Expectations score, that provides a 20~percent predictive improvement.
+In this article, we devise a new approach to measuring power---specifically, the balance of material power between a pair of countries.
+Our focus on the contributions of material capabilities follows the example set by most existing efforts to measure power in the international sphere, starting with the work by \citet{singer1972}.
+In contrast with previous approaches, ours is data-driven: we aim to learn what combination of observable material capability variables best predicts international dispute outcomes.
+We show that the standard measure, the ratio of Composite Index of National Capability scores \citep{singer1972}, predicts militarized dispute outcomes terribly---only 1~percent better than a null model with random guessing.
+Our new proxy, the Dispute Outcome Expectations score, is much better, providing a 20~percent predictive improvement.
 
-Like Ulysses or Goldilocks, the creator of a new proxy variable must maintain a delicate balance.
-She must learn from historical data to construct the measure, lest it fail to capture important dimensions of the concept under study.
-\emph{A priori} measures like summed rating scales suffer from this \emph{underfitting} problem---they fail to take advantage of the wealth of data scholars now possess.
-But the scholar who uses a data model to construct a proxy faces pitfalls too.
-She runs the risk of mistaking chance features of her data to be systematic ones, or \emph{overfitting}.
+Before constructing a new proxy for relative material power, we first consider what makes a good proxy more generally.
+Despite the innovations in measurement in various fields, political scientists have not reached a consensus on what makes for a good proxy, nor is there a common evaluatory metric.
+We argue for a predictive criterion:  if the concept of interest is supposed to be associated with some observable outcome, then its proxy should predict the outcome well.
+By prediction, we mean out-of-sample prediction, with data not used to construct the proxy itself.
+Happily, contemporary machine learning tools make it easy to construct proxy variables according to this criterion so long as data on the relevant outcomes are available.
+In the case we consider, a proxy for relative military power, the natural outcome of interest is who wins in military disputes.
+A good measure of relative military power ought to predict dispute outcomes well.
+It is surprising that the standard measure does so poorly by this criterion, given its ubiquitousness: as we document below, dozens of recent publications in international relations use CINC-derived measures as proxies for power.
+Our predictive approach, combined with the use of modern machine learning tools, allows us to yield a far superior measure from the same data underlying the usual measure.
+
+Like Ulysses or Goldilocks, the proxy maker must strike a delicate balance.
+She must learn from the data to construct the measure, else it will fail to capture important dimensions of the concept under study.
+\emph{A priori} measures like summed rating scales suffer from this \emph{underfitting} problem: they fail to take advantage of the wealth of data scholars now possess.
+But the analyst who employs a data model for proxy construction faces pitfalls, too.
+She may misidentify chance features of her data as systematic, a problem called \emph{overfitting}.
 A good proxy should fit the data well, but not so well that it fails to generalize.
 The criterion we advocate, out-of-sample prediction, balances these two considerations.
-A proxy that learns too little will of course be a poor predictor, but so will a data-driven proxy that maximizes in-sample fit at the expense of generalizability.
+An underfit proxy will, of course, be a poor predictor, but so too will a data-driven proxy that maximizes in-sample fit at the expense of generalizability.
 
 Supervised learning techniques, having been designed to navigate the straits between underfitting and overfitting, are ideal for data-driven proxy construction.
-Machine learning models are flexible enough to model relationships far more complex than possible in ordinary regression or measurement models.
-But they also guard against connecting the dots too aggressively, or misinterpreting noise in the data as a complex relationship.
+Machine learning models are flexible enough to model relationships far more complex than possible in ordinary regression or measurement models, but they also guard against connecting the dots too aggressively or misinterpreting noise in the data as a complex relationship.
 Virtually every supervised learning method has a set of tuning parameters that govern how much flexibility to allow for---in effect, to what extent to treat variation in the data as signal rather than noise.
-To develop a model that is optimal for out-of-sample prediction, all an analyst needs to do is choose appropriate tuning parameters, usually by a method like cross-validation that estimates prediction error \citep{Efron:2012es}.
+To develop an optimal model for out-of-sample prediction, an analyst simply chooses appropriate tuning parameters, usually by a method like cross-validation that estimates prediction error \citep{Efron:2012es}.
 Our approach mirrors that of \citet{Hill:2014ki}, who use cross-validation to assess the relative predictive power of many variables all thought to affect the same outcome.
-Our focus, however, is on constructing measures rather than comparing them---in particular, we examine how to create proxies with the greatest ability to predict.
+Our focus, however, is on constructing variables rather than comparing them.
 
-The end result of our analysis is the Dispute Outcome Expectation score, or DOE score.
+Our output is the Dispute Outcome Expectations (DOE) score.
 We use the data on the outcomes of militarized interstate disputes \citep{Palmer:2015hp} to model the relationship between material capability holdings and dispute outcomes, all while optimizing for predictive power.
 For every dyad-year from 1816 to 2007, we use this model to estimate the probability that each state would win a hypothetical dispute (and the probability it would end in a stalemate).
-DOE scores therefore have the same temporal and spatial coverage as the current state of the art, the capability ratio, but with two additional advantages.
+DOE scores therefore have the same temporal and spatial coverage as the current state of the art, the capability ratio, but have two additional advantages.
 First, in the cases where disputes did occur, the DOE scores are much better predictors of the outcome than the capability ratio.
 Second, the DOE score is directly interpretable as the probability of victory, an important concept in the literature on bargaining and war \citep{fearon1995,powell1996stability}.
 
-When we construct a new proxy by optimizing over predictive power, it is almost tautological that it will predict the given outcome better than the existing alternatives.
-For a more even-handed comparison, we can take a sample of typical applications of the old proxy and see whether the new one accomplishes them even better.
+When we construct a new proxy by optimizing over predictive power for a given outcome, it is almost tautological that it will predict that outcome better than the extant alternatives.
+For a fairer comparison, we can take a sample of typical applications of the old proxy and see whether the new one accomplishes them better.
 For example, international relations scholars include the capability ratio, the standard proxy for relative military power, in models of dependent variables other than dispute outcomes (most commonly, whether a dispute takes place at all).
 We reanalyze 18 such empirical models to see whether they fit better when we replace the standard proxy with DOE scores.
 Since these studies examine outcomes besides the one we use to construct our proxy---namely, victory or loss in international disputes---there is no guarantee that our new proxy will do better.
 Nonetheless, we yield an improvement in fit in at least 14 of the 18 cases.
-We encourage the creators of future proxies, both in this domain and others, to conduct similarly systematic and comparative studies of their variables' performance in typical use cases.
+We encourage the creators of future proxies, both in this domain and others, to conduct similarly systematic and comparative studies of their variables' performance in typical applications.
 
-Although our main goal is to develop a better proxy for military power rather than to test hypotheses about the determinants of power, we do gain some broad substantive insights from the model-building process.
-One is that material capabilities indeed matter for military power, as we can explain a substantial amount of the variation in militarized dispute outcomes just with variables on material capabilities.
+Although our main goal is to develop a better proxy for military power rather than to test hypotheses about its determinants, we do gain some broad substantive insights from the model-building process.
+Most simply, material capabilities indeed matter for military power, as we can explain a substantial amount of the variation in militarized dispute outcomes just with variables on material capabilities.
 This finding runs in contrast to the classic study by \citet{Maoz:1983cw}, who finds no relationship between matériel and militarized dispute outcomes.
 Our results suggest that this finding is the artifact of relying on ratios of capability holdings, which are a poor proxy for relative material power.
-Another important conclusion from our results is that the martial effectiveness of the various material capability components varies over time, which the standard measure does not allow for.
+We also find that the martial effectiveness of the various material capability components varies over time, which the standard measure does not allow for.
 
 The paper proceeds in five sections.
 In the first, we lay out our general argument about proxy construction and its application to the case of military power.
 Section~\ref{sec:methods} describes the data and methods we use to construct a new proxy for expected dispute outcomes.
-In Section~\ref{sec:scores}, we discuss the advantages and disadvantages of our new measure, the DOE score.
-Section~\ref{sec:replications} provides the results of our replications.
+In Section~\ref{sec:scores}, we discuss the advantages and disadvantages of our measure.
+Section~\ref{sec:replications} contains the results of our replications and advice for using the DOE score.
 The final section addresses next steps and concludes.
 
 %%% Local Variables:

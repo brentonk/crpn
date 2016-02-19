@@ -1,7 +1,9 @@
+%!TEX root = doe.tex
+
 \section{Conclusion}
 \label{sec:conclusion}
 
-In this paper, we have argued that proxies should be constructed using predictive power as the criterion of interest, provided a method for doing so, and demonstrated the usefulness of the method in an application to measuring dispute outcomes.
+In this paper, we have argued that proxies should be constructed using predictive power as the criterion of interest, provided a method for doing so, and demonstrated the usefulness of the method in an application to measuring relative military power.
 We hope that our efforts will be of use both for the DOE scores we provide and for the theoretical merits of our general argument.
 
 In our application, the DOE scores outperform the extant proxy---the CINC-based capability ratio---in a number of important ways.
@@ -9,20 +11,30 @@ In pure terms, the DOE score more closely relates to what international relation
 It therefore has a more natural interpretation than the capability ratio.
 It also lacks the \emph{ad hoc} assumptions imposed by both the CINC score and the ratio-based transformation used in most studies.
 On the practical side, our replications suggest that the DOE score is a better contributor to the usual battery of variables included in the ever-expanding universe of international relations regressions.
-We hope, then, that it will find use as scholars advance and test new claims. And, in a substantive sense, we find it interesting that our more flexible approach suggests that material capabilities play an important role in determining dispute outcomes.
+We hope, then, that it will find use as scholars advance and test new claims.
 
 Though it represents a massive improvement over the \emph{status quo}, the DOE score could still be improved.
 We have only included those variables that could be extracted from the data used to construct the capability ratio---namely, the six Correlates of War National Material Capabilities variables.
-We did so consciously, as we wanted to demonstrate that our method could improve measures without introducing new covariates.
+We did so consciously, as we wanted to demonstrate that our method could improve measures holding the covariates fixed.
 Having made our point, we look forward to seeing what the future holds for coming versions of DOE when new data is brought to bear on the problem.
 At the risk of belaboring: we created DOE using open-source software and have made our replication code available, and so anybody with a computer---and some patience!---could create a new version with new covariates.
 
-On the theoretical side, we believe that our data-driven approach to measurement will prove useful for those wishing to proxy for other quantities.
-All one needs is a set of predictor variables $\boldsymbol{x}$ and some outcome of interest $\boldsymbol{y}$---the $f$ we provide to map $\boldsymbol{x}$ to $\boldsymbol{y}$ will work.
+These improvements and opportunities for further refinement are especially exciting given the broad substantive points that we have managed to glean from our rather general analysis.
+Most obviously, our results demonstrate an important effect of material holdings on dispute outcomes; this is especially interesting since we use all militarized disputes, and not only full-fledged wars, as our training class.
+This result alone makes the flexible measurement of powers a fruitful avenue for further substantive research, and one would not have arrived at the same conclusion armed only with the capability ratio.
+Those interested in taking on the challenge may proceed our two more nuanced substantive findings.
+First, power (and its relationship with capability) should be thought of as dynamic, not static.  
+That which makes a state strong today might be worthless tomorrow, while unforseen advances may render previously unappreciated resources vital.
+Second, power is inherently relational. 
+Paraphrasing \citet[4]{dowding1996}, it makes little sense to say ``State A has power;'' instead, we should focus on what State A has the power to do, which necessarily involves her social power over some State B.
+Our results suggest that such thinking is far more relevant than a strictly monadic approach.
+
+On the methodological side, we believe that our data-driven approach to measurement will prove useful for those wishing to proxy for other quantities.
+All one needs is a set of predictor variables $X$ and some outcome of interest $Y$---the procedure we provide to produce a mapping~$f$ from $X$ to $Y$ will work.
 Just as with introducing new covariates in any given application, future scholars can improve their proxies by including new models for evaluation in the super learner---the general approach remains unchanged.
 Our application tasked us to create a proxy of a probabilistic expectation like those seen in formal models of choice under uncertainty, and similar applications provide a natural starting point for our method.
-Doing so, however, requires good theory for just what it is that we hope to predict with our abstractions---for example, what outcome could we use variables related to democracy, like those used in the Polity score \citep{marshall2014}, to predict?
-We hope political scientists across subfields will turn their attention to examples like these as they construct new measures and improve existing ones.
+Doing so, however, requires good theory for just what it is that we hope to predict with our abstractions. 
+As such theories continue to develop, we hope political scientists across subfields will turn their attention to examples like these as they construct new measures and improve existing ones.
 
 We would like to conclude with a still broader point.
 \citet{Breiman:2001fd} argues that statistical modelers fall into one of two cultures: data modelers, who interpret models' estimates after assessing overall quality via in-sample goodness of fit; and algorithmic modelers, who seek algorithms that predict responses as well as possible given some set of covariates.\footnote{%
@@ -32,10 +44,10 @@ We would like to conclude with a still broader point.
 }
 The method we advance is certainly algorithmic.
 Our decision to adopt algorithmic modeling based on prediction, however, was not culture-driven---it was purpose-driven \citep{clarke2012}.
-Most simply, many quantities to be proxied for are expectations, so they should be constructed with prediction in mind.
+Most simply, prediction matters for measurement, so algorithmic tools should play a larger role.
 But as we show in the replication analysis, an algorithmically constructed proxy can be useful to include in traditional models.
 As new problems emerge and new solutions arise to solve them, we believe methodological pragmatism will be an important virtue.
-We do not expect (nor encourage) empirical political science to turn its focus from causal hypothesis testing to prediction.
+We neither expect nor encourage empirical political science to turn its focus from causal hypothesis testing to prediction.
 But good hypothesis testing depends on good measures, and sometimes the best way to build a measure is to assume the persona of the algorithmic modeler.
 By doing just that, this paper has developed one measure that improves on the previous state of the art along a number of dimensions.
 

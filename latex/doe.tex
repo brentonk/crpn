@@ -12,7 +12,7 @@
 \usepackage{pdflscape}
 \usepackage{afterpage}
 \usepackage[hyphens]{url}
-\usepackage[colorlinks=true,citecolor=black]{hyperref}
+\usepackage[colorlinks=true,citecolor=black,linkcolor=black]{hyperref}
 \usepackage{booktabs}
 
 % Highlighted notes
@@ -29,14 +29,18 @@
 \allsectionsfont{\sffamily}
 
 % BibTeX
+\usepackage{multibib}
 \usepackage{natbib}
 \bibpunct{(}{)}{;}{a}{}{,}
 \renewcommand{\harvardurl}[1]{\textbf{URL:} \url{#1}}
 
+% Multibib
+\newcites{app}{Additional References}
+
 \title{
-  Predictive Power and the Performance of Proxies:  The Case of International Capabilities%
+  Prediction, Proxies, and Power%
   \thanks{%
-    We thank Scott Bennett, Brett Benson, Bill Berry, Inken von Borzyskowski, Kevin Clarke, Mark Fey, James Honaker, Zach Jones, Karen Jusko, Holger Kern, David Lewis, Adeline Lo, Matt Pietryka, Marc Ratkovic, Jim Ray, Mark Souva, and Hye Young You for helpful discussions and advice.
+    We thank Scott Bennett, Brett Benson, Bill Berry, Inken von Borzyskowski, Kevin Clarke, Josh Clinton, Mark Fey, James Honaker, Zach Jones, Karen Jusko, Holger Kern, Ashley Leeds, David Lewis, Adeline Lo, Matt Pietryka, Marc Ratkovic, Jim Ray, Mark Souva, and Hye Young You for helpful discussions and advice.
     Bryan Rooney provided excellent research assistance.
     We also thank the authors listed in Table~\ref{tab:replications} for making their replication data publicly available.
     The current version of the Dispute Outcome Expectations data can be downloaded from \url{https://dataverse.harvard.edu/dataverse/doe-scores}.
@@ -61,12 +65,14 @@
 \maketitle
 
 \begin{abstract}
-  \noindent Drawing on the statistical learning literature, we develop a data-driven approach to measurement oriented around out-of-sample predictive performance.
-  The approach is especially useful for measuring theoretical quantities like expectations in formal models of choice under uncertainty; moreover, it avoids problems of both under- and overfitting common to extant approaches.
-  We apply our approach to measuring power in the context of international conflict, where the standard proxy for expected dispute outcome, the ratio of material capabilities, has almost no predictive power.
-  Our method greatly improves predictive power using the same covariates.
-  We use the technique to construct a new measure:  the Dispute Outcome Expectation, or DOE score.
-  In replications of 18 recent empirical studies in international relations, we find that replacing the standard capability measure with DOE scores usually improves both in-sample and out-of-sample goodness of fit.
+  \noindent
+  Many enduring questions in international relations theory focus on power relations between states, so it is important that scholars have a good measure of relative power.
+  But the standard measure of relative military power, the capability ratio, is barely better than random guessing at predicting military dispute outcomes.
+  We use machine learning tools to build a superior proxy, the Dispute Outcome Expectations score, from the same underlying data.
+  Our measure is an order of magnitude better than the capability ratio at predicting dispute outcomes.
+  In replications of 18 recent empirical studies in international relations, we find that replacing the standard measure with DOE scores usually improves both in-sample and out-of-sample goodness of fit.
+  More broadly, we argue that scholars should focus on out-of-sample predictive power when constructing proxies for important concepts in political science.
+  Our approach illustrates how machine learning tools can automate this process.
 \end{abstract}
 \thispagestyle{empty}
 \newpage
@@ -75,7 +81,7 @@
 \input{introduction}
 
 
-\input{proxy}
+\input{power}
 
 
 \input{methods}
@@ -90,13 +96,14 @@
 \input{conclusion}
 
 
-\clearpage
-\appendix
-\input{appendix}
-
 \newpage
 \bibliographystyle{apsr}
 \bibliography{doebib}
+
+
+\clearpage
+\appendix
+\input{appendix}
 
 
 \end{document}

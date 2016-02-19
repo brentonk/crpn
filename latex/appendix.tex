@@ -1,8 +1,10 @@
+%!TEX root = doe.tex
+
 \section{Appendix}
 
 \subsection{National Material Capabilities Data}
 
-Our predictors are taken from the National Material Capabilities (v4.0) dataset from the Correlates of War project \citep{singer1972}.\footnote{
+Our predictors are taken from the National Material Capabilities (v4.0) dataset from the Correlates of War project \citepapp{singer1972}.\footnote{
   Downloaded from \url{http://correlatesofwar.org/data-sets/national-material-capabilities/nmc-v4-data/at_download/file}.
 }
 The dataset contains observations on six variables for 14,199 country-years from 1816 to 2007.
@@ -22,7 +24,7 @@ Table~\ref{tab:summary} lists the proportions of zeroes and missing values among
 
 All six variables are strongly right-skewed.
 Since five of the six variables are sometimes zero-valued (though all are non-negative), a logarithmic transformation is not appropriate.
-Instead, to correct for skewness, we apply an inverse hyperbolic sine transformation \citep{Burbidge:1988gu} to each component:
+Instead, to correct for skewness, we apply an inverse hyperbolic sine transformation \citepapp{Burbidge:1988gu} to each component:
 \begin{equation}
   \label{eq:asinh}
   h(x, \theta)
@@ -34,13 +36,13 @@ Instead, to correct for skewness, we apply an inverse hyperbolic sine transforma
   \right).
 \end{equation}
 We set the scale~$\theta$ separately for each component variable with the aim of making the transformed variable approximately normally distributed.
-For each variable, we choose the value of $\theta \in \{2^d\}_{d=-10}^{10}$ that minimizes the Kolmogorov--Smirnov test statistic \citep{MasseyJr:2012jo} against a normal distribution with the same mean and variance.
+For each variable, we choose the value of $\theta \in \{2^d\}_{d=-10}^{10}$ that minimizes the Kolmogorov--Smirnov test statistic \citepapp{MasseyJr:2012jo} against a normal distribution with the same mean and variance.
 Table~\ref{tab:summary} gives the scale selected for each component.
 We use the transformed components in both the multiple imputation (see below) and the super learner training.
 
 \subsection{Militarized Interstate Dispute Data}
 
-Our sample and outcome variable are taken from the Militarized Interstate Disputes (v4.1) dataset from the Correlates of War project \citep{Palmer:2015hp}.\footnote{
+Our sample and outcome variable are taken from the Militarized Interstate Disputes (v4.1) dataset from the Correlates of War project \citepapp{Palmer:2015hp}.\footnote{
   Downloaded from \url{http://correlatesofwar.org/data-sets/MIDs/mid-level/at_download/file}.
 }
 The dataset records the participants and outcomes of interstate disputes from 1816 to 2010.
@@ -59,10 +61,10 @@ About 17~percent of disputes have at least one missing capability component for 
 
 As noted above, all of the National Material Capabilities variables contain some missing values.
 Following standard practice, we multiply impute the missing observations.
-We perform the imputations via the \texttt{Amelia} software package \citep{pkg-Amelia}.
+We perform the imputations via the \texttt{Amelia} software package \citepapp{pkg-Amelia}.
 
 Rather than just impute the missing values in the final dataset of disputes, we impute the entire National Material Capabilities dataset.
-This allows us to fully exploit the dataset's time-series cross-sectional structure in the imputation process \citep{honaker_what_2010}.
+This allows us to fully exploit the dataset's time-series cross-sectional structure in the imputation process \citepapp{honaker_what_2010}.
 We include in the imputation model a cubic polynomial for time, interacted with country dummy variables.
 As this results in an explosion in the number of parameters in the imputation model, we then impose a ridge prior equal to 0.1 percent of the observations in the dataset (see Section~4.7.1 of the \texttt{Amelia} package vignette).
 We enforce the constraint that every imputed value be non-negative.
@@ -89,22 +91,24 @@ To calculate predicted probabilities for dyads with missing values, we calculate
 
 \subsection{Super Learner Candidate Models}
 
-We use the R statistical environment \citep{pkg-R} for all data analysis.
-We fit, cross-validate, and calculate predictions from each candidate model through the \texttt{caret} package \citep{pkg-caret}.
+We use the R statistical environment \citepapp{pkg-R} for all data analysis.
+We fit, cross-validate, and calculate predictions from each candidate model through the \texttt{caret} package \citepapp{pkg-caret}.
 We then construct the super learner by solving~\eqref{eq:super-learner} via base R's \texttt{constrOptim()} function for optimization with linear constraints.
 Further details about each candidate model are summarized below.
 
 \begin{itemize}
-  \item Ordered Logit \citep{McKelvey:2010gv}
+  \sloppy
+
+  \item Ordered Logit \citepapp{McKelvey:2010gv}
   \begin{description}
-    \item[Package] \texttt{MASS} \citep{pkg-MASS}
+    \item[Package] \texttt{MASS} \citepapp{pkg-MASS}
     \item[Tuning Parameters] None
     \item[Notes] In the ``Year'' models, the year of the dispute is included directly and interacted with each capability variable
   \end{description}
 
-  \item C5.0 \citep{Quinlan:2015uc}
+  \item C5.0 \citepapp{Quinlan:2015uc}
   \begin{description}
-    \item[Package] \texttt{C50} \citep{pkg-c50}
+    \item[Package] \texttt{C50} \citepapp{pkg-c50}
     \item[Tuning Parameters] ~
     \begin{itemize}
       \item Number of boosting iterations (\texttt{trials}): selected via cross-validation from $\{1, 10, 20, 30, 40, 50\}$
@@ -113,9 +117,9 @@ Further details about each candidate model are summarized below.
     \end{itemize}
   \end{description}
 
-  \item Support Vector Machine \citep{Cortes:1995ie}
+  \item Support Vector Machine \citepapp{Cortes:1995ie}
   \begin{description}
-    \item[Package] \texttt{kernlab} \citep{pkg-kernlab}
+    \item[Package] \texttt{kernlab} \citepapp{pkg-kernlab}
     \item[Tuning Parameters] ~
     \begin{itemize}
       \item Kernel width (\texttt{sigma}): selected via cross-validation from $\{0.2, 0.4, 0.6, 0.8, 1\}$
@@ -124,9 +128,9 @@ Further details about each candidate model are summarized below.
     \item[Notes] Radial basis kernel
   \end{description}
 
-  \item $k$-Nearest Neighbors \citep{Cover:1967jq}
+  \item $k$-Nearest Neighbors \citepapp{Cover:1967jq}
   \begin{description}
-    \item[Package] \texttt{caret} \citep{pkg-caret}
+    \item[Package] \texttt{caret} \citepapp{pkg-caret}
     \item[Tuning Parameters] ~
     \begin{itemize}
       \item Number of nearest neighbors to average (\texttt{k}): selected via cross-validation from $\{25, 50, \ldots, 250\}$
@@ -134,18 +138,18 @@ Further details about each candidate model are summarized below.
     \item[Notes] All predictors centered and scaled to have zero mean and unit variance
   \end{description}
 
-  \item CART \citep{Breiman:1984tu}
+  \item CART \citepapp{Breiman:1984tu}
   \begin{description}
-    \item[Package] \texttt{rpart} \citep{pkg-rpart}
+    \item[Package] \texttt{rpart} \citepapp{pkg-rpart}
     \item[Tuning Parameters] ~
     \begin{itemize}
       \item Maximum tree depth (\texttt{maxdepth}): selected via cross-validation from $\{2, 3, \ldots, 9, 10\}$ (only up to 9 for models without year included)
     \end{itemize}
   \end{description}
 
-  \item Random Forest \citep{Breiman:2001fb}
+  \item Random Forest \citepapp{Breiman:2001fb}
   \begin{description}
-    \item[Package] \texttt{randomForest} \citep{pkg-randomForest}
+    \item[Package] \texttt{randomForest} \citepapp{pkg-randomForest}
     \item[Tuning Parameters] ~
     \begin{itemize}
       \item Number of predictors randomly sampled at each split (\texttt{mtry}): selected via cross-validation from $\{2, 4, \ldots, 12\}$
@@ -153,9 +157,9 @@ Further details about each candidate model are summarized below.
     \item[Notes] 1,000 trees per fit
   \end{description}
 
-  \item Averaged Neural Nets \citep{Ripley:1996vd}
+  \item Averaged Neural Nets \citepapp{Ripley:1996vd}
   \begin{description}
-    \item[Package] \texttt{nnet} \citep{pkg-MASS}, \texttt{caret} \citep{pkg-caret}
+    \item[Package] \texttt{nnet} \citepapp{pkg-MASS}, \texttt{caret} \citepapp{pkg-caret}
     \item[Tuning Parameters] ~
     \begin{itemize}
       \item Number of hidden layer units (\texttt{size}): selected via cross-validation from $\{1, 3, 5, 7, 9\}$
@@ -168,9 +172,13 @@ Further details about each candidate model are summarized below.
 \subsection{Replications}
 
 The following list contains basic information about each model in the replication study.
-We carry out logistic and probit regressions via \texttt{glm()} in base R \citep{pkg-R}, multinomial logit via \texttt{multinom()} in the \texttt{nnet} package \citep{pkg-MASS}, ordered probit via \texttt{polr()} in the \texttt{MASS} package \citep{pkg-MASS}, and heteroskedastic probit via \texttt{hetglm()} in the \texttt{glmx} package \citep{pkg-glmx}.
+We carry out logistic and probit regressions via \texttt{glm()} in base R \citepapp{pkg-R}, multinomial logit via \texttt{multinom()} in the \texttt{nnet} package \citepapp{pkg-MASS}, ordered probit via \texttt{polr()} in the \texttt{MASS} package \citepapp{pkg-MASS}, and heteroskedastic probit via \texttt{hetglm()} in the \texttt{glmx} package \citepapp{pkg-glmx}.
 
 \input{list-replications}
+
+
+\bibliographystyleapp{apsr}
+\bibliographyapp{doebib}
 
 %%% Local Variables:
 %%% mode: latex

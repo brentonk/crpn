@@ -25,7 +25,7 @@ replication_info <- yaml.load_file(
 
 ## Make description list for the appendix
 paper_desc <- foreach(x = iter(replication_info, by = "row"), .combine = "c") %do% {
-    c(paste0("  \\item \\citet{", x$citekey, "}"),
+    c(paste0("  \\item \\citetapp{", x$citekey, "}"),
       "  \\begin{description}",
       paste("    \\item[Model Replicated]", x$which),
       paste("    \\item[Unit of Analysis]", x$units),
