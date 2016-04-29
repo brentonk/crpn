@@ -62,6 +62,7 @@ slides/list-*.tex
 
 # R history files
 .Rhistory
+.Rapp.history
 
 # Stata files
 *.dta
@@ -81,3 +82,9 @@ R/zz-*.r
 
 # Rob's slides
 /slides-rjc/
+
+# Reviews
+/reviews/
+
+# Bryan's replication work
+/oinc-replications/
