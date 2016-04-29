@@ -61,6 +61,7 @@ with(pred_dyad[!is.na(pred_dyad$capratio), ],
 dat <- imputations_train[[1]]
 
 ## Calculate out-of-fold predictions for the capability ratio model
+set.seed(15)
 capratio_folds <- createFolds(y = dat$Outcome,
                               k = 10,
                               list = TRUE,
@@ -87,63 +88,30 @@ pp_capratio <- foreach (fold = capratio_folds, .combine = "rbind") %do% {
 ##
 ## This uses the tuning parameters that were trained by CV on the full sample,
 ## but the candidate model predictions being averaged are purely out-of-fold
-pp_doe <- foreach (i = seq_along(trained_weights)) %do% {
-    imp <- trained_weights[[i]]
+pp_doe <- foreach (imp_weights = trained_weights) %do% {
+    ## Extract the optimal weights for this imputation
+    w <- imp_weights$weights$par
+    w <- c(w, 1 - sum(w))
 
-    ## The `all_probs` object is a list with n_fold elements, each of which is a
-    ## list of n_model data frames of predictions and observed outcomes for each
-    ## fold.
+    ## Calculate weighted averages of predicted probabilities
     ##
-    ## First we'll switch the order, so we have a list of folds by model instead
-    ## of vice versa
-    all_models <- foreach (model = names(imp$all_probs[[1]])) %do% {
-        foreach (fold = imp$all_probs) %do% {
-            fold[[model]]
-        }
-    }
-
-    ## Now we want to put the observations back in their original order, since
-    ## the fold assignments are different across imputations.  We foolishly
-    ## forgot to save the fold assignments, so we'll need to reverse-engineer
-    ## them from the code in `15-train-weights.r`.
-    set.seed(100 * i)
-    cv_folds <- createFolds(y = dat$Outcome,
-                            k = length(imp$all_probs),
-                            list = TRUE,
-                            returnTrain = TRUE)
-    all_models <- foreach(model = all_models) %do% {
-        ## Piece back together the matrix, fold by fold
-        ##
-        ## Need to convert to matrix so we can assemble the storage in advance
-        n_obs <- sum(sapply(model, nrow))
-        pred_mat <- matrix(NA, nrow = n_obs, ncol = 4)
-        for (fold in seq_along(model))
-            pred_mat[-cv_folds[[fold]], ] <- data.matrix(model[[fold]])
-        colnames(pred_mat) <- c("VictoryB", "Stalemate", "VictoryA", "obs")
-
-        pred_mat
-    }
-
-    ## Double-check ordering of the matrices by making sure the outcomes are
-    ## consistent with those in the original data
-    ##
-    ## This also allows us not to save the outcome variable, and just work with
-    ## the probabilities, since we can re-retrieve the outcome from the source
+    ## Uses the `all_probs` object, a list containing one data frame of
+    ## out-of-fold predictions per model, each in the same order as the original
     ## data
-    for (model in all_models) {
-        obs <- ordered(model[, "obs"],
-                       levels = 1:3,
-                       labels = c("VictoryB", "Stalemate", "VictoryA"))
-        stopifnot(obs == dat$Outcome)
+    weighted_preds <- foreach (pred = imp_weights$all_probs) %do% {
+        pred <- select(pred, -id)
+        pred <- data.matrix(pred)
+        pred
     }
-
-    ## Calculate weighted average of predictions
-    wts <- imp$weights$par
-    wts <- c(wts, 1 - sum(wts))
-    weighted_preds <- Map("*", all_models, wts)
+    weighted_preds <- Map("*", weighted_preds, w)
     weighted_preds <- Reduce("+", weighted_preds)
 
-    weighted_preds[, 1:3]
+    ## Sanity check
+    stopifnot(all.equal(rowSums(weighted_preds),
+                        rep(1, nrow(weighted_preds)),
+                        check.attributes = FALSE))
+
+    weighted_preds
 }
 
 ## Average across imputations and validate
@@ -189,53 +157,11 @@ ggtern(pp_data,
     facet_grid(Outcome ~ method) +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) +
     theme_grey(base_size = 10) +
-    theme(axis.tern.ticks = element_blank(),
-          axis.tern.text = element_text(size = rel(0.8)),
+    theme(tern.axis.ticks = element_blank(),
+          tern.axis.text = element_text(size = rel(0.8)),
           legend.position = "bottom")
 dev.off()
 
-## Versions for slides
-tikz(file = file.path("..", "slides", "fig-oof-pred-capratio.tex"),
-     width = 4.25,
-     height = 3.25)
-ggtern(pp_data %>% filter(method == "Ordered Logit on Capability Ratio"),
-       aes(x = VictoryA,
-           y = Stalemate,
-           z = VictoryB)) +
-    geom_point(alpha = 0.3) +
-    scale_T_continuous("$\\emptyset$") +
-    scale_L_continuous("$A$") +
-    scale_R_continuous("$B$") +
-    facet_wrap(~ Outcome, nrow = 2) +
-    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-    theme_grey(base_size = 8) +
-    theme(axis.tern.ticks = element_blank(),
-          axis.tern.text = element_text(size = rel(0.8)),
-          plot.background = element_rect(fill = "transparent", colour = NA),
-          legend.background = element_rect(fill = "transparent", colour = NA),
-          legend.position = "bottom")
-dev.off()
-
-tikz(file = file.path("..", "slides", "fig-oof-pred-sl.tex"),
-     width = 4.25,
-     height = 3.25)
-ggtern(pp_data %>% filter(method == "Super Learner"),
-       aes(x = VictoryA,
-           y = Stalemate,
-           z = VictoryB)) +
-    geom_point(alpha = 0.3) +
-    scale_T_continuous("$\\emptyset$") +
-    scale_L_continuous("$A$") +
-    scale_R_continuous("$B$") +
-    facet_wrap(~ Outcome, nrow = 2) +
-    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-    theme_grey(base_size = 8) +
-    theme(axis.tern.ticks = element_blank(),
-          axis.tern.text = element_text(size = rel(0.8)),
-          plot.background = element_rect(fill = "transparent", colour = NA),
-          legend.background = element_rect(fill = "transparent", colour = NA),
-          legend.position = "bottom")
-dev.off()
 
 ###-----------------------------------------------------------------------------
 ### Dyadic predictions over time
@@ -301,51 +227,4 @@ ggplot(dat_usa_russia, aes(x = year, y = probability)) +
           axis.ticks.y = element_blank(),
           legend.position = "bottom",
           legend.box = "horizontal")
-dev.off()
-
-## Versions for slides
-tikz(file = file.path("..", "slides", "fig-usa-russia-capratio.tex"),
-     width = 4.25,
-     height = 3.25,
-     packages = c(getOption("tikzLatexPackages"),
-                  "\\usepackage{amsmath}"))
-ggplot(dat_usa_russia %>% filter(method == "Ordered Logit on Capability Ratio"),
-       aes(x = year, y = probability)) +
-    geom_area(aes(fill = quantity), alpha = 0.8) +
-    scale_x_continuous("Year") +
-    scale_y_continuous("Predicted Probability") +
-    scale_fill_manual("Outcome",
-                      values = rev(brewer.pal(3, "Blues")),
-                      guide = FALSE) +
-    annotate("text", x = 1911.5, y = 0.04, label = "USA Wins", size = 2.5) +
-    annotate("text", x = 1911.5, y = 0.5, label = "Stalemate", size = 2.5) +
-    annotate("text", x = 1911.5, y = 0.96, label = "Russia Wins", size = 2.5) +
-    ggtitle("Capability Ratio Model") +
-    theme_grey(base_size = 8) +
-    theme(axis.tern.ticks = element_blank(),
-          axis.tern.text = element_text(size = rel(0.8)),
-          plot.background = element_rect(fill = "transparent", colour = NA))
-dev.off()
-
-tikz(file = file.path("..", "slides", "fig-usa-russia-sl.tex"),
-     width = 4.25,
-     height = 3.25,
-     packages = c(getOption("tikzLatexPackages"),
-                  "\\usepackage{amsmath}"))
-ggplot(dat_usa_russia %>% filter(method == "Super Learner"),
-       aes(x = year, y = probability)) +
-    geom_area(aes(fill = quantity), alpha = 0.8) +
-    scale_x_continuous("Year") +
-    scale_y_continuous("Predicted Probability") +
-    scale_fill_manual("Outcome",
-                      values = rev(brewer.pal(3, "Blues")),
-                      guide = FALSE) +
-    annotate("text", x = 1911.5, y = 0.04, label = "USA Wins", size = 2.5) +
-    annotate("text", x = 1911.5, y = 0.5, label = "Stalemate", size = 2.5) +
-    annotate("text", x = 1911.5, y = 0.96, label = "Russia Wins", size = 2.5) +
-    ggtitle("DOE Scores") +
-    theme_grey(base_size = 8) +
-    theme(axis.tern.ticks = element_blank(),
-          axis.tern.text = element_text(size = rel(0.8)),
-          plot.background = element_rect(fill = "transparent", colour = NA))
 dev.off()

@@ -70,90 +70,14 @@ time_start <- proc.time()
 ## imputations
 set.seed(100 * i)
 
-## Generate cross-validation folds
-##
-## We're going to train each model *within* each fold as well, in order to
-## get the out-of-sample probabilities we need to learn the ensemble weights
-n_folds <- 10
-cv_folds <- createFolds(y = dat$Outcome,
-                        k = n_folds,
-                        list = TRUE,
-                        returnTrain = TRUE)
-
-## Calculate out-of-fold predicted probabilities for each candidate model
-all_probs <- foreach (fold = seq_len(n_folds)) %do% {
-    cat("FOLD", fold, as.character(Sys.time()), "\n")
-
-    ## Retrieve the training and test sets corresponding to the given fold
-    fold_train <- dat[cv_folds[[fold]], , drop = FALSE]
-    fold_test <- dat[-cv_folds[[fold]], , drop = FALSE]
-
-    ## Train each specified model and calculate the predicted probability of
-    ## each out-of-fold outcome
-    fold_probs <- args_to_train(arg_list = method_args,
-                                common_args = common_args,
-                                tr_control = tr_control,
-                                data_train = fold_train,
-                                data_test = fold_test,
-                                for_probs = TRUE,
-                                allow_no_tune = TRUE,
-                                logfile = "")
-
-    fold_probs
-}
-
-## Form the matrix of out-of-fold probabilities of *observed* outcomes -- this
-## is what we'll use to calculate optimal super learner weights
-##
-## Each element of `out_probs` is a list of matrices of predicted probabilities
-## (one list per fold, one matrix per candidate model), hence the nested loop
-out_probs <- foreach (fold_probs = all_probs) %do% {
-    foreach (pred = fold_probs, .combine = "cbind") %do% {
-        ## Translate into key-value format
-        pred <- gather_(pred,
-                        key_col = "Outcome",
-                        value_col = "prob",
-                        gather_cols = levels(pred$obs))
-
-        ## Extract the predicted values for the observed outcomes only
-        pred <- filter(pred,
-                       as.character(obs) == as.character(Outcome))
-
-        pred$prob
-    }
-    ## TODO: Work backward from fold assignments to put back in the same order
-    ## as the original dataset
-}
-
-## TODO: Set out_probs colnames
-
-## Calculate optimal ensemble weights
-out_mat <- do.call("rbind", out_probs)
-imputation_weights <- learn_ensemble(out_mat)
-
-## To estimate the bias of the minimum CV error via Tibshirani &
-## Tibshirani's method, calculate the difference in CV error on each fold
-## for the chosen weights versus the weights that would be optimal for that
-## fold alone
-loss_global <- sapply(out_probs,
-                      function(x) ll_ensemble_weights(w = imputation_weights$par,
-                                                      pr_mat = x))
-loss_local <- sapply(out_probs,
-                     function(x) learn_ensemble(x)$value)
-bias_min_cv <- mean(loss_global - loss_local)
+trained_weights <- train_weights(dat = dat,
+                                 n_folds = 10,
+                                 arg_list = method_args,
+                                 common_args = common_args,
+                                 tr_control = tr_control)
 
 time_end <- proc.time()
 print(time_end - time_start)
-
-
-## Collect the key components of the results as a list
-##
-## Technically no longer necessary now that we're saving separate .rda's for
-## each imputation, but will help reduce rewriting of older code
-trained_weights <- list(out_probs = out_mat,
-                        weights = imputation_weights,
-                        bias_min_cv = bias_min_cv,
-                        all_probs = all_probs)
 
 save_dir <- "results-weights"
 save_file <- paste0("imp",

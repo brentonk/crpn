@@ -20,6 +20,7 @@ args_to_train <- function(arg_list,
                           tr_control = trainControl(),
                           data_train,
                           data_test = NULL,
+                          id = NULL,
                           for_probs = FALSE,
                           allow_no_tune = TRUE,
                           logfile = NULL)
@@ -68,11 +69,8 @@ args_to_train <- function(arg_list,
                 pred <- pred / rowSums(pred)
             }
 
-            ## `predict()` gives us three columns of output, one per class.  We
-            ## want this to be in key-value format instead, to ease the process
-            ## of backing out the estimated probability of the *observed*
-            ## outcome.
-            pred$obs <- data_test$Outcome
+            ## Include observation IDs for mapping back into original dataset
+            pred$id <- id
 
             fit <- pred
         }
@@ -163,4 +161,111 @@ learn_ensemble <- function(probs, outer.eps = 1e-8)
                                   pr_mat = probs)
 
     ensemble_optim
+}
+
+train_weights <- function(dat,
+                          n_folds,
+                          arg_list,
+                          common_args,
+                          tr_control)
+{
+    ## Generate cross-validation folds
+    ##
+    ## We're going to train each model *within* each fold as well, in order to
+    ## get the out-of-sample probabilities we need to learn the ensemble weights
+    cv_folds <- createFolds(y = dat$Outcome,
+                            k = n_folds,
+                            list = TRUE)
+
+    ## Calculate out-of-fold predicted probabilities for each candidate model
+    all_probs <- foreach (fold = seq_len(n_folds)) %do% {
+        cat("FOLD", fold, as.character(Sys.time()), "\n")
+
+        ## Retrieve the training and test sets corresponding to the given fold
+        fold_train <- dat[-cv_folds[[fold]], , drop = FALSE]
+        fold_test <- dat[cv_folds[[fold]], , drop = FALSE]
+
+        ## Train each specified model and calculate the predicted probability of
+        ## each out-of-fold outcome
+        fold_probs <- args_to_train(arg_list = arg_list,
+                                    common_args = common_args,
+                                    tr_control = tr_control,
+                                    data_train = fold_train,
+                                    data_test = fold_test,
+                                    id = cv_folds[[fold]],
+                                    for_probs = TRUE,
+                                    allow_no_tune = TRUE,
+                                    logfile = "")
+
+        fold_probs
+    }
+
+    ## Collapse the out-of-fold predictions from each model into a single data
+    ## frame, each with observations in the same order as the original data
+    ##
+    ## The result is a list of said data frames, the same length as the number
+    ## of models being trained
+    all_probs_collapse <- foreach (model = seq_along(arg_list)) %do% {
+        ## Retrieve relevant components of `all_probs`
+        oof_preds <- foreach (fold = seq_len(n_folds), .combine = "rbind") %do% {
+            all_probs[[fold]][[model]]
+        }
+
+        ## Place in order of original data using the id variable
+        oof_preds <- oof_preds[order(oof_preds$id), ]
+
+        oof_preds
+    }
+    names(all_probs_collapse) <- names(arg_list)
+
+    ## Form a matrix of out-of-fold probabilities of *observed* outcomes
+    obs_probs <- foreach (model = all_probs_collapse, .combine = "cbind") %do% {
+        model$obs <- dat$Outcome
+
+        ## Translate relevant element of `all_probs_collapse` into key-value
+        ## format
+        pred <- gather_(model,
+                        key_col = "Outcome",
+                        value_col = "prob",
+                        gather_cols = levels(dat$Outcome))
+
+        ## Extract the predicted values for the observed outcomes only
+        pred <- filter(pred,
+                       as.character(obs) == as.character(Outcome))
+
+        ## Once again place in original order
+        pred <- pred[order(pred$id), ]
+
+        pred$prob
+    }
+    colnames(obs_probs) <- names(all_probs_collapse)
+
+    ## Calculate optimal ensemble weights
+    imputation_weights <- learn_ensemble(obs_probs)
+
+    ## To estimate the bias of the minimum CV error via Tibshirani &
+    ## Tibshirani's method, calculate the difference in CV error on each fold
+    ## for the chosen weights versus the weights that would be optimal for that
+    ## fold alone
+    losses <- foreach (fold = seq_len(n_folds), .combine = "rbind") %do% {
+        ## Subset the matrix of out-of-fold probabilities of observed outcomes
+        ## to the relevant fold only
+        obs_probs_fold <- obs_probs[cv_folds[[fold]], , drop = FALSE]
+
+        ## Log loss using the weights chosen on the full dataset
+        loss_global <- ll_ensemble_weights(w = imputation_weights$par,
+                                           pr_mat = obs_probs_fold)
+
+        ## Log loss using the weights that would be optimal for this fold alone
+        loss_local <- learn_ensemble(obs_probs_fold)$value
+
+        c(global = loss_global,
+          local = loss_local)
+    }
+    bias_min_cv <- mean(losses[, "global"] - losses[, "local"])
+
+    list(out_probs = obs_probs,
+         weights = imputation_weights,
+         bias_min_cv = bias_min_cv,
+         all_probs = all_probs_collapse)
 }

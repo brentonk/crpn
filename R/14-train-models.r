@@ -52,6 +52,7 @@ trained_models <- foreach (dat = imputations_train, i = icount(), .packages = c(
                                        tr_control = tr_control,
                                        data_train = dat,
                                        data_test = NULL,
+                                       id = NULL,
                                        for_probs = FALSE,
                                        allow_no_tune = FALSE,
                                        logfile = logfile)
