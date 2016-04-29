@@ -29,6 +29,10 @@
   method: *polr
   data: Capability Ratio
   year: false
+- name: polr_time_trend
+  method: *polr
+  data: Time Trend
+  year: true
 - name: polr
   method: *polr
   data: *comps

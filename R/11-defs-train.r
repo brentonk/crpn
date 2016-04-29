@@ -56,6 +56,7 @@ f_components_t <- update(f_components, . ~ . + year)
 f_props_t <- update(f_props, . ~ . + year)
 f_components_times_t <- update(f_components, . ~ . * year)
 f_props_times_t <- update(f_props, . ~ . * year)
+f_time_trend <- Outcome ~ I(year > 1945) * poly(year, 3)
 
 ## List of method-specific arguments that vary across train() calls
 ##
@@ -70,6 +71,12 @@ method_args <- list(
     ## Ordered logit just on the capability ratio
     polr_capratio = list(
         form = f_capratio,
+        method = "polr",
+        doNotTune = TRUE
+    ),
+    ## Ordered logit just on time trend
+    polr_time_trend = list(
+        form = f_time_trend,
         method = "polr",
         doNotTune = TRUE
     ),

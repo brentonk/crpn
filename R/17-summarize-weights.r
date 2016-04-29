@@ -78,13 +78,13 @@ model_table %>% group_by(data) %>% summarise(prl = mean(prl)) %>% arrange(prl)
 model_table %>% group_by(year) %>% summarise(prl = mean(prl)) %>% arrange(prl)
 
 ## Examine paired differences in CV loss for time/no time
-ll_year_t <- with(model_table[-(1:2), ] %>% filter(year == TRUE), logLoss)
-ll_year_f <- with(model_table[-(1:2), ] %>% filter(year == FALSE), logLoss)
+ll_year_t <- with(model_table[-(1:3), ] %>% filter(year == TRUE), logLoss)
+ll_year_f <- with(model_table[-(1:3), ] %>% filter(year == FALSE), logLoss)
 t.test(ll_year_t, ll_year_f, paired = TRUE)
 
 ## Examine paired differences in CV loss for components/proportions
-ll_comps <- with(model_table[-(1:2), ] %>% filter(data == "Components"), logLoss)
-ll_props <- with(model_table[-(1:2), ] %>% filter(data == "Proportions"), logLoss)
+ll_comps <- with(model_table[-(1:3), ] %>% filter(data == "Components"), logLoss)
+ll_props <- with(model_table[-(1:3), ] %>% filter(data == "Proportions"), logLoss)
 t.test(ll_comps, ll_props, paired = TRUE)
 
 ## Prettify numeric values and truncate small ensemble weights
