@@ -191,31 +191,23 @@ method_args <- list(
     ## CART (tuning over maximum tree depth)
     cart = list(
         form = f_components,
-        method = "rpart2",
-        tuneGrid = data.frame(
-            maxdepth = 2:9
-        )
+        method = "rpart",
+        tuneLength = 25
     ),
     cart_t = list(
         form = f_components_t,
-        method = "rpart2",
-        tuneGrid = data.frame(
-            maxdepth = 2:10
-        )
+        method = "rpart",
+        tuneLength = 25
     ),
     cart_props = list(
         form = f_props,
-        method = "rpart2",
-        tuneGrid = data.frame(
-            maxdepth = 2:9
-        )
+        method = "rpart",
+        tuneLength = 25
     ),
     cart_props_t = list(
         form = f_props_t,
-        method = "rpart2",
-        tuneGrid = data.frame(
-            maxdepth = 2:10
-        )
+        method = "rpart",
+        tuneLength = 25
     ),
     ## Random forests
     rf = list(
