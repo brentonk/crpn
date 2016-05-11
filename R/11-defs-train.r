@@ -126,6 +126,7 @@ method_args <- list(
     svm = list(
         form = f_components,
         method = "svmRadial",
+        preProcess = c("center", "scale"),
         tuneGrid = expand.grid(
             sigma = seq(0.2, 1, by = 0.2),
             C = 2^seq(-2, 2)
@@ -134,6 +135,7 @@ method_args <- list(
     svm_t = list(
         form = f_components_t,
         method = "svmRadial",
+        preProcess = c("center", "scale"),
         tuneGrid = expand.grid(
             sigma = seq(0.2, 1, by = 0.2),
             C = 2^seq(-2, 2)
@@ -142,6 +144,7 @@ method_args <- list(
     svm_props = list(
         form = f_props,
         method = "svmRadial",
+        preProcess = c("center", "scale"),
         tuneGrid = expand.grid(
             sigma = seq(0.2, 1, by = 0.2),
             C = 2^seq(-2, 2)
@@ -150,6 +153,7 @@ method_args <- list(
     svm_props_t = list(
         form = f_props_t,
         method = "svmRadial",
+        preProcess = c("center", "scale"),
         tuneGrid = expand.grid(
             sigma = seq(0.2, 1, by = 0.2),
             C = 2^seq(-2, 2)
