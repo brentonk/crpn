@@ -44,12 +44,12 @@ data_weeks_2008 <- raw_weeks_2008 %>%
                           "Military",
                           "Single",
                           "Hybrid",
-                          "Dynastic Monarchy",
-                          "Non-dynastic Monarchy",
+                          "DynasticMon",
+                          "NonDynasticMon",
                           "Interregna",
-                          "No Info",
+                          "NoInfo",
                           "Other",
-                          "Interregna-Dem")
+                          "InterregnaDem")
            ))
 
 ## Remove cases dropped from analysis
@@ -58,8 +58,7 @@ data_weeks_2008 <- data_weeks_2008 %>%
            year != 1965 | abbrev1 != "ZIM",
            year != 1969 | abbrev1 != "ZIM",
            year > 1945,
-           year < 2000,
-           bilateral == 1) %>%
+           year < 2000) %>%
     droplevels()                        # Prevent spurious singularity warnings
 
 ## Merge in DOE scores
@@ -75,30 +74,47 @@ data_weeks_2008 %>%
     select(ccodecow, ccodecow2, year)
                                         # None
 
-## Replicate model 3 and estimate out-of-sample predictive power via repeated
-## 10-fold cross-validation
-set.seed(2308)
+## Replicating Model 2
 f_weeks_2008 <-
     recip ~ regimetype1 + majpow1*majpow2 + capshare1 + contig +
         ally + s_wt_glo + s_ld_1 + s_ld_2 + revtype
+
+## Null hypothesis: equal coefficients for all regime types besides consolidated
+## democracies (the base category)
+hyp_main <- c("regimetype1Military = regimetype1Personalist",
+              "regimetype1Single = regimetype1Personalist",
+              "regimetype1Hybrid = regimetype1Personalist",
+              "regimetype1DynasticMon = regimetype1Personalist",
+              "regimetype1NonDynasticMon = regimetype1Personalist",
+              "regimetype1Interregna = regimetype1Personalist",
+              "regimetype1Other = regimetype1Personalist",
+              "regimetype1InterregnaDem = regimetype1Personalist")
+
+## Original model
+set.seed(2308)
 cr_weeks_2008 <- glm_and_cv(
     form = f_weeks_2008,
     data = data_weeks_2008,
+    se_cluster = data_weeks_2008$cwkeynum,
+    hyp_main = hyp_main,
+    hyp_power = "capshare1 = 0",
     number = 10,
     repeats = 100
 )
-printCoefmat(cr_weeks_2008$summary)
+print(cr_weeks_2008$summary)
 
 ## Replace capability ratio with DOE scores
-set.seed(8032)
 doe_weeks_2008 <- glm_and_cv(
     form = update(f_weeks_2008,
                   . ~ . - capshare1 + VictoryA + VictoryB),
     data = data_weeks_2008,
+    se_cluster = data_weeks_2008$cwkeynum,
+    hyp_main = hyp_main,
+    hyp_power = c("VictoryA = 0", "VictoryB = 0"),
     number = 10,
     repeats = 100
 )
-printCoefmat(doe_weeks_2008$summary)
+print(doe_weeks_2008$summary)
 
 save(cr_weeks_2008,
      doe_weeks_2008,

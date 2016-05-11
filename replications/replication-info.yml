@@ -274,13 +274,16 @@
   citekey: "Weeks:2008cj"
   repeats: 100
   method: *logit
-  which: Table 4, Model 3
+  which: Table 4, Model 2
   units: *ddyad
   terms_cinc:
     - *cr_a
   terms_doe:
     - *doe_a
     - *doe_b
+  dv: MID reciprocation
+  null_hypothesis: >-
+    $\coef{Single-Party} = \coef{Personalist}$; $\coef{Military} = \coef{Personalist}$; $\coef{Hybrid} = \coef{Personalist}$; $\coef{Mixed Nondemocracy} = \coef{Personalist}; $\coef{Dynastic Monarchy} = \coef{Personalist}$; $\coef{Nondynastic Monarchy} = \coef{Personalist}$; $\coef{Nondemocratic Interregna} = \coef{Personalist}$; $\coef{New Democracy} = \coef{Personalist}$
 - name: weeks-2012
   author: Weeks
   year: 2012
@@ -314,17 +317,3 @@
     - *doe_b
   notes: >-
     Dyads are directed, but $A$ is the upstream state in a river basin rather than the (prospective) initiator of conflict, so we use the undirected form of the DOE scores.
-- name: hafner-burton-montgomery-2006
-  author: Hafner-Burton and Montgomery
-  year: 2006
-  journal: *jcr
-  citekey: "HafnerBurton:2006fy"
-  repeats: 10
-  method: *logit
-  which: Table 1, Model 2
-  units: *udyad
-  terms_cinc:
-    - *log_cr_maxmin
-  terms_doe:
-    - *log_doe_min
-    - *log_doe_max
