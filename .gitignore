@@ -88,3 +88,6 @@ R/zz-*.r
 
 # Bryan's replication work
 /oinc-replications/
+
+# Website
+/doe-site/
