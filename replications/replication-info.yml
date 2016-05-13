@@ -181,7 +181,7 @@
     - interactions of each with joint ratification
   notes: >-
     Capability ratio is ``corrected for distance to the battlefield and aggregated across actors with a unified command.''  We drop the cases with coalitional actors in both models, hence the difference in sample size from the original article.  No distance correction is applied to the DOE scores.
-- name: oswiak-2012
+- name: owsiak-2012
   author: Owsiak
   year: 2012
   journal: *isq
@@ -195,6 +195,9 @@
   terms_doe:
     - *log_doe_min
     - *log_doe_max
+  dv: MID onset
+  null_hypothesis: >-
+    $\coef{Settled Borders} = 0$
 - name: park-colaresi-2014
   author: Park and Colaresi
   year: 2014
