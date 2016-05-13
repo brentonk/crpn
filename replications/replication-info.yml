@@ -267,6 +267,9 @@
   terms_doe:
     - *doe_a
     - *doe_b
+  dv: MID reciprocation
+  null_hypothesis: >-
+    $\coef{ACC State A} = 0$
 - name: weeks-2008
   author: Weeks
   year: 2008
