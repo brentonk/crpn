@@ -210,7 +210,7 @@
   terms_doe:
     - *doe_parity
     - interaction with contiguity
-- name: salehyan-2008
+- name: salehyan-2008-jop
   author: Salehyan
   year: 2008
   journal: *jop
@@ -225,6 +225,9 @@
     - *log_doe_min
     - *log_doe_max
 - name: salehyan-2008a
+  dv: MID occurrence (category 4 or 5)
+  null_hypothesis: >-
+    External rebel bases in neighboring territory have no effect on the probability of a dispute.
   author: Salehyan
   year: 2008
   journal: *ajps
