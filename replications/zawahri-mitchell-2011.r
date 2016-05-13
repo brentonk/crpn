@@ -44,29 +44,41 @@ data_zawahri_mitchell_2011 <- data_zawahri_mitchell_2011 %>%
     filter(!is.na(downstreampower),
            !is.na(upstreampower))
 
+## Replicating Model 1
+f_zawahri_mitchell_2011 <-
+    bilattreaty ~ percentarealow + waterdependlow + avgpreciplow +
+        lowpolity + samelegal + upstreampower + downstreampower
+
+## Null hypothesis: no effect of river dependence
+hyp_main <- c("percentarealow = 0",
+              "waterdependlow = 0",
+              "avgpreciplow = 0")
+
 ## Reproduce original model
 set.seed(2611)
-f_zawahri_mitchell_2011 <-
-    bilattreaty ~ lowpolity + samelegal + downstreampower + upstreampower +
-        percentarealow + waterdependlow + avgpreciplow
 cr_zawahri_mitchell_2011 <- glm_and_cv(
     form = f_zawahri_mitchell_2011,
     data = data_zawahri_mitchell_2011,
+    se_cluster = 1:nrow(data_zawahri_mitchell_2011),  # robust, not clustered
+    hyp_main = hyp_main,
+    hyp_power = c("upstreampower = 0", "downstreampower = 0"),
     number = 10,
     repeats = 100
 )
-printCoefmat(cr_zawahri_mitchell_2011$summary)
+print(cr_zawahri_mitchell_2011$summary)
 
 ## Replace raw CINC scores with corresponding DOE scores and run again
-set.seed(1162)
 doe_zawahri_mitchell_2011 <- glm_and_cv(
     form = update(f_zawahri_mitchell_2011,
                   . ~ . - downstreampower - upstreampower + VictoryUp + VictoryDown),
     data = data_zawahri_mitchell_2011,
+    se_cluster = 1:nrow(data_zawahri_mitchell_2011),  # robust, not clustered
+    hyp_main = hyp_main,
+    hyp_power = c("VictoryUp = 0", "VictoryDown = 0"),
     number = 10,
     repeats = 100
 )
-printCoefmat(doe_zawahri_mitchell_2011$summary)
+print(doe_zawahri_mitchell_2011$summary)
 
 ## Check that reponse is the same across runs
 stopifnot(identical(as.vector(cr_zawahri_mitchell_2011$y),

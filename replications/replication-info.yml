@@ -323,5 +323,8 @@
   terms_doe:
     - *doe_a
     - *doe_b
+  dv: River treaty formation
+  null_hypothesis: >-
+    $\coef{\% Lowest area in basin} = 0$; $\coef{Lowest water dependence = 0}$; $\coef{Lowest avg.\ precipitation} = 0$
   notes: >-
     Dyads are directed, but $A$ is the upstream state in a river basin rather than the (prospective) initiator of conflict, so we use the undirected form of the DOE scores.
