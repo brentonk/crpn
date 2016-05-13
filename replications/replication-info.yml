@@ -89,6 +89,9 @@
   terms_doe:
     - *log_doe_min
     - *log_doe_max
+  dv: MID occurrence
+  null_hypothesis: >-
+    $\coef{Rapid issue accumulation} = 0$; $\coef{Gradual issue accumulation} = 0$
 - name: fordham-2008
   author: Fordham
   year: 2008
