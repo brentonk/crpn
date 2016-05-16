@@ -121,6 +121,9 @@
   terms_doe:
     - *doe_a
     - *doe_b
+  dv: MID initiation
+  null_hypothesis: >-
+    $\coef{Defense pact with nuclear power} = 0$
 - name: gartzke-2007
   author: Gartzke
   year: 2007
