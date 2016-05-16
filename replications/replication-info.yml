@@ -141,6 +141,9 @@
   terms_doe:
     - *log_doe_min
     - *log_doe_max
+  dv: MID onset
+  null_hypothesis: >-
+    $\coef{GDPPC (Low)} = 0$; $\coef{GDPPC $\times$ Contig.} = 0$
 - name: huth-2012
   author: Huth et al.
   year: 2012

@@ -51,30 +51,40 @@ stopifnot(with(data_gartzke_2007, sum(is.na(VictoryA)) == 0))
 data_gartzke_2007 <- data_gartzke_2007 %>%
     filter(!is.na(lncaprt))
 
-## Replicate original model and cross-validate
-set.seed(707)
+## Replicating Table 1, model 4
 f_gartzke_2007 <-
     maoznewl ~ demlo + demhi + deplo + capopenl + rgdppclo + gdpcontg + contig +
         logdstab + majpdyds + alliesr + lncaprt + namerica + samerica + europe +
         africa + nafmeast + asia + T.spline1 + T.spline2 + T.spline3
+
+## Null hypothesis: no effect of GDP (regardless of contiguity)
+hyp_main <- c("rgdppclo = 0", "gdpcontg = 0")
+
+## Replicate original model and cross-validate
+set.seed(707)
 cr_gartzke_2007 <- glm_and_cv(
     form = f_gartzke_2007,
     data = data_gartzke_2007,
+    se_cluster = data_gartzke_2007$dyadid,
+    hyp_main = hyp_main,
+    hyp_power = "lncaprt = 0",
     number = 10,
     repeats = 10
 )
-printCoefmat(cr_gartzke_2007$summary)
+print(cr_gartzke_2007$summary)
 
 ## Replace (logged) capability ratio with (logged) DOE scores and run again
-set.seed(77077)
 doe_gartzke_2007 <- glm_and_cv(
     form = update(f_gartzke_2007,
                   . ~ . - lncaprt + log(VictoryMax) + log(VictoryMin)),
     data = data_gartzke_2007,
+    se_cluster = data_gartzke_2007$dyadid,
+    hyp_main = hyp_main,
+    hyp_power = c("log(VictoryMax) = 0", "log(VictoryMin) = 0"),
     number = 10,
     repeats = 10
 )
-printCoefmat(doe_gartzke_2007$summary)
+print(doe_gartzke_2007$summary)
 
 ## Check that response is the same across runs
 stopifnot(identical(as.vector(cr_gartzke_2007$y),
