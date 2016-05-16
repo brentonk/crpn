@@ -232,7 +232,7 @@
     - *log_doe_max
   dv: MID occurrence (category 4 or 5)
   null_hypothesis: >-
-    External rebel bases in neighboring territory have no effect on the probability of a dispute.
+    $\coef{External Base} = 0$
 - name: salehyan-2008-ajps
   author: Salehyan
   year: 2008
