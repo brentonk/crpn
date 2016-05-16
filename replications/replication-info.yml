@@ -266,13 +266,16 @@
   citekey: "Sobek:2006cn"
   repeats: 10
   method: *logit
-  which: Table 1, first row (political prisoners model)
+  which: Table 2, Index Model
   units: *udyad
   terms_cinc:
     - *cr_diff
   terms_doe:
     - *doe_min
     - *doe_max
+  dv: MID onset
+  null_hypothesis: >-
+    $\coef{Physical Integrity Index} = 0$; $\coef{Empowerment Rights Index} = 0$
 - name: uzonyi-souva-golder-2012
   author: Uzonyi et al.
   year: 2012
