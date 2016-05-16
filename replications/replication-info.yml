@@ -107,6 +107,9 @@
   terms_doe:
     - $\log p_{\text{US}}$
     - $\log p_2$
+  dv: Onset of alliance with U.S.
+  null_hypothesis:
+    $\coef{Log of exports in previous year} = 0$
 - name: fuhrmann-sechser-2014
   author: Fuhrmann and Sechser
   year: 2014

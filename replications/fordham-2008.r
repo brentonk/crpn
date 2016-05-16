@@ -57,32 +57,42 @@ data_fordham_2008 <- data_fordham_2008 %>%
     filter(!is.na(lncap_1),
            !is.na(lncap_2))
 
-## Reproduce original model and cross-validate
-set.seed(608)
+## Replicating Table 2, third column
 f_fordham_2008 <-
     atopdo ~ lnexports1 + lndistance + lntotmids10_1 + lntotmids10_2 +
         lndyadmid10 + lncap_1 + lncap_2 + polity22 + coldwar + noallyrs +
         T.prefail + T.spline1 + T.spline2 + T.spline3
+
+## Null hypothesis: no effect of previous year's exports
+hyp_main <- "lnexports1 = 0"
+
+## Reproduce original model and cross-validate
+set.seed(608)
 cr_fordham_2008 <- glm_and_cv(
     form = f_fordham_2008,
     data = data_fordham_2008,
+    se_cluster = data_fordham_2008$ccode,
+    hyp_main = hyp_main,
+    hyp_power = c("lncap_1 = 0", "lncap_2 = 0"),
     number = 10,
     repeats = 100,
     probit = TRUE
 )
-printCoefmat(cr_fordham_2008$summary)
+print(cr_fordham_2008$summary)
 
 ## Replicate, replacing CINC scores with DOE scores
-set.seed(806)
 doe_fordham_2008 <- glm_and_cv(
     form = update(f_fordham_2008,
                   . ~ . - lncap_1 - lncap_2 + log(VictoryA) + log(VictoryB)),
     data = data_fordham_2008,
+    se_cluster = data_fordham_2008$ccode,
+    hyp_main = hyp_main,
+    hyp_power = c("log(VictoryA) = 0", "log(VictoryB) = 0"),
     number = 10,
     repeats = 100,
     probit = TRUE
 )
-printCoefmat(doe_fordham_2008$summary)
+print(doe_fordham_2008$summary)
 
 ## Check that response is identical across runs
 stopifnot(identical(as.vector(cr_fordham_2008$y),
