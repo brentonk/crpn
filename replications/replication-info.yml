@@ -149,6 +149,9 @@
   terms_doe:
     - *doe_a
     - *doe_b
+  dv: Decision to challenge the status quo (keep status quo, negotiate, or threaten force)
+  null_hypothesis: >-
+    $\coef{Strong legal claims} = 0$ in both the "Negotiations vs.\ threaten force" and "Status quo vs.\ force" equations
 - name: jung-2014
   author: Jung
   year: 2014
