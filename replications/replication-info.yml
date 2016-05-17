@@ -220,7 +220,7 @@
   citekey: "Park:2014gg"
   repeats: 10
   method: *logit
-  which: Table 1, Model 2
+  which: Table 1, Model 4
   units: *udyad
   terms_cinc:
     - *cr_minmax
@@ -228,6 +228,9 @@
   terms_doe:
     - *doe_parity
     - interaction with contiguity
+  dv: MID onset
+  null_hypothesis: >-
+    $\coef{Lowest Dem} = 0$
 - name: salehyan-2008-jop
   author: Salehyan
   year: 2008
