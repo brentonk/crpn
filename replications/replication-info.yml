@@ -329,6 +329,9 @@
   terms_doe:
     - *doe_a
     - *doe_b
+  dv: MID initiation
+  null_hypothesis: >-
+    $\coef{Junta} = \coef{Machine}$; $\coef{Boss} = \coef{Machine}$; $\coef{Strongman} = \coef{Machine}$; $\coef{Other Nondemocracies} = \coef{Machine}$
 - name: zawahri-mitchell
   author: Zawahri and Mitchell
   year: 2011
