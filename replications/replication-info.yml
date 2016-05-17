@@ -75,6 +75,9 @@
     - *doe_a
     - *doe_b
     - *doe_parity
+  dv: MID initiation
+  null_hypothesis: >-
+    $\coef{Democracy-Initiator} = 0$; $\coef{Democracy-Target} = 0$; $\coef{Democracy-Initiator $\times$ Similarity} = 0$; $\coef{Democracy-Initiator $\times$ Democracy-Target} = 0$; $\coef{(Democracy-Initiator $\times$ Democracy-Target)$^2$} = 0$
 - name: dreyer-2010
   author: Dreyer
   year: 2010

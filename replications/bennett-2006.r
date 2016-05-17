@@ -1,6 +1,6 @@
 ################################################################################
 ###
-### Replication of Bennett 2006, "Toward a Continuous Specification...," 
+### Replication of Bennett 2006, "Toward a Continuous Specification...,"
 ### replacing CINC ratio with DOE scores
 ###
 ### Replicating Table 1, Column 1
@@ -38,44 +38,51 @@ data_bennett_2006$cwinit <- factor(data_bennett_2006$cwinit,
                                    levels = 0:1,
                                    labels = c("No", "Yes"))
 
-## replicate Bennett's table 1
-f_bennett_2006 <- 
-  cwinit ~ demint1 + demint2 + demi1sim + di1di2 + d1d2isqr + cap_1 +   cap_2 +
-  lndist + anypact + priordisputeproportion + parity + cwpceyrs + cwpceyr1 +
-  cwpceyr2 + cwpceyr3
-
-## Reproduce and cross-validate original model
-set.seed(90210)
-cr_bennett_2006 <- glm_and_cv(
-    form = f_bennett_2006,
-    data = data_bennett_2006,
-    number = 10,
-    repeats = 10
-)
-printCoefmat(cr_bennett_2006$summary)
-
 ## merge in the DOE scores and calculate DOE equivalent of "parity"
 data_bennett_2006 <- left_join(data_bennett_2006,
-                                doe_dir_dyad,
-                                by = c(ccode1 = "ccode_a",
-                                       ccode2 = "ccode_b",
-                                       year = "year")) %>%
+                               doe_dir_dyad,
+                               by = c(ccode1 = "ccode_a",
+                                      ccode2 = "ccode_b",
+                                      year = "year")) %>%
     mutate(ParityDOE = abs(VictoryA - VictoryB))
 
 ## check the merge
-summary(!is.na(data_bennett_2006$parity) & is.na(data_bennett_2006$VictoryA))
+stopifnot(with(data_bennett_2006, !any(!is.na(parity) & is.na(VictoryA))))
 
-## run it with DOE
-set.seed(1209)
-doeForm <- update(f_bennett_2006,
-                  . ~ . - parity - cap_1 - cap_2 + VictoryA + VictoryB + ParityDOE)
-doe_bennett_2006 <- glm_and_cv(
-    form = doeForm,
+## replicate Bennett's table 1
+f_bennett_2006 <-
+    cwinit ~ demint1 + demint2 + demi1sim + di1di2 + d1d2isqr + cap_1 + cap_2 +
+        lndist + anypact + priordisputeproportion + parity + cwpceyrs + cwpceyr1 +
+        cwpceyr2 + cwpceyr3
+
+## Null hypothesis: no effect of any of the regime type variables
+hyp_main <- c("demint1 = 0", "demint2 = 0", "demi1sim = 0", "di1di2 = 0", "d1d2isqr = 0")
+
+## Reproduce and cross-validate original model
+set.seed(92379)
+cr_bennett_2006 <- glm_and_cv(
+    form = f_bennett_2006,
     data = data_bennett_2006,
+    se_cluster = data_bennett_2006$dyadid,
+    hyp_main = hyp_main,
+    hyp_power = c("cap_1 = 0", "cap_2 = 0", "parity = 0"),
     number = 10,
     repeats = 10
 )
-printCoefmat(doe_bennett_2006$summary)
+print(cr_bennett_2006$summary)
+
+## run it with DOE
+doe_bennett_2006 <- glm_and_cv(
+    form = update(f_bennett_2006,
+                  . ~ . - parity - cap_1 - cap_2 + VictoryA + VictoryB + ParityDOE),
+    data = data_bennett_2006,
+    se_cluster = data_bennett_2006$dyadid,
+    hyp_main = hyp_main,
+    hyp_power = c("VictoryA = 0", "VictoryB = 0", "ParityDOE = 0"),
+    number = 10,
+    repeats = 10
+)
+print(doe_bennett_2006$summary)
 
 save(cr_bennett_2006,
      doe_bennett_2006,
