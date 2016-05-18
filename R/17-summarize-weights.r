@@ -148,6 +148,7 @@ colnames(model_xtable) <- c("Method",
 
 ## Write to file
 print(model_xtable,
+      booktabs = TRUE,
       file = file.path("..", "latex", "tab-ensemble.tex"),
       floating = FALSE,
       include.rownames = FALSE,
