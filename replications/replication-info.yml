@@ -197,13 +197,15 @@
   units: *ddyad
   terms_cinc:
     - *cr_a
-    - interaction with joint ratification
+    - interaction with joint ratification and whether the violator lost
   terms_doe:
     - *doe_a
     - *doe_b
-    - interactions of each with joint ratification
+    - interactions of each with joint ratification and whether the violator lost
   notes: >-
     Capability ratio is ``corrected for distance to the battlefield and aggregated across actors with a unified command.''  We drop the cases with coalitional actors in both models, hence the difference in sample size from the original article.  No distance correction is applied to the DOE scores.
+  dv: "Noncompliance with the laws of war (ordered: full compliance, high compliance, low compliance, noncompliance)"
+  null_hypothesis: "$\coef{Victim's Noncompliance} = 0$; $\coef{Clarity of Victim's Violations $\times$ Victim's Noncompliance} = 0$; $\coef{Joint Ratification $\times$ Victim's Noncompliance} = 0$; $\coef{Clarity of Victim's Violations $\times$ Joint Ratification $\times$ Victim's Noncompliance} = 0$; $\coef{Individual Violations $\times$ Victim's Noncompliance} = 0$; $\coef{State Violations $\times$ Victim's Noncompliance} = 0$"
 - name: owsiak-2012
   author: Owsiak
   year: 2012

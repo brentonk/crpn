@@ -8,23 +8,24 @@
 ################################################################################
 
 library("caret")
+library("MASS")
 
 ## Extract code for running ordered logit in caret
 caret_ologit <- getModelInfo("polr")$polr
 
 ## Insert slightly modified fitting function to use probit instead
 caret_oprobit <- caret_ologit
-caret_oprobit$fit <- function (x, y, wts, param, lev, last, classProbs, ...) 
+caret_oprobit$fit <- function (x, y, wts, param, lev, last, classProbs, ...)
 {
     modelArgs <- list(...)
-    dat <- if (is.data.frame(x)) 
+    dat <- if (is.data.frame(x))
         x
     else as.data.frame(x)
     dat$.outcome <- y
-    modelArgs <- c(list(formula = .outcome ~ ., data = dat), 
+    modelArgs <- c(list(formula = .outcome ~ ., data = dat),
         modelArgs)
     modelArgs$Hess <- TRUE
-    if (!is.null(wts)) 
+    if (!is.null(wts))
         modelArgs$weights <- wts
     modelArgs$method <- "probit"
     ans <- do.call("polr", modelArgs)
@@ -34,7 +35,7 @@ caret_oprobit$fit <- function (x, y, wts, param, lev, last, classProbs, ...)
 
 ## Test that it works
 if (FALSE) {
-    
+
     dat <- data.frame(x1 = rnorm(100),
                       x2 = rnorm(100),
                       y = ordered(rep(1:4, 25)))
