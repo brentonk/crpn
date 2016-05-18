@@ -7,6 +7,7 @@
 ###
 ################################################################################
 
+library("car")
 library("caret")
 library("dplyr")
 library("foreach")
@@ -23,11 +24,13 @@ data_arena_palmer_2009 <- left_join(raw_arena_palmer_2009,
                                     by = c(ccode1 = "ccode_a",
                                            ccode2 = "ccode_b",
                                            year = "year"))
-stopifnot(with(data_arena_palmer_2009, sum(is.na(VictoryA)) == 0))
+stopifnot(with(data_arena_palmer_2009, !any(is.na(VictoryA))))
 
 ## Analogue of glm_and_cv() for hetglm() models
 hetglm_and_cv <- function(form,
                           data,
+                          hyp_main,
+                          hyp_power,
                           number = 10,
                           repeats = 10)
 {
@@ -41,9 +44,19 @@ hetglm_and_cv <- function(form,
     log_lik <- log(pred_probs)
 
     ## Make single coefficient table
-    summ <- coef(summary(fit))
-    rownames(summ[[2]]) <- paste0("(scale)_", rownames(summ[[2]]))
-    summ <- do.call(rbind, summ)
+    tab <- data.frame(term = names(coef(fit)),
+                      estimate = coef(fit),
+                      std.error = sqrt(diag(vcov(fit))),
+                      stringsAsFactors = FALSE)
+    tab$statistic <- tab$estimate / tab$std.error
+    tab$p.value <- 2 * pnorm(-abs(tab$statistic))
+    rownames(tab) <- NULL    
+
+    ## Run hypothesis tests
+    test_main <- linearHypothesis(fit,
+                                  hyp_main)
+    test_power <- linearHypothesis(fit,
+                                   hyp_power)
 
     ## Cross-validate manually
     fold_id <- createMultiFolds(y = fit$y, k = number, times = repeats)
@@ -63,12 +76,13 @@ hetglm_and_cv <- function(form,
     }
 
     list(log_lik = log_lik,
-         summary = summ,
+         summary = tab,
          cv = data.frame(parameter = "none",
                          logLoss = mean(cv_loss),
                          logLossSD = sd(cv_loss)),
+         test_main = test_main,
+         test_power = test_power,
          formula = form,
-         data = fit$model,
          y = fit$y)
 }
 
@@ -79,27 +93,41 @@ f_var <-
     ~ gov + d_inf + di_gov + d_un + du_gov + d_gro + dg_gov + cap_1
 f_arena_palmer_2009 <- as.Formula(f_mean, f_var)
 
+## Null hypothesis: no effect of government orientation on mean or variance
+hyp_main <- c("gov = 0",
+              "du_gov = 0",
+              "di_gov = 0",
+              "dg_gov = 0",
+              "(scale)_gov = 0",
+              "(scale)_di_gov = 0",
+              "(scale)_du_gov = 0",
+              "(scale)_dg_gov = 0")
+
 ## Reproduce original model
 set.seed(109)
 cr_arena_palmer_2009 <- hetglm_and_cv(
    form = f_arena_palmer_2009,
    data = data_arena_palmer_2009,
+   hyp_main = hyp_main,
+   hyp_power = c("cap_1 = 0", "(scale)_cap_1 = 0"),
    number = 10,
    repeats = 10
 )
-printCoefmat(cr_arena_palmer_2009$summary)
+print(cr_arena_palmer_2009$summary)
 
 ## Replicate with DOE scores
-set.seed(901)
 doe_arena_palmer_2009 <- hetglm_and_cv(
     form = update(f_arena_palmer_2009,
                   . ~ . - cap_1 + VictoryA + VictoryB |
                       . - cap_1 + VictoryA + VictoryB),
     data = data_arena_palmer_2009,
+    hyp_main = hyp_main,
+    hyp_power = c("VictoryA = 0", "(scale)_VictoryA = 0",
+                  "VictoryB = 0", "(scale)_VictoryB = 0"),
     number = 10,
     repeats = 10
 )
-printCoefmat(doe_arena_palmer_2009$summary)
+print(doe_arena_palmer_2009$summary)
 
 save(cr_arena_palmer_2009,
      doe_arena_palmer_2009,

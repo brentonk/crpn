@@ -56,8 +56,11 @@
   terms_doe:
     - *doe_a
     - *doe_b
+  dv: MID initiation
+  null_hypothesis: >-
+    $\coef{Government} = 0$; $\coef{$\Delta$ Unemployment * Government} = 0$; $\coef{$\Delta$ Inflation * Government} = 0$; $\coef{$\Delta$ Growth * Government} = 0$ (for both the mean and dispersion equations)
   notes: >-
-    CINC and DOE terms are included in both the mean and dispersion equations.
+    CINC and DOE terms are included in both the mean and dispersion equations.  Hypothesis tests use the nominal standard errors rather than the clustered standard errors reported in the paper.
 - name: bennett-2006
   author: Bennett
   year: 2006
