@@ -57,8 +57,12 @@
     - *doe_a
     - *doe_b
   dv: MID initiation
-  null_hypothesis: >-
-    $\coef{Government} = 0$; $\coef{$\Delta$ Unemployment * Government} = 0$; $\coef{$\Delta$ Inflation * Government} = 0$; $\coef{$\Delta$ Growth * Government} = 0$ (for both the mean and dispersion equations)
+  null_hypothesis:
+    - $\coef{Government} = 0$
+    - $\coef{$\Delta$ Unemployment * Government} = 0$
+    - $\coef{$\Delta$ Inflation * Government} = 0$
+    - $\coef{$\Delta$ Growth * Government} = 0$
+    - (each in both the mean and dispersion equations)
   notes: >-
     CINC and DOE terms are included in both the mean and dispersion equations.  Hypothesis tests use the nominal standard errors rather than the clustered standard errors reported in the paper.
 - name: bennett-2006
@@ -79,8 +83,12 @@
     - *doe_b
     - *doe_parity
   dv: MID initiation
-  null_hypothesis: >-
-    $\coef{Democracy-Initiator} = 0$; $\coef{Democracy-Target} = 0$; $\coef{Democracy-Initiator $\times$ Similarity} = 0$; $\coef{Democracy-Initiator $\times$ Democracy-Target} = 0$; $\coef{(Democracy-Initiator $\times$ Democracy-Target)$^2$} = 0$
+  null_hypothesis:
+    - $\coef{Democracy-Initiator} = 0$
+    - $\coef{Democracy-Target} = 0$
+    - $\coef{Democracy-Initiator $\times$ Similarity} = 0$
+    - $\coef{Democracy-Initiator $\times$ Democracy-Target} = 0$
+    - $\coef{(Democracy-Initiator $\times$ Democracy-Target)$^2$} = 0$
 - name: dreyer-2010
   author: Dreyer
   year: 2010
@@ -96,8 +104,9 @@
     - *log_doe_min
     - *log_doe_max
   dv: MID occurrence
-  null_hypothesis: >-
-    $\coef{Rapid issue accumulation} = 0$; $\coef{Gradual issue accumulation} = 0$
+  null_hypothesis:
+    - $\coef{Rapid issue accumulation} = 0$
+    - $\coef{Gradual issue accumulation} = 0$
 - name: fordham-2008
   author: Fordham
   year: 2008
@@ -114,8 +123,7 @@
     - $\log p_{\text{US}}$
     - $\log p_2$
   dv: Onset of alliance with U.S.
-  null_hypothesis:
-    $\coef{Log of exports in previous year} = 0$
+  null_hypothesis: $\coef{Log of exports in previous year} = 0$
 - name: fuhrmann-sechser-2014
   author: Fuhrmann and Sechser
   year: 2014
@@ -131,8 +139,7 @@
     - *doe_a
     - *doe_b
   dv: MID initiation
-  null_hypothesis: >-
-    $\coef{Defense pact with nuclear power} = 0$
+  null_hypothesis: $\coef{Defense pact with nuclear power} = 0$
 - name: gartzke-2007
   author: Gartzke
   year: 2007
@@ -148,8 +155,9 @@
     - *log_doe_min
     - *log_doe_max
   dv: MID onset
-  null_hypothesis: >-
-    $\coef{GDPPC (Low)} = 0$; $\coef{GDPPC $\times$ Contig.} = 0$
+  null_hypothesis:
+    - $\coef{GDPPC (Low)} = 0$
+    - $\coef{GDPPC $\times$ Contig.} = 0$
 - name: huth-2012
   author: Huth et al.
   year: 2012
@@ -182,8 +190,9 @@
     - *doe_a
     - *doe_b
   dv: MID initiation (threat to use force or greater)
-  null_hypothesis: >-
-    $\coef{Unrest} = 0$; $\coef{Unrest $\times$ power$_{cinc}$} = 0$
+  null_hypothesis:
+    - $\coef{Unrest} = 0$
+    - $\coef{Unrest $\times$ power$_{cinc}$} = 0$
   notes: >-
     In the DOE replication, power$_cinc$ is replaced with a measure constructed analogously from DOE scores.  It equals 1 for observations whose value of $(p_{B,t-1} - p_{B,t-5}) - (p_{A,t-1} - p_{A,t-5})$ is in the top quartile and 0 for all others.
 - name: morrow-2007
@@ -205,7 +214,13 @@
   notes: >-
     Capability ratio is ``corrected for distance to the battlefield and aggregated across actors with a unified command.''  We drop the cases with coalitional actors in both models, hence the difference in sample size from the original article.  No distance correction is applied to the DOE scores.
   dv: "Noncompliance with the laws of war (ordered: full compliance, high compliance, low compliance, noncompliance)"
-  null_hypothesis: "$\coef{Victim's Noncompliance} = 0$; $\coef{Clarity of Victim's Violations $\times$ Victim's Noncompliance} = 0$; $\coef{Joint Ratification $\times$ Victim's Noncompliance} = 0$; $\coef{Clarity of Victim's Violations $\times$ Joint Ratification $\times$ Victim's Noncompliance} = 0$; $\coef{Individual Violations $\times$ Victim's Noncompliance} = 0$; $\coef{State Violations $\times$ Victim's Noncompliance} = 0$"
+  null_hypothesis:
+    - $\coef{Victim's Noncompliance} = 0$
+    - $\coef{Clarity of Victim's Violations $\times$ Victim's Noncompliance} = 0$
+    - $\coef{Joint Ratification $\times$ Victim's Noncompliance} = 0$
+    - $\coef{Clarity of Victim's Violations $\times$ Joint Ratification $\times$ Victim's Noncompliance} = 0$
+    - $\coef{Individual Violations $\times$ Victim's Noncompliance} = 0$
+    - $\coef{State Violations $\times$ Victim's Noncompliance} = 0$
 - name: owsiak-2012
   author: Owsiak
   year: 2012
@@ -221,8 +236,7 @@
     - *log_doe_min
     - *log_doe_max
   dv: MID onset
-  null_hypothesis: >-
-    $\coef{Settled Borders} = 0$
+  null_hypothesis: $\coef{Settled Borders} = 0$
 - name: park-colaresi-2014
   author: Park and Colaresi
   year: 2014
@@ -239,8 +253,7 @@
     - *doe_parity
     - interaction with contiguity
   dv: MID onset
-  null_hypothesis: >-
-    $\coef{Lowest Dem} = 0$
+  null_hypothesis: $\coef{Lowest Dem} = 0$
 - name: salehyan-2008-jop
   author: Salehyan
   year: 2008
@@ -256,8 +269,7 @@
     - *log_doe_min
     - *log_doe_max
   dv: MID occurrence (category 4 or 5)
-  null_hypothesis: >-
-    $\coef{External Base} = 0$
+  null_hypothesis: $\coef{External Base} = 0$
 - name: salehyan-2008-ajps
   author: Salehyan
   year: 2008
@@ -273,8 +285,9 @@
     - *doe_a
     - *doe_b
   dv: MID initiation
-  null_hypothesis: >-
-    $\coef{Refugee Stock IN Initiator} = 0$; $\coef{Refugee Stock FROM Initiator} = 0$
+  null_hypothesis:
+    - $\coef{Refugee Stock IN Initiator} = 0$
+    - $\coef{Refugee Stock FROM Initiator} = 0$
 - name: sobek-abouharb-ingram-2006
   author: Sobek et al.
   year: 2006
@@ -290,8 +303,9 @@
     - *doe_min
     - *doe_max
   dv: MID onset
-  null_hypothesis: >-
-    $\coef{Physical Integrity Index} = 0$; $\coef{Empowerment Rights Index} = 0$
+  null_hypothesis:
+    - $\coef{Physical Integrity Index} = 0$
+    - $\coef{Empowerment Rights Index} = 0$
 - name: uzonyi-souva-golder-2012
   author: Uzonyi et al.
   year: 2012
@@ -307,8 +321,7 @@
     - *doe_a
     - *doe_b
   dv: MID reciprocation
-  null_hypothesis: >-
-    $\coef{ACC State A} = 0$
+  null_hypothesis: $\coef{ACC State A} = 0$
 - name: weeks-2008
   author: Weeks
   year: 2008
@@ -324,8 +337,15 @@
     - *doe_a
     - *doe_b
   dv: MID reciprocation
-  null_hypothesis: >-
-    $\coef{Single-Party} = \coef{Personalist}$; $\coef{Military} = \coef{Personalist}$; $\coef{Hybrid} = \coef{Personalist}$; $\coef{Mixed Nondemocracy} = \coef{Personalist}; $\coef{Dynastic Monarchy} = \coef{Personalist}$; $\coef{Nondynastic Monarchy} = \coef{Personalist}$; $\coef{Nondemocratic Interregna} = \coef{Personalist}$; $\coef{New Democracy} = \coef{Personalist}$
+  null_hypothesis:
+    - $\coef{Single-Party} = \coef{Personalist}$
+    - $\coef{Military} = \coef{Personalist}$
+    - $\coef{Hybrid} = \coef{Personalist}$
+    - $\coef{Mixed Nondemocracy} = \coef{Personalist}$
+    - $\coef{Dynastic Monarchy} = \coef{Personalist}$
+    - $\coef{Nondynastic Monarchy} = \coef{Personalist}$
+    - $\coef{Nondemocratic Interregna} = \coef{Personalist}$
+    - $\coef{New Democracy} = \coef{Personalist}$
 - name: weeks-2012
   author: Weeks
   year: 2012
@@ -343,8 +363,11 @@
     - *doe_a
     - *doe_b
   dv: MID initiation
-  null_hypothesis: >-
-    $\coef{Junta} = \coef{Machine}$; $\coef{Boss} = \coef{Machine}$; $\coef{Strongman} = \coef{Machine}$; $\coef{Other Nondemocracies} = \coef{Machine}$
+  null_hypothesis:
+    - $\coef{Junta} = \coef{Machine}$
+    - $\coef{Boss} = \coef{Machine}$
+    - $\coef{Strongman} = \coef{Machine}$
+    - $\coef{Other Nondemocracies} = \coef{Machine}$
 - name: zawahri-mitchell
   author: Zawahri and Mitchell
   year: 2011
@@ -361,7 +384,9 @@
     - *doe_a
     - *doe_b
   dv: River treaty formation
-  null_hypothesis: >-
-    $\coef{\% Lowest area in basin} = 0$; $\coef{Lowest water dependence = 0}$; $\coef{Lowest avg.\ precipitation} = 0$
+  null_hypothesis:
+    - $\coef{\% Lowest area in basin} = 0$
+    - $\coef{Lowest water dependence} = 0$
+    - $\coef{Lowest avg.\ precipitation} = 0$
   notes: >-
     Dyads are directed, but $A$ is the upstream state in a river basin rather than the (prospective) initiator of conflict, so we use the undirected form of the DOE scores.
