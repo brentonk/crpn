@@ -6,13 +6,9 @@
 
 library("dplyr")
 library("foreach")
-library("ggplot2")
 library("iterators")
-library("tikzDevice")
+library("tidyr")
 library("xtable")
-library("yaml")
-
-Sys.unsetenv("TEXINPUTS")
 
 source("fn-collect.r")
 
@@ -39,178 +35,117 @@ replication_table <- foreach (x = replication_files, .combine = "rbind") %do% {
                vuong = vuong(fit_doe, fit_cr),
                prl_cr = prl(fit_cr),
                prl_doe = prl(fit_doe),
+               pmain_cr = p_value(fit_cr, "m"),
+               pmain_doe = p_value(fit_doe, "m"),
+               ppower_cr = p_value(fit_cr, "p"),
+               ppower_doe = p_value(fit_doe, "p"),
                stringsAsFactors = FALSE)
 }
 
-## Show some basic summaries
+## When does DOE model fit better?
 replication_table %>%
-    summarise(better_aic = sum(aic_doe < aic_cr),
-              better_vuong = sum(vuong >= 1.96),
-              worse_vuong = sum(vuong <= -1.96),
-              better_prl = sum(prl_doe > prl_cr))
+    mutate(doe_wins_aic = aic_doe < aic_cr,
+           doe_wins_vuong = vuong > 0,
+           doe_wins_prl = prl_doe > prl_cr) %>%
+    select(name, starts_with("doe_wins"))
 
-## Retrieve data frame of replication characteristics
-replication_info <- yaml.load_file(
-    "replication-info.yml",
-    handlers = list(
-        seq = function(x) paste(x, collapse = ", "),
-        map = function(x) {
-            x <- data.frame(x, stringsAsFactors = FALSE)
-            if (is.null(x$notes))
-                x$notes <- NA_character_
-            x
-        },
-        main = function(x) do.call("rbind", x)
-    ))
+## When does using DOE change our inference about the main hypothesis or about
+## power?
+replication_table %>%
+    mutate(change_main = vuong > 0 & pmain_cr <= 0.05 & pmain_doe > 0.05,
+           change_power = vuong > 0 & ppower_cr > 0.05 & ppower_doe <= 0.05) %>%
+    select(name, starts_with("change_"))
+
+## Retrieve replication characteristics and convert to data frame
+replication_info <- yaml_to_df("replication-info.yml")
 
 ## Merge the tables
 replication_table <- left_join(replication_table,
                                replication_info,
                                by = "name")
 
-## Make table for the paper and prettify
-paper_table <- replication_table %>%
+## Table for the body of the paper
+body_table <- replication_table %>%
     select(citekey,
            n,
-           repeats,
-           aic_cr,
-           aic_doe,
            vuong,
-           prl_cr,
-           prl_doe) %>%
+           starts_with("pmain"),
+           starts_with("ppower")) %>%
     arrange(desc(n)) %>%
-    mutate(citekey = paste0("\\citet{", citekey, "}"),
-           n = prettyNum(n, big.mark = ",", trim = TRUE),
-           n = paste0(n, ifelse(repeats == 10,
-                                "$^{\\dag}$",
-                                "")),
-           aic_cr = sprintf("%.0f", aic_cr),
-           aic_doe = sprintf("%.0f", aic_doe),
-           vuong = sprintf("%.2f", vuong),
-           vuong = gsub("-", "$-$", vuong, fixed = TRUE),
-           prl_cr = sprintf("%.3f", prl_cr),
-           prl_doe = sprintf("%.3f", prl_doe)) %>%
-    select(-repeats) %>%
+    mutate(n = prettyNum(n, big.mark = ",", trim = TRUE),
+           citekey = paste0("\\citet{",
+                            citekey,
+                            "}"),
+           vuong = sprintf("%.2f", vuong)) %>%
+    mutate_each(funs(ifelse(. > 0.05, "", "$\\checkmark$")),
+                starts_with("p")) %>%
+    mutate_each(funs(gsub("^-", "$-$", .)),
+                -citekey) %>%
     rename("Replication" = citekey,
            "$N$" = n,
-           "CINC" = aic_cr,
-           "DOE" = aic_doe,
            "Vuong" = vuong,
-           "CINC " = prl_cr,
-           "DOE " = prl_doe)
+           "$p_{\\text{CINC}}$" = pmain_cr,
+           "$p_{\\text{DOE}}$" = pmain_doe,
+           "$p_{\\text{CINC}}${}" = ppower_cr,
+           "$p_{\\text{DOE}}${}" = ppower_doe)
 
-paper_xtable <- paper_table %>%
-    xtable(align = c("l", "l", rep("r", ncol(paper_table) - 1)))
+body_xtable <- body_table %>%
+    xtable(align = c("l", "l", "r", "r", "c", "c", "c", "c"))
 
 print(
-    paper_xtable,
+    body_xtable,
+    booktabs = TRUE,
     floating = FALSE,
-    hline.after = c(0, nrow(paper_xtable)),
     include.rownames = FALSE,
     sanitize.text.function = identity,
     add.to.row = list(
         pos = list(-1),
-        command = "\\hline\n&& \\multicolumn{2}{c}{AIC} && \\multicolumn{2}{c}{P.R.L.} \\\\\n"
+        command = paste("\\toprule",
+                        "&&& \\multicolumn{2}{c}{Main Hyp.} & \\multicolumn{2}{c}{Power Hyp.} \\\\",
+                        "\\cmidrule(lr){4-5} \\cmidrule(lr){6-7}",
+                        "",
+                        sep = "\n")
     ),
+    hline.after = c(0, nrow(body_xtable)),
     file = file.path("..", "latex", "tab-replications.tex")
 )
 
+## More complete table for the appendix
+appendix_table <- replication_table %>%
+    select(citekey,
+           starts_with("aic"),
+           starts_with("prl"),
+           starts_with("pmain"),
+           starts_with("ppower")) %>%
+    gather(variable, value, -citekey) %>%
+    separate(variable, c("statistic", "model"), "_") %>%
+    spread(statistic, value) %>%
+    select(citekey, model, aic, prl, pmain, ppower) %>%
+    mutate(citekey = paste0("\\citet{",
+                            citekey,
+                            "}"),
+           model = factor(model,
+                          levels = c("cr", "doe"),
+                          labels = c("CINC", "DOE")),
+           aic = sprintf("%.0f", aic),
+           prl = sprintf("%.3f", prl),
+           pmain = sprintf("%.2e", pmain),
+           ppower = sprintf("%.2e", ppower)) %>%
+    rename("Replication" = citekey,
+           "Model" = model,
+           "AIC" = aic,
+           "CV P.R.L." = prl,
+           "$p_{\\text{main}}$" = pmain,
+           "$p_{\\text{power}}$" = ppower)
 
-###-----------------------------------------------------------------------------
-### Plots for slides
-###-----------------------------------------------------------------------------
+appendix_xtable <- appendix_table %>%
+    xtable(align = c("l", "l", rep("r", ncol(appendix_table) - 1)))
 
-## Define common plot elements
-tikz_width <- 4.25
-tikz_height <- 3.25
-tikz_size <- 8
-tikz_theme <-
-    theme(plot.background = element_rect(fill = "transparent", colour = NA),
-          legend.background = element_rect(fill = "transparent", colour = NA))
-tikz_package = c(getOption("tikzLatexPackages"),
-                 "\\usepackage{amsmath}",
-                 "\\usepackage{amssymb}")
-
-## Subset data and prettify names
-plot_data <- replication_table %>%
-    mutate(author_year = paste(author, year),
-           author_year = ifelse(duplicated(author_year) |
-                                    duplicated(author_year, fromLast = TRUE),
-                                paste0(author_year, " (", journal, ")"),
-                                author_year),
-           aic_diff = aic_doe - aic_cr,
-           prl_diff = prl_doe - prl_cr) %>%
-    select(author_year,
-           n,
-           aic_diff,
-           vuong,
-           prl_diff)
-
-## Plot differences in AIC
-tikz(file = file.path("..", "slides", "fig-replication-aic.tex"),
-     width = tikz_width,
-     height = tikz_height,
-     packages = tikz_package)
-plot_data %>%
-    arrange(aic_diff) %>%
-    mutate(author_year = factor(author_year,
-                                levels = rev(author_year))) %>%
-    ggplot(aes(x = author_year, y = -aic_diff)) +
-    geom_point(aes(size = log10(n))) +
-    geom_hline(yintercept = 0, linetype = 2) +
-    scale_size("$N$",
-               range = c(1, 4),
-               breaks = 3:6,
-               labels = paste0("$10^", 3:6, "$")) +
-    scale_x_discrete("") +
-    scale_y_continuous("AIC ($\\text{CINC} - \\text{DOE}$)") +
-    coord_flip() +
-    theme_grey(base_size = tikz_size) +
-    tikz_theme
-dev.off()
-
-## Plot Vuong test statistic
-tikz(file = file.path("..", "slides", "fig-replication-vuong.tex"),
-     width = tikz_width,
-     height = tikz_height,
-     packages = tikz_package)
-plot_data %>%
-    arrange(desc(vuong)) %>%
-    mutate(author_year = factor(author_year,
-                                levels = rev(author_year))) %>%
-    ggplot(aes(x = author_year, y = vuong)) +
-    geom_point(aes(size = log10(n))) +
-    geom_hline(yintercept = c(-1.96, 1.96), linetype = 2) +
-    scale_size("$N$",
-               range = c(1, 4),
-               breaks = 3:6,
-               labels = paste0("$10^", 3:6, "$")) +
-    scale_x_discrete("") +
-    scale_y_continuous("Vuong test statistic") +
-    coord_flip() +
-    theme_grey(base_size = tikz_size) +
-    tikz_theme
-dev.off()
-
-## Plot difference in CV loss
-tikz(file = file.path("..", "slides", "fig-replication-prl.tex"),
-     width = tikz_width,
-     height = tikz_height,
-     packages = tikz_package)
-plot_data %>%
-    arrange(desc(prl_diff)) %>%
-    mutate(author_year = factor(author_year,
-                                levels = rev(author_year))) %>%
-    ggplot(aes(x = author_year, y = prl_diff)) +
-    geom_point(aes(size = log10(n))) +
-    geom_hline(yintercept = 0, linetype = 2) +
-    scale_size("$N$",
-               range = c(1, 4),
-               breaks = 3:6,
-               labels = paste0("$10^", 3:6, "$")) +
-    scale_x_discrete("") +
-    scale_y_continuous("Proportional Reduction in CV Loss ($\\text{DOE} - \\text{CINC}$)") +
-    coord_flip() +
-    theme_grey(base_size = tikz_size) +
-    tikz_theme
-dev.off()
+print(
+    appendix_xtable,
+    booktabs = TRUE,
+    floating = FALSE,
+    include.rownames = FALSE,
+    sanitize.text.function = identity,
+    file = file.path("..", "latex", "tab-replications-appendix.tex")
+)

@@ -9,19 +9,10 @@ library("foreach")
 library("iterators")
 library("yaml")
 
+source("fn-collect.r")
+
 ## Retrieve data frame of replication characteristics
-replication_info <- yaml.load_file(
-    "replication-info.yml",
-    handlers = list(
-        seq = function(x) paste(x, collapse = ", "),
-        map = function(x) {
-            x <- data.frame(x, stringsAsFactors = FALSE)
-            if (is.null(x$notes))
-                x$notes <- NA_character_
-            x
-        },
-        main = function(x) do.call("rbind", x)
-    ))
+replication_info <- yaml_to_df("replication-info.yml")
 
 ## Make description list for the appendix
 paper_desc <- foreach(x = iter(replication_info, by = "row"), .combine = "c") %do% {
@@ -29,9 +20,11 @@ paper_desc <- foreach(x = iter(replication_info, by = "row"), .combine = "c") %d
       "  \\begin{description}",
       paste("    \\item[Model Replicated]", x$which),
       paste("    \\item[Unit of Analysis]", x$units),
+      paste("    \\item[Dependent Variable]", x$dv),
       paste("    \\item[Estimator]", x$method),
       paste("    \\item[CINC Terms]", x$terms_cinc),
       paste("    \\item[DOE Terms]", x$terms_doe),
+      paste("    \\item[Main Null Hypothesis]", x$null_hypothesis),
       if (!is.na(x$notes)) paste("    \\item[Notes]", x$notes),
       "  \\end{description}",
       "")
