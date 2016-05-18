@@ -143,6 +143,22 @@ pp_data <- rbind(
     pp_data[pp_data$Outcome != "Stalemate", ]
 )
 
+## Edit ggtern labelling function so as not to automatically convert LaTeX
+## expressions to plotmath syntax
+assignInNamespace(
+    x = "arrow_label_formatter.character",
+    value = function (label, suffix = NULL, sep = "/") {
+        suffix = if (suffix == "")
+                     NULL
+                 else suffix
+        sep = if (is.null(suffix))
+                  ""
+              else .trimAndPad(sep)
+        paste(label, suffix, sep = sep)
+    },
+    ns = "ggtern"
+)
+
 tikz(file = file.path("..", "latex", "fig-oof-pred.tex"),
      width = 5.25,
      height = 6.75)
@@ -151,14 +167,15 @@ ggtern(pp_data,
            y = Stalemate,
            z = VictoryB)) +
     geom_point(alpha = 0.3) +
-    scale_T_continuous("$\\emptyset$") +
-    scale_L_continuous("$A$") +
-    scale_R_continuous("$B$") +
+    labs(T = "$\\emptyset$",
+         L = "$A$",
+         R = "$B$") +
     facet_grid(Outcome ~ method) +
     guides(colour = guide_legend(override.aes = list(alpha = 1))) +
     theme_grey(base_size = 10) +
     theme(tern.axis.ticks = element_blank(),
           tern.axis.text = element_text(size = rel(0.8)),
+          tern.axis.title = element_text(size = rel(1)),
           legend.position = "bottom")
 dev.off()
 
