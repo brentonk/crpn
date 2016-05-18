@@ -56,6 +56,7 @@ rownames(xtable_capratio) <- c("Capability Ratio (logged)",
                                "Cutpoint: Stalemate to A Wins")
 
 print(xtable_capratio,
+      booktabs = TRUE,
       file = file.path("..", "latex", "tab-capratio.tex"),
       floating = FALSE,
       sanitize.text.function = identity)
