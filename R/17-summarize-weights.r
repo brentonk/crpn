@@ -154,3 +154,11 @@ print(model_xtable,
       include.rownames = FALSE,
       sanitize.text.function = identity,
       hline.after = c(-1, 0, nrow(model_xtable) - 2, nrow(model_xtable)))
+
+## Save loss values (null, uncorrected ensemble, corrected ensemble) for use in
+## constructing the table of variable importance results
+save(null_loss,
+     ensemble_loss,
+     corrected_loss,
+     file = "results-ensemble-loss.rda")
+
