@@ -116,11 +116,11 @@ appendix_table <- replication_table %>%
            starts_with("aic"),
            starts_with("prl"),
            starts_with("pmain"),
-           starts_with("ppower")) %>%
-    gather(variable, value, -citekey) %>%
+           starts_with("ppower"),
+           repeats) %>%
+    gather(variable, value, -citekey, -repeats) %>%
     separate(variable, c("statistic", "model"), "_") %>%
     spread(statistic, value) %>%
-    select(citekey, model, aic, prl, pmain, ppower) %>%
     mutate(citekey = paste0("\\citet{",
                             citekey,
                             "}"),
@@ -129,9 +129,12 @@ appendix_table <- replication_table %>%
                           labels = c("CINC", "DOE")),
            aic = sprintf("%.0f", aic),
            prl = sprintf("%.3f", prl),
+           prl = ifelse(repeats == 10,
+                        paste0(prl, "$^\\dag$"),
+                        prl),
            pmain = sprintf("%.2e", pmain),
            ppower = sprintf("%.2e", ppower)) %>%
-    rename("Replication" = citekey,
+    select("Replication" = citekey,
            "Model" = model,
            "AIC" = aic,
            "CV P.R.L." = prl,
