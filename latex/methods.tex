@@ -68,7 +68,10 @@ Our small sample size of $N = 1{,}740$ makes this tricky.
 Had we a surplus of observations, we could use some suitably large number to fit our models and hold out the remainder to assess the models' predictive power.
 But with as little data as we have, splitting the sample is ill-advised: we cannot hold out enough observations to estimate the generalization error precisely without harming the precision of the model itself.
 So, to measure out-of-sample predictive power without losing data, we turn to $K$-fold cross-validation \citep[241--249]{Hastie:2009wpa}.
-We randomly assign each dispute observation to a ``fold'' $k \in \{1, \ldots, K\}$, where we follow standard practice by setting $K = 10$.\footnote{Standard practice here stands on firm ground; \citet{molinaro2005} find that 10-fold cross-validation performs quite similarly to leave-one-out cross validation without having to take on massive computational costs.  10-fold cross-validation also performs better than other techniques, particularly in smaller samples like ours.}
+We randomly assign each dispute observation to a ``fold'' $k \in \{1, \ldots, K\}$, where we follow standard practice by setting $K = 10$.\footnote{%
+  Standard practice here stands on firm ground; \citet{molinaro2005} find that 10-fold cross-validation performs quite similarly to leave-one-out cross validation without having to take on massive computational costs.
+  10-fold cross-validation also performs better than other techniques, particularly in smaller samples like ours.
+}
 For each~$k$, we split the data into a ``test'' sample containing fold~$k$ and a ``training'' sample containing the remainder of the data.
 We fit a model only on the training sample and then calculate its predicted probabilities for the data in the test sample.\footnote{%
   \label{fn:nested-cv}%
@@ -148,7 +151,18 @@ We examine four sets of variables: the raw capability components and the annual 
 All of our models allow for interactive relationships, so including the year of
 the dispute lets the effect of each capability component vary over time.
 With two sides per dispute and six capability variables per side, each model has 12 or 13 variables, depending on whether the year is included.
-All told, we have 30 candidate models: four sets of variables for each of our seven algorithms, plus the capability ratio model and a null model used as a baseline.
+To ensure that the models with the year included are not just picking up differences in the distribution of outcomes over time (see Figure~\ref{fig:outcomes-time}), we also include an ordered logit of outcome on a third-order polynomial for year \citep{Carter:2010dh}, a post-1945 dummy, and their interaction.
+All told, we have 31 candidate models: four sets of variables for each of our seven algorithms, plus the capability ratio model, the time trend model, and a null model used as a baseline.
+
+\begin{figure}[tp]
+  \centering
+  \input{fig-outcomes-time}
+  \caption{
+    Distribution of dispute outcomes over type.
+    Values are the proportion of disputes in the prior ten years ending in the given outcome.
+  }
+  \label{fig:outcomes-time}
+\end{figure}
 
 We use cross-validation to estimate how well each of our candidate models predicts out of sample.
 The final problem, given those estimates, is to choose a model to construct an alternative to the capability ratio as a measure of expected dispute outcomes.
@@ -242,6 +256,7 @@ Our main focus is on developing a proxy for relative power that predicts the out
 Nonetheless, we can glean from our results a few important insights about the nature of the relationship between capabilities and power.
 The first is that there \emph{is} a relationship---that variation in dispute outcomes is associated with variation in the disputants' raw capabilities.
 This finding contrasts with previous studies concluding that military capabilities do not affect dispute outcomes \citep{Maoz:1983cw}.
+\note{Refer to those other studies.}
 The problem is the use of the capability ratio to measure material power, which is only weakly related to dispute outcomes.
 Consequently, studies that rely on it will conclude that material power is unimportant.
 We find, however, that material power is related to dispute outcomes, albeit in ways that transcend the capability ratio's usefulness.
@@ -252,15 +267,39 @@ To some extent this reflects the inherent unpredictability of military affairs; 
 We suspect, however, that we could better predict dispute outcomes even better by conditioning on even more observable indicators.
 That is a task for future work, as the purpose of this paper is only to develop a proxy for the material components of relative power.
 
+\begin{table}[tp]
+  \centering
+  \input{tab-varimp}
+  \caption{%
+    Percentage increases in loss, relative to the full ensemble, due to removing each capability component from the analysis.
+    The results ``without year'' come from running the super learner on only the 16 component models without the year variable.
+  }
+  \label{tab:varimp}
+\end{table}
+
+To gauge the relative importance of the material component variables, we rerun the ensemble training six times, each time removing one of the component variables from the analysis.
+We then calculate the log loss of the resulting ensemble relative to the original model; greater values indicate more loss of predictive power and thus a more important predictor.
+Table~\ref{tab:varimp} contains the results of the variable importance analysis.
+Perhaps because the components are correlated with each other, the removal of any single component does not change the results much.
+The greatest loss in predictive power comes from dropping primary energy consumption (PEC), an indicator of economic development and industrial capacity.
+It is interesting that PEC, a rough catch-all that correlates handily with any number of relevant constructs, winds up playing a stronger direct role than more explicitly militaristic factors like troops or military expenditures.
+However, recent work \citep[e.g.][]{beckley2010economic} suggests that economic development is a primary determinant of military effectiveness, while softer contextual factors like regime type, culture, or human capital play a far less vital role.
+The $p$ we estimate here is entirely agnostic to functional form, but it seems that our flexible approach has allowed both direct-effort indicators like personnel to matter while also capturing the subtle interactive effects of a military effectiveness variable like economic development.
+
 A second important finding is that the determinants of material power change over time.
 This conclusion may sound obvious, but it raises the question of why international relations scholars continue to use a proxy for power that assumes the relationship is unchanging.
 The simplest way to observe that time matters is to compare the predictive power of the models with and without the year variable: in 13 out of 14 cases, the model that includes time predicts better than its closest time-less counterpart.\footnote{%
-  The difference in log loss is statistically significant (paired $t = -3.25$, $p = 0.006$).
+  % UPDATED
+  The difference in log loss is statistically significant (paired $t = -3.1$, $p = 0.008$).
 }
-The improvement in performance does not just reflect the fact that the distribution of dispute outcomes has changed over time (though, to be clear, it has).
-All of our models that include the year of dispute allow for the effects of each individual capability component to vary with time.
-For example, in our random forests on the components and year, every single tree contains at least one node that splits on a capability component whose parent node splits on the year of dispute, indicating a capability effect that is time-dependent.
-In fact, in about 27~percent of trees, the initial split is on the year of dispute.
+The ensemble is not simply picking up the changing distribution of dispute outcomes over time: the model with a time trend alone has a mediocre PRL of 0.08, and it receives negligible weight.
+
+For a look at how much the effect of each component changes over time, we turn back to the variable importance analysis.
+For each set of models dropping a particular component, we form a new ensemble just using those models without the year variable and compare its log loss to the original ensemble.
+In all but one case, the predictive loss due to dropping a capability component and the year of the dispute is more than the sum of the loss due to dropping each alone.
+The time variation is most pronounced for military expenditures.
+\note{More musing.}
+Interestingly, the sole exception is primary energy consumption---it is the most important indicator on its own, and its effects vary least over time.
 
 Finally, our results show that a country's material power cannot be summarized in a single index.
 Our ordered logit models construct a flexible index that allows for different weights on the components, variation over time in those weights (in the model with year included), and different weights for initiators and targets.

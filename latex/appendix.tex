@@ -22,7 +22,7 @@ Table~\ref{tab:summary} lists the proportions of zeroes and missing values among
   \label{tab:summary}
 \end{table}
 
-All six variables are strongly right-skewed.
+All six variables are right-skewed.
 Since five of the six variables are sometimes zero-valued (though all are non-negative), a logarithmic transformation is not appropriate.
 Instead, to correct for skewness, we apply an inverse hyperbolic sine transformation \citepapp{Burbidge:1988gu} to each component:
 \begin{equation}
@@ -125,7 +125,11 @@ Further details about each candidate model are summarized below.
       \item Kernel width (\texttt{sigma}): selected via cross-validation from $\{0.2, 0.4, 0.6, 0.8, 1\}$
       \item Constraint violation cost (\texttt{C}): selected via cross-validation from $\{\frac{1}{4}, \frac{1}{2}, 1, 2, 4\}$
     \end{itemize}
-    \item[Notes] Radial basis kernel
+    \item[Notes] ~
+    \begin{itemize}
+      \item Radial basis kernel
+      \item All predictors centered and scaled to have zero mean and unit variance
+    \end{itemize}
   \end{description}
 
   \item $k$-Nearest Neighbors \citepapp{Cover:1967jq}
@@ -171,10 +175,23 @@ Further details about each candidate model are summarized below.
 
 \subsection{Replications}
 
+\newcommand{\coef}[1]{\beta[\text{#1}]}
+
 The following list contains basic information about each model in the replication study.
 We carry out logistic and probit regressions via \texttt{glm()} in base R \citepapp{pkg-R}, multinomial logit via \texttt{multinom()} in the \texttt{nnet} package \citepapp{pkg-MASS}, ordered probit via \texttt{polr()} in the \texttt{MASS} package \citepapp{pkg-MASS}, and heteroskedastic probit via \texttt{hetglm()} in the \texttt{glmx} package \citepapp{pkg-glmx}.
 
 \input{list-replications}
+
+\begin{table}[p]
+  \centering
+  \small
+  \input{tab-replications-appendix}
+  \caption{
+    Full results of replication analyses.
+    Cross-validation results are from repeated 10-fold cross-validation; those marked $\dag$ are repeated 10 times, all others 100 times.
+  }
+  \label{tab:replications-appendix}
+\end{table}
 
 
 \bibliographystyleapp{apsr}

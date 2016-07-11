@@ -63,6 +63,7 @@ slides/list-*.tex
 # R history files
 .Rhistory
 .Rapp.history
+.Rproj.user
 
 # Stata files
 *.dta

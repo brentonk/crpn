@@ -1,4 +1,4 @@
-\documentclass[11pt,oneside]{article}
+\documentclass[12pt,oneside]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -11,6 +11,7 @@
 \usepackage[scaled]{helvet}
 \usepackage{pdflscape}
 \usepackage{afterpage}
+\usepackage{enumitem}
 \usepackage[hyphens]{url}
 \usepackage[colorlinks=true,citecolor=black,linkcolor=black]{hyperref}
 \usepackage{booktabs}
@@ -33,31 +34,16 @@
 \usepackage{natbib}
 \bibpunct{(}{)}{;}{a}{}{,}
 \renewcommand{\harvardurl}[1]{\textbf{URL:} \url{#1}}
+\def\citeapos#1{\citeauthor{#1}'s (\citeyear{#1})}
 
 % Multibib
 \newcites{app}{Additional References}
 
 \title{
   Prediction, Proxies, and Power%
-  \thanks{%
-    We thank Scott Bennett, Brett Benson, Bill Berry, Inken von Borzyskowski, Kevin Clarke, Josh Clinton, Mark Fey, James Honaker, Zach Jones, Karen Jusko, Holger Kern, Ashley Leeds, David Lewis, Adeline Lo, Matt Pietryka, Marc Ratkovic, Jim Ray, Mark Souva, and Hye Young You for helpful discussions and advice.
-    Bryan Rooney provided excellent research assistance.
-    We also thank the authors listed in Table~\ref{tab:replications} for making their replication data publicly available.
-    The current version of the Dispute Outcome Expectations data can be downloaded from \url{https://dataverse.harvard.edu/dataverse/doe-scores}.
-    Replication code and a version history of the project are available at \url{https://github.com/brentonk/crpn}.
-  }%
 }
-\author{%
-  Robert J. Carroll%
-  \thanks{%
-    Assistant Professor, Department of Political Science, Florida State University.  Email:  \nolinkurl{rjcarroll@fsu.edu}.
-  }%
-  \and%
-  Brenton Kenkel%
-  \thanks{
-    Assistant Professor, Department of Political Science, Vanderbilt University.
-    Email: \nolinkurl{brenton.kenkel@vanderbilt.edu}.
-  }%
+\author{
+	Robert J. Carroll\thanks{Florida State University.  Email:  \nolinkurl{rjcarroll@fsu.edu}} \and Brenton Kenkel\thanks{Vanderbilt University.  Email:  \nolinkurl{brenton.kenkel@vanderbilt.edu}}
 }
 
 \begin{document}
@@ -74,6 +60,7 @@
   More broadly, we argue that scholars should focus on out-of-sample predictive power when constructing proxies for important concepts in political science.
   Our approach illustrates how machine learning tools can automate this process.
 \end{abstract}
+
 \thispagestyle{empty}
 \newpage
 \setcounter{page}{1}
