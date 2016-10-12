@@ -194,7 +194,7 @@
     - $\coef{Unrest} = 0$
     - $\coef{Unrest $\times$ power$_{cinc}$} = 0$
   notes: >-
-    In the DOE replication, power$_cinc$ is replaced with a measure constructed analogously from DOE scores.  It equals 1 for observations whose value of $(p_{B,t-1} - p_{B,t-5}) - (p_{A,t-1} - p_{A,t-5})$ is in the top quartile and 0 for all others.
+    In the DOE replication, power$_{cinc}$ is replaced with a measure constructed analogously from DOE scores.  It equals 1 for observations whose value of $(p_{B,t-1} - p_{B,t-5}) - (p_{A,t-1} - p_{A,t-5})$ is in the top quartile and 0 for all others.
 - name: morrow-2007
   author: Morrow
   year: 2007
