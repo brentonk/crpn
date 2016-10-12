@@ -8,10 +8,17 @@ For any pair of countries at a particular point in time, whether or not they act
 To construct the new proxy, we use the super learner to make predictions for every directed dyad--year in the international system between 1816 and 2007, the range of years covered by the National Material Capabilities data.
 We call the resulting dataset the Dispute Outcome Expectations data, or DOE.
 The DOE data contains predictions for more than 1.5~million directed dyad--years.\footnote{%
-  About 19~percent of directed dyad--years contain missing values of the capability components for at least one country.
+  About 19~percent of directed dyad--years contain missing values of at least one capability component.
   We average across imputations of the capabilities data to calculate the DOE scores for these cases.
   See the Appendix for details.
 }
+The canonical correlation between the DOE scores and the capability ratio is 0.44, so the measures are related but distinct.
+
+The DOE scores are extrapolations.
+The overwhelming majority of dyad-years do not experience a dispute, and those that do are of course systematically different from those that do not.
+While we see the DOE scores as a significant advance in the state of the art of measuring power, we advise caution in their interpretation, particularly for dyads that would be unlikely to find themselves in a dispute.
+As the output of a model, DOE scores are estimates, and as such they may be subject to selection bias.
+A promising direction for future work would be to develop data-driven proxies for power that preserve the flexibility of the super learner while more explicitly correcting for selection bias.
 
 The DOE scores are naturally directed, since each dispute in our training data contains an initiating side and a target side.
 However, many analyses in the international conflict literature (e.g., of dispute occurrence) use undirected data.
@@ -19,46 +26,10 @@ We calculate undirected DOE scores through a simple average of the directed valu
 For example, to calculate the probability that the United States would win a dispute against the United Kingdom in 1816, we average its estimated chances of victory as an initiator (36~percent) and as a target (11~percent) to yield 23.5~percent.
 If an analyst using the DOE data believed that the likely identity of an initiator in a hypothetical dispute were not a coin flip, she could take a different average of the directed scores to produce a more representative undirected score.
 
-The DOE measures have two advantages over the capability ratio as a proxy for expected dispute outcomes.
-First, they are direct measures of the quantity of primary interest to scholars of conflict: the probability that each state would win in a hypothetical dispute.
-Although the capability ratio is a proportion, it cannot be interpreted as the probability of victory.
-The ease of interpretation is particularly important for scholars who wish to control for expected dispute outcomes in a regression model.
-The coefficient on a DOE score can be interpreted directly as the marginal effect of a state's chance of victory; the coefficient on the capability ratio cannot.
-Second, as we have already seen, within the set of state pairs where disputes occur, the DOE measures are much better predictors of the outcome than the capability ratio is.
-In short, they are superior proxies, and therefore are the appropriate choice for scholars who need an accurate measure of expected dispute outcomes.
-The canonical correlation between the DOE scores and the capability ratio is 0.44 (for both the directed and undirected DOE scores), so the measures are related but distinct.
-
-The DOE scores have one drawback worth mentioning: they should not be included as controls in regressions whose dependent variable is the outcome of a dispute or war.
+Perhaps counterintuitively, DOE scores should not be included as controls in regressions whose dependent variable is the outcome of a dispute or war.
 This may seem contradictory, given how much effort we have just spent showing that DOE scores are superior predictors of dispute outcomes.
 The reason they are superior is that, unlike the capability ratio, they are calibrated using real dispute data.
 But this in turn means that DOE scores would be endogenous in a regression whose dependent variable is dispute outcomes---i.e., the same data we used to construct the DOE scores.
-Another way to think about it is that the DOE score measures expectations of dispute outcomes, and there is no reason to think these expectations themselves have an independent effect on the outcomes.
-So when we test causal hypotheses about dispute outcomes, we should control for raw capabilities, not expectations.
-But when we are modeling dependent variables that might be affected by expectations, such as the onset of a crisis or a state's decision to join an ongoing conflict, we should use the best available proxy for those expectations---namely, the DOE scores.
-
-Another potential concern about the DOE scores is selection bias.
-We calculate the DOE scores by learning from actual dispute outcomes, but there may be systematic differences between dyad-years with disputes and those without.
-We do not think this concern should discourage conflict scholars from including DOE scores in their empirical analyses.
-The relevant consideration is not whether DOE scores are perfect---obviously, they are not---but rather whether they are better than the existing alternatives.
-We cannot evaluate the performance of any proxy at predicting the outcomes of disputes that did not happen in the first place.
-Seeing as the capability ratio barely predicts outcomes of actual disputes, we see no reason to assume it does well predicting counterfactual outcomes.
-Scholars who want the best available proxy for relative material power should rely on DOE scores, while keeping in mind its limitations.
-
-\begin{figure}[tp]
-  \centering
-  \input{fig-vs}
-  \vspace{-2em}
-  \caption{
-    Comparison of predicted outcome probabilities over time from the capability ratio and the super learner (DOE scores) for the United States versus Russia.
-    These plots use the undirected scores.
-  }
-  \label{fig:vs}
-\end{figure}
-
-To illustrate the contrast between the capability ratio and DOE scores for forecasting hypothetical dispute outcomes, Figure~\ref{fig:vs} plots the two models' predictions over time for the United States versus Russia.
-According to the capability ratio model, there was essentially no change between 1816 and 2007 in the likelihood of either side winning a dispute.
-We need not dwell on the implausibility of this prediction.
-Conversely, the DOE scores stack up with our intuitions relatively well: the predicted chance of a stalemate balloons during the Cold War, but the chance of victory by the United States picks up afterward.
 
 In light of the DOE scores' superior predictive performance in the Militarized Interstate Disputes data, we are inclined to believe they dominate the capability ratio as a proxy for expected dispute outcomes.
 Next, we test this conjecture by seeing if replacing the capability ratio with DOE scores in empirical models of international conflict improves their in-sample fit and out-of-sample predictive power.

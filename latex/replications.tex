@@ -3,100 +3,95 @@
 \section{Using the New Measure}
 \label{sec:replications}
 
-\note{Will need to rewrite this once the Reed stuff is in.}
+No matter how high-tech the tools used to construct a proxy, its value ultimately depends on its usefulness in other applications.
+In this section, we demonstrate the DOE score's usefulness in two ways.
+First, to show how our better measure of power can generate even more insights than those discussed above, we replicate a well-known test of the bargaining model that treats power as a main variable of interest.
+Second, we replicate 18 recent empirical models to show how the DOE score is a better control variable for models that focus on other explanatory factors across an array of dependent variables.
+After that, we provide some advice to practitioners on how to decide which measure (or measures) to include.
 
-We have shown that our measure, the DOE score, predicts international dispute outcomes better than the capability ratio.
-But most recent studies of conflict do not aim to predict how disputes will end.
-They focus on other dependent variables, and they usually only treat the capability ratio (or other functions of raw capabilities) as a control.
-In this section, we investigate how well the DOE score performs as a replacement for the capability ratio in this more typical setting.
-First, we replicate 18 recent empirical models of various international phenomena, finding that these models usually fit and predict better when we replace CINC-based measures with DOE scores.
-After that, we provide some advice to practitioners on how to decide which measure---or measures---to include.
-
-\subsection{What's New about Power?}
+\subsection{Power, Benefits, and Conflict}
 
 The DOE score's greatest potential lies in its ability to enhance tests of the role of power in international relations.
-To that end, we begin our replication analysis by replicating a well-known test of the bargaining model.
+To that end, we begin our replication analysis by reanalyzing a well-known test of the bargaining model.
+Not only does the model fit better when we replace a traditional measure of power with DOE scores, but it also yields substantively different conclusions about the effect of power relations on the likelihood of violent conflict.
 
-\citet{reed2008war} provide an empirical examination of the bargaining model developed by \citet{powell1996stability,powell1999}.
-The analysis focuses on two important parameters:  the probability that one state would prevail over the other in a conflict, $p$, and the distribution of benefits between the two states, $q$.
-For example, $q$ may capture where a border is drawn between two neighboring states, though this animation is not necessary.
-\citet[258]{powell1996stability} derives\footnote{%
-  The probability here is equivalent to Powell's but uses the same expression as Reed et al. to simplify explication.
-}
-the equilibrium probability of conflict as
-\begin{align*}
-  \pi(p, q) &= \begin{cases}
-  |q - p| - (q - p)^2, & |q - p| \leq \frac{1}{2} \\
-  \frac{1}{4}, & |q - p| \geq \frac{1}{2}
-  \end{cases},
-\end{align*}
-and Reed et al. provide a direct test of this expression by incorporating proxies of $|q - p|$ and $(q - p)^2$ (lagged one year) into a model of dispute onset.
-They develop a new measure of $q$ based on United Nations roll call votes, and their measure of $p$ is a normalized cousin of the capability ratio based on the differences in CINC scores.\footnote{%
-  For details on their measure of $p$, see footnote 11 of \citet[1211]{reed2008war}.
-}
-Our goal here is to replicate their results and then to estimate a faithful parallel model that uses DOE scores, rather than CINC scores, to proxy for $p$ while keeping all other covariates, including the Reed et al. measure of $q$, the same.
-
-The first task is to assess the similarities of the two proxies of the two variables.
-We plot the kernel densities of the measures in Figure \ref{fig:rcnw-measures}.
-\begin{figure}[!ht]
+\begin{figure}[tp]
   \centering
-  \input{fig-rcnw-measures.tex}
-  \caption{Comparison of Reed et al. (2008) and DOE proxies of $|q - p|$ and $(q - p)^2$.}
-  \label{fig:rcnw-measures}
+  \includegraphics{fig-rcnw-expectations}
+  \caption{
+    \citeapos{reed2008war} graphical summary of their main hypotheses.
+  }
+  \label{fig:rcnw-expectations}
 \end{figure}
-Here the left column depicts $|q - p|$ and the right column depicts $(q - p)^2$.
-The reader will note that the distributions are generally very similar, with nearly identical extrema, centralities, and dispersions.
-The two absolute differences correlate at around~0.962, while the two squared differences correlate at around~0.957.
-The average difference in the $|q - p|$ measures is~$-0.009$, and the average difference in the $(q-p)^2$ measures is~$-0.008$.
-Suffice to say, the DOE versions of the two power variables are quite similar to those employed by Reed et al., which is not all that surprising given that we are using the same measure of $q$ for their construction.
 
-Despite this strong similarity, Table~\ref{tab:rcnw}, which summarizes the results of our replication and DOE extension, reflects real differences.
-\begin{table}[!ht]
-\centering
-\input{tab-rcnw.tex}
-\caption{%
-  Replication of Table 1, Model 2 of \citet[1213]{reed2008war}.
-  The unit of analysis is the dyad-year, and the dependent variable is the onset of a militarized interstate dispute.
-  The proportional reduction in loss over the constant-only model comes from 100 repetitions of 10-fold cross-validation.
+\citet{reed2008war} study how the balance of power between two states affects the likelihood of conflict.
+They model the chance of interstate conflict as a function of two important parameters: the probability that one state would prevail over the other in a conflict, $p$, and the distribution of benefits between the two states, $q$.
+For example, $q$ may capture where a border is drawn between two neighboring states.
+Motivated by Powell's \citeyearpar{powell1996stability,powell1999} theoretical model, they hypothesize that the effect of power depends on the status quo distribution of benefits.
+If benefits are distributed evenly between two states, conflict is most likely to break out if one state has a preponderance of power.
+Conversely, if the status quo disproportionately favors one state, conflict is most likely if there is a balance of power.
+Figure~\ref{fig:rcnw-expectations} summarizes these hypotheses.
+
+\citeauthor{reed2008war} test their theory by incorporating proxies of $|q - p|$ and $(q - p)^2$ (both lagged one year) into a model of dispute onset.
+Their measure of $q$, the distribution of benefits, is based on United Nations roll call votes.
+Like most of the conflict literature---not to mention this article---their measure of $p$, the dyadic balance of power, uses material capabilities.
+Specifically, their proxy for $p$ is a normalized cousin of the capability ratio based on differences in CINC scores.\footnote{%
+  For details, see footnote 11 of \citet[1211]{reed2008war}.
 }
-\label{tab:rcnw}
+We replicate \citeauthor{reed2008war}'s analysis, replacing the CINC-based measure of $p$ with DOE scores while keeping all other covariates the same.\footnote{%
+  We report our replication of their Model 1.
+  The results of our replication of their Model 2, which contains additional controls and peace-year splines, are substantively identical.
+}
+This is an ideal use case for DOE scores, since \citeauthor{reed2008war}, like us, draw from bargaining theory in treating power as the probability of success in an eventual conflict.
+The correlation between the original measure of $|q - p|$ and ours is~0.962.
+This is higher than the correlation between the capability ratio and DOE scores because we use the same measure of $q$.
+
+\begin{table}[tp]
+  \centering
+  \input{tab-rcnw}
+  \caption{%
+    Replication of Table 1, Model 1 of \citet[1213]{reed2008war}.
+    The unit of analysis is the dyad-year, and the dependent variable is the onset of a militarized interstate dispute.
+    The proportional reduction in loss over the null model comes from 100 repetitions of 10-fold cross-validation.
+  }
+  \label{tab:rcnw}
 \end{table}
-We first turn our attention to the models' fit, captured by the \citet{Akaike:1974ih} Information Criterion (AIC),\footnote{%
-  Using the \citet{Vuong:1989uf} test to assess in-sample fit of these non-nested models, we obtain a test statistic of~6.76, yielding a $p$-value under the null of identical fit of $7 \times 10^{-12}$.
-} and predictive performance, captured by the proportional reduction in loss relative to a constant-only model (PRL).
-The DOE replication outperforms the CINC-based model on both fronts, though the improvement in out-of-sample predictive performance is admittedly small.
-Accordingly, we feel comfortable moving on to compare the substantive differences between the two models, should any exist.
 
-And substantive differences indeed emerge.
-The coefficient for the absolute difference of benefits and power remains positive, but it is more than halved in terms of its magnitude.
-Meanwhile, the coefficient for the squared difference changes signs from negative to positive, increases in magnitude, and attains statistical significance at conventional levels.
-(The same pattern holds in our replication of Reed et al.'s simpler Model 1, which we do not report here, but where the improvement in fit is even larger.)
-Unsurprisingly, these changes transpire while the other coefficients remain nearly identical in their magnitudes and associated inferences.
-
-These results refine, rather than refute, the extant arguments.
-The point is best made visually; see Figure \ref{fig:rcnw}, which replicates Figure 2 (theoretical expectations) and Figure 4 (empirical results) from \citet[1207 and 1213, respectively]{reed2008war}.
-\begin{figure}[!ht]
-\centering
-\input{fig-rcnw-gull.tex}
-\caption{%
-  Replication of Figure 4 of \citet[1213]{reed2008war}, which provides the predicted probability of MID onset as a function of the distribution of power (horizontal axis) and the distribution of benefits (vertical facets).
-  Standard errors obtained via a parametric bootstrap.
+Although our measure is similar, we yield substantively different results about the effect of the distribution of power and benefits on the likelihood of conflict.
+Table~\ref{tab:rcnw} summarizes the original analysis and our replication.\footnote{%
+  We reconstruct \citeauthor{reed2008war}'s measure of $p$ with the latest National Material Capabilities data---the same we use to make DOE scores---so our sample size is slightly larger than in the original paper.
+  The substantive and statistical significance of our estimates with the reconstructed measure, reported in the first column of Table~\ref{tab:rcnw}, are the same as originally.
 }
-\label{fig:rcnw}
+As we would expect, given the affinity between the DOE score and the bargaining model's concept of power, the model fit improves significantly when we measure $p$ with DOE scores instead of CINC scores.
+Using a \citet{Vuong:1989uf} test, we reject the null hypothesis of equal fit in favor of the DOE-based model fitting better ($Z = 7.80$, $p < 0.001$).
+The DOE model is also superior according to the AIC and cross-validation criteria.
+Accordingly, we feel comfortable making inferences from the replicated model.
+
+\begin{figure}[tp]
+  \centering
+  \input{fig-rcnw-gull}
+  \caption{
+    Replication of Figure 4 of \citet[1213]{reed2008war}, which provides the predicted probability of MID onset as a function of the distribution of power (horizontal axis) and the distribution of benefits (vertical facets), holding democracy and distance at their minimal values.
+    Standard errors obtained via a parametric bootstrap.
+  }
+  \label{fig:rcnw-gull}
 \end{figure}
-It remains that conflict becomes more likely as the distributions of benefits and power diverge, as we would expect given the positive coefficient for the $|q - p|$ term.
-The difference here lies in the shape, and in particular in the persisence of the ``vee'' shape regardless of context.
-What's more, the effect of the difference between benefits and power increases, rather than decreases, as the gap widens.
-Whereas \citet[1206--1207]{reed2008war} suggest that context determines whether the probability of war follows a balance of power or preponderance of power pattern, our analysis suggests that the shape, though not the location, of the probability curve always supports the balance of power school.\footnote{%
-  \citet[104--110]{powell1999} explicitly rejects both the Balance of Power and the Preponderance of Power schools because both schools minimize the probablity of conflict at a value---be it 0, $\frac{1}{2}$, or 1---that is independent of the distribution of benefits, $q$.  
-}
-It is interesting that when distribution of benefits is moderate (that is, in the $q = 0.5$ row), the predicted probabilities from the two models are virtually identical.
-However, in each of the other two rows, which depict the situation when the benefits are not distributed so equitably, we notice a difference in the shape of the predicted probability plots.
-Consider the top row, where $q = 0.1$. 
-Toward the right edge of both panels, the balance of power is severely shifted in State $A$'s favor, which induces a dissonance with the distribution of benefits, which favors State $B$.  
-Using the CINC-based proxy for $p$, the effect of that dissonance is decreasing; indeed, at the very right edge of the plot, the predicted probabilities again turn \emph{downward}, albeit only slightly so.
-We think it makes intuitive sense that we should expect largerrisk of conflict as the distributions of power and benefits become more dissonant, as the DOE analysis suggests, rather than that the probabilities flatten out (as Powell's theoretical model suggests) or even that they turn downard (as Reed et al.'s empirical model suggests).
 
+The replicated model not only fits better, but also yields substantively different conclusions about the balance of power and war.
+Because of the nonlinear functional form of the model, we follow \citet{reed2008war} in leaning on graphical interpretations.
+Figure~\ref{fig:rcnw-gull} plots the predicted probability of a dispute as a function of the balance of power and the distribution of benefits, according to the original model and our replication.
+\citet[1212]{reed2008war} cite their results, plotted in the first column, as ``remarkable'' support of the theoretical expectations reproduced here in Figure~\ref{fig:rcnw-expectations}.
+They find that neither power parity theory, which predicts conflict between evenly matched states, nor balance of power theory, which predicts conflict when one state holds a preponderance of power, holds unconditionally.\footnote{%
+  See \citet[chapter~3]{powell1999} for further discussion of these schools of thought.
+}
+Instead, \citeauthor{reed2008war} conclude that the power-conflict relationship resembles balance of power theory when benefits are evenly distributed ($q = 0.5$) and power parity theory when benefits are unequal ($q = 0.1$ or $0.9$).
+
+Our replication with DOE scores, plotted in the second column of Figure~\ref{fig:rcnw-gull}, leads us to overlapping but substantively distinct conclusions.
+Like the original analysis, we find that the probability of conflict is always minimized when the distribution of benefits matches the distribution of power, or $q = p$.
+In addition, our results for the case when benefits are evenly matched are almost identical to \citeauthor{reed2008war}'s.
+On the other hand, we never find support, even conditionally, for the power parity theory.
+Our model shows that the probability of conflict is always greatest when the difference between $q$ and $p$ is greatest---i.e., when the side with less benefits holds a preponderance of power.
+This finding runs contrary to both the theoretical expectations and the empirical findings of \citeauthor{reed2008war}, who claim that $p \approx 0.5$ is the most dangerous distribution of power when benefits are unequally distributed.
 
 
 \subsection{Capabilities as Control}
@@ -133,7 +128,7 @@ We then estimate two models: the original model, and a replicated model where we
 For example, if the capability ratio is logged in the original model, we log the DOE scores in the replicated model.
 Our main measure of comparative model fit is the \citet{Vuong:1989uf} statistic for the test of the null hypothesis that the original and replicated models fit equally well.\footnote{%
   We employ the standard Bayesian Information Criterion \citep{Schwarz:1978kh} correction to the Vuong test statistic.
-  We also measured model fit by the \citet{Akaike:1974ih} Information Criterion and repeated cross-validation; the results, which are reported in the Appendix, are essentially the same.
+  We also measure model fit by the \citet{Akaike:1974ih} Information Criterion and repeated cross-validation; the results, which are reported in the Appendix, are essentially the same.
 }
 
 \afterpage{
@@ -166,17 +161,15 @@ They also affirm our conceptualization of relative power as the expected outcome
 
 In most of the replications, the main substantive inference does not depend on the measure of relative power.
 That is not surprising, given that power is only a control variable in these studies.
-There are, however, two exceptions---studies for which the DOE model fits better and nullifies the statistical significance of the main substantive hypothesis.
-Both are analyses of the international ramifications of domestic politics.
+There are two exceptions, both of which are analyses of the international ramifications of domestic politics.
 The first is the study by \citet{Arena:2009gk} examining the effects of major powers' government partisanship and economic conditions on their propensity to initiate disputes.
-The original study measures capabilities by the initiating state's CINC score.
-When we substitute in DOE scores, we find that the model fits significantly better, yet we can no longer reject the null hypothesis that government partisanship has zero effect (Wald $\chi^2 = 6.62$, $\text{df} = 8$, $p = 0.58$).\footnote{%
-  The null hypothesis is that government partisanship and its three interactions with economic variables has zero coefficient in both the mean and dispersion equations.
+Our replicated model with DOE scores both fits better and leads us not to reject the null hypothesis that government partisanship has zero effect (Wald $\chi^2 = 6.62$, $\text{df} = 8$, $p = 0.58$).\footnote{%
+  The null hypothesis is that government partisanship and its three interactions with economic variables have zero coefficient in both the mean and dispersion equations.
   See the Appendix for details.
 }
 The second is \citeapos{Jung:2014jq} analysis of diversionary conflict.
-The original study includes both the capability ratio and a CINC-based measure of rising powers; it interacts the latter with domestic unrest, a key independent variables of interest.
-When we replace the capability ratio and the rising power measure with their DOE score equivalents, the resulting model fits better (though not statistically significantly per the Vuong test), and domestic unrest and its interaction with rising power are jointly insignificant (Wald $\chi^2 = 3.46$, $\text{df} = 2$, $p = 0.18$).
+The original study includes both the capability ratio and a CINC-based measure of rising powers; it interacts the latter with domestic unrest, a key independent variable of interest.
+When we replace the capability ratio and the rising power measure with their DOE score equivalents, the resulting model fits better, and domestic unrest and its interaction with rising power are jointly insignificant (Wald $\chi^2 = 3.46$, $\text{df} = 2$, $p = 0.18$).
 By using a weak proxy for relative power, both of these analyses fail to pick up its confounding effects on the relationship of interest, leading them to overstate the effects of domestic pressures on international conflict.
 
 The most striking results of the replication analysis come from the tests of the effects of power.
@@ -196,17 +189,14 @@ When theory provides no guidance, we recommend either a data-driven approach or 
   \centering
   \input{dag-cap0-doe1}
   \caption{
-    Raw capabilities only affect the outcome of interest through expectations.
+    Raw capabilities only affect the outcome of interest through the probability of victory.
   }
   \label{fig:dag-cap0-doe1}
 \end{figure}
 
-If theory suggests that material capabilities only affect the outcome of interest insofar as they shape expectations about how a dispute would end, then DOE scores are the best measure to control for.
+If theory suggests that material capabilities only affect the outcome of interest insofar as they shape the probability of victory, then DOE scores are the best measure to control for.
 Figure~\ref{fig:dag-cap0-doe1} contains a causal graph of this situation.
-The clearest examples of theories where only expectations matter come from the formal literature on crisis bargaining.
-Take \citeauthor{powell1999}'s~\citeyearpar{powell1999} theory of bargaining in the shadow of power.
-War is possible only if the status quo distribution of benefits is far enough from the expected outcome of conflict that at least one state is dissatisfied.
-An empirical model derived from this theory should control for DOE scores rather than the capability ratio or other poor proxies for expectations.
+One example of this scenario is the aforementioned test of Powell's~\citeyearpar{powell1996stability,powell1999} theory of by \citet{reed2008war}.
 
 \begin{figure}[htp]
   \centering
@@ -217,13 +207,12 @@ An empirical model derived from this theory should control for DOE scores rather
   \label{fig:dag-cap1-doe1}
 \end{figure}
 
-If material capabilities affect the outcome both directly and indirectly via expectations, then it would be appropriate to control for both raw capabilities and expected dispute outcomes.
+If material capabilities affect the outcome both directly and indirectly via victory probabilities, then it would be appropriate to control for both.
 Figure~\ref{fig:dag-cap1-doe1} illustrates this scenario.
 For example, imagine an empirical study of ``sinking costs'' via military mobilization in international crises \citep{fearon_signaling_1997}.
 The initial movement of peaceful relations into a crisis, as well as early behavior at the bargaining table, might be shaped solely by states' expectations about dispute outcomes.
 But if states build up their military as a way to signal resolve, independently of the effect on likely outcomes, then raw capabilities matter too.
 When empirically modeling a theory like this, scholars should include both DOE scores and raw capability measures.
-The ratio of CINC scores may or may not be the most appropriate way to capture raw capabilities---that, too, depends on the specifics of the theory.
 
 \begin{figure}[htp]
   \centering
@@ -234,19 +223,17 @@ The ratio of CINC scores may or may not be the most appropriate way to capture r
   \label{fig:dag-cap1-doe0}
 \end{figure}
 
-The last possibility to consider is that expectations do not affect the outcome of interest.
+The last possibility to consider is that expectations do not directly affect the outcome of interest.
 In this case, empirical models should only include raw capability measures, not DOE scores.
 The clearest example is when the dispute outcome itself is the dependent variable.
-First, absent some kind of self-fulfilling prophecy effect, we would expect actual capability holdings to drive outcomes more so than expectations.
-Second, because DOE scores are calculated using the dispute outcome data, the DOE scores themselves are endogenous to observed outcomes, and thus should not be included as an independent variable when outcome is the dependent variable.\footnote{%
-  In principle, this latter problem could be solved, albeit at great computational expense, by only using data for years up to $t-1$ to calculate the DOE score for year~$t$.
+Because DOE scores are calculated using the dispute outcome data, the DOE scores themselves are endogenous to observed outcomes, and thus should not be included as an independent variable when outcome is the dependent variable.\footnote{%
+  In principle, this problem could be solved by only using data for years up to $t-1$ to calculate the DOE score for year~$t$.
+  Doing so is not feasible at present given the computational cost.
 }
 
 When there is no theory or the theory does not specify how material capabilities affect the outcome of interest, we recommend a data-driven approach.
-The steps are the same ones we took in the replication analysis: determine a metric for model fit (whether in- or out-of-sample), run the model separately for each potential measure, and choose the best-fitting model.
+The steps are the same ones we take in our replication analysis: determine a metric for model fit, run the model separately for each potential measure, and choose the best-fitting model.
 Alternatively, if your theory says nothing about the relationship between capabilities and the outcome of interest, it may be best not to include capability measures at all.
-A confounding variable, by definition, must be related to both the treatment and outcome of interest.
-If raw capabilities are not supposed to affect the outcome either directly or through expectations, then they are not a confounder and there is no need to control for them.
 
 %%% Local Variables:
 %%% mode: latex

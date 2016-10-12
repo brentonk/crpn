@@ -1,61 +1,70 @@
 %!TEX root = doe.tex
 
 \section{Proxies and Power}
+\label{sec:proxies-power}
 
-A proxy is a function of observable variables that aims to measure an unobservable quantity.
-By definition, we can never know for sure how well a particular proxy captures the concept of interest.
-We can still try to gauge the quality of a proxy by testing its association with some observable outcome (or outcomes) that we would expect the underlying concept to be related to; in the context of summed rating scales, \citet[46--47]{spector1992}  notes that ``validation can only occur within a system of hypothesized relations between the construct of interest and other constructs,'' and thus that such validation ``demonstrates the potential utility of the construct.''
-We can take this logic further, extending it to how we build proxies in the first place.
-Instead of constructing a proxy from observable indicators according to an \emph{a priori} formula and then testing whether it is associated with some observable outcome, we can select as our proxy the function of observables most strongly associated with the given outcome.
-Measurement models automate this process.
-For example, ideal point estimates of legislator ideology are selected to maximize the likelihood or posterior probability of the observed roll-call matrix \citep{poole1985,clinton2004}.
+Prior to developing our proxy, we build on our discussion in the Introduction regarding the fundamental choices underlying our approach.
+Taken together, these points triangulate our general argument about what we mean by power and how to measure it.
 
-But without some kind of regularization or correction, these data-driven approaches to proxy construction run the risk of overfitting---amplifying the noise inherent in data and mistakenly treating it as a signal.
-The risk of overfitting is particularly high when there are too many degrees of freedom relative to the amount of data available.
-If the outcome of interest is only rarely observed, it might be hard to separate signal from noise.
-Similarly, overfitting is a concern if we are modeling the proxy as a function of many observable indicators, or we do not have the domain knowledge we would need to impose a specific functional form for the relationship between these indicators and the outcome of interest.
-Situations like these are common in political science, including the current context.
-To prevent overfitting, we can use informative priors in Bayesian contexts \citep{clinton2004} or cross-validation in frequentist contexts \citep{Efron:2012es}.
+\subsection{Why Dispute Outcomes?}
 
-We want to measure relative military power, or the balance of power between two states at a particular point in time.
-\citet[420]{singer1963inter} argues that ``power is to [political scientists] what money is to the economist.''
-But power, unlike money, is not directly observable.
-We follow Singer, and virtually all of the international relations literature of the previous half-century, in developing a proxy for relative power that is a function of each country's observable material capabilities.
-Though power may in truth be a function of many variables, including non-material factors, we restrict our attention to the set of variables used in the Composite Index of National Capabilities \citep{singer1972}.
-By holding the set of variables fixed, we ensure that any observed improvements are due to our modeling approach and not to additional information.
-Still, to reflect the limited scope of the variables we consider, we refer to both CINC-based measures and our own as proxies for relative \emph{material} power.
+Like many, though not all, contemporary scholars, we orient our understanding of war in terms of the bargaining model.
+Bargaining models require disagreement points, and in the context of international crises, disagreement means conflict.
+The outcome of bargaining---whether an agreement is reached and, if so, which side it favors---depends on the likelihood of each potential outcome of fighting and the associated costs.
+As we discussed in the Introduction, the distribution of outcomes is usually pinned down through a single exogenous parameter, $p$, which captures the probability that one country defeats the other in case of war.
+In some of the most influential extant work on power \citep[e.g.,][]{powell1999}, $p$ is its only analytic representative.
 
-If we want to use an observable outcome to validate or construct a proxy for relative military power, the obvious choice is war outcomes.
-Or, since full-scale wars are (thankfully) rare, we may broaden our scope---as conflict scholars often do---to consider the outcomes of all militarized disputes \citep{Palmer:2015hp}.
-A good proxy for relative power should be a good predictor of which side prevails in militarized disputes.
-Indeed, the probability of victory by each side is itself an important concept in formal theories of bargaining and war \citep{fearon1995,powell1996stability} and empirical examinations thereof \cite[e.g.][]{reed2008war}.
+One of the bargaining model's most powerful features is its provision for $p$ to influence \emph{peaceful} outcomes, despite its inherently conflictual character.
+As \citet[3]{schellingpower} notes, ``it is the \emph{threat} of damage \ldots\ that can make someone yield or comply.''
+In other words, the expected outcome of war sets the location of the bargaining range.
+This, in turn, is the reason that stronger states enjoy better peaceful settlements \citep{banks1990equilibrium}.
+Consequently, we feel comfortable taking victory in a dispute as an indicator of greater power even if the dispute did not proceed all the way to war.
 
-The standard proxy for relative material power, the capability ratio, is an \emph{a priori} creation.
-It is based on the CINC score, which is the average of a state's shares of the global totals of six raw material holdings in a given year.\footnote{%
-  The six components are iron and steel production, primary energy consumption, military expenditures, military personnel, total population, and urban population \citep{singer1972}.
-}
-In a dyadic analysis, a state's capability ratio is the ratio of its own CINC score to the total CINC score in the dyad.
-The capability ratio was popularized by \citet[108]{wartrap}, who treated each side's capability ratio as a proxy for its probability of victory in a potential dispute.
-Since then, the capability ratio and its cousins have become by far the most common proxies for relative material power.
+Of course, the power to win hypothetical disputes is but one kind of power that states can exert over one another.
+There are other outcomes that might be relevant, and there may be ways that states influence one another that are not related to dispute outcomes.
+It is important to state explicitly our restriction in scope, but at the same time, this restriction is quite common for theorists and empiricists alike, especially those working within the bargaining paradigm.
+
+\subsection{Why Material?}
+
+Material capabilities are the starting point for much of what we know about power.
+Military historians have accrued impressive amounts of information on states' material holdings \citep[e.g.,][Chapter~1]{taylor}, and realists have subsequently assigned materiel pride of place among explanators of power.
+As we noted above, material measures of power are also important to liberals and constructivists, if only for the sake of clearly ruling out realist accounts.
+The material conception of power has also served as a foil for those concerned with the particulars of force deployment or tactics more broadly \citep{biddle}.
+
+More pragmatically, empirical scholars frequently use material capabilities, and particularly the ratio of CINC scores, as the data for their power proxies.
 Examining publications from 2005 to 2014 in five top journals for empirical international relations research,\footnote{%
 \label{fn:journals}
   \emph{American Political Science Review}, \emph{American Journal of Political Science}, \emph{Journal of Politics}, \emph{International Organization}, and \emph{International Studies Quarterly}.
 }
 we found at least 94 articles that control for the capability ratio or other proxies based on CINC scores.
+Though many of these articles' main models included other measures for channels of influence from one state to another like alliances or investment, it remains remarkable that such a broad swath of articles would include a measure of material capabilities.
+This is especially so because they cover a wide range of dependent variables, from conflict onset (easily the most common) to violations of international law to river treaty formation.
+Our material approach to power, then, is of relevance to scholars across many areas of international relations.
 
-The key question for international relations scholars is whether the capability ratio is a good proxy for relative material power.
-Is it a good predictor of actual dispute outcomes?
-Writing over three decades ago, \citet{Maoz:1983cw} found no evidence that ratios of military expenditures and military personnel are associated with dispute outcomes; this important finding has helped shape debates since.
-Our findings on ratios of CINC scores, reported in the next section, echo Maoz's: the capability ratio is only 1~percent better than random guessing at predicting dispute outcomes.
-The next question is whether the methods we advocate would make better use of the data.
-We find that by using machine learning to develop a predictive model of dispute outcomes as a function of material capabilities, we yield a superior proxy for relative material power.
+By restricting our attention to the material dimensions of relative power, we also allow for an apples-to-apples comparison between our new measure and traditional CINC-based measures.
+Had we incorporated new covariates into our new measurement approach, it would be difficult to assess whether any gains (or losses) were due to the modeling strategy or the additional data.
+Doing so would also complicate the replication analysis we use to validate the new measure.
+Since all of the aforementioned studies include CINC scores or some function thereof in their regressions, we can proceed assuming that the material capability components are not endogenous, post-treatment, or otherwise unwise to include.
+If our measure included factors like alliance relationships or regime types, the universe of studies we could replicate to validate our approach would shrink considerably.
 
-Measuring expected dispute outcomes is in many ways a hard case for out-of-sample prediction.
+\subsection{Why Prediction?}
+
+Our predictive criterion for measurement carries its own set of commitments.
+We adopt this criterion because it prioritizes models that generalize well---those that avoid the underfitting of \emph{a priori} approaches and the overfitting of too-flexible approaches.
+The risk of overfitting is particularly high when there are too many degrees of freedom relative to the amount of data available.
+If the outcome of interest is only rarely observed, it might be hard to separate signal from noise.
+Similarly, overfitting is a concern if we are modeling the proxy as a function of many observable indicators, or we do not have the domain knowledge we would need to impose a specific functional form for the relationship between these indicators and the outcome of interest.
+
+Situations like these are common in political science, including the current context.
 There are relatively few interstate disputes, and even fewer that involve just a single pair of states.
-Even if we restrict ourselves just to the National Material Capabilities data, there is an abundance of variables: six capability components for each side of the dispute, along with the six annual shares associated with each raw component, for a total of 24.
-There is no consensus (and little developed theory in the first place) on how these components ought to map into power, so our models must be flexible.
-Yet amid all these potential sources of noise, we are able to extract a decent signal: our measure is 20~percent better than a null model at predicting dispute outcomes---acceptable performance in absolute terms, and a major improvement over current practice.
+Even if we restrict ourselves to the National Material Capabilities data, there is an abundance of variables: six capability components for each side of the dispute, along with the six annual shares associated with each raw component, for a total of 24.
+Incorporating time complicates matters even further.
+As we do not have strong theory to guide us in choosing a functional form to relate capabilities to the probability of victory, we must instead take on our predictive approach.
 
+The results from our predictive analysis thus map well to the analytic ideal of the probability of conflict in a hypothetical dispute between two states, which as we discuss above is an important variety of the more general concept of power.
+We should note that our predictive analysis does not imply that we are producing a leader's subjective belief that she will prevail in said hypothetical dispute.
+Instead, we produce the set of (objective) probabilities that best use the capabilities information at hand to predict the outcome.
+We should also note that we are not forecasting, as we might if we made more explicit use of training and test sets defined by time, but instead are using all the data at once and assessing prediction via cross-validation.
 
 %%% Local Variables:
 %%% mode: latex

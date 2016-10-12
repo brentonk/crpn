@@ -9,13 +9,12 @@ So, to build our new measure, we augment traditional approaches with methods fro
 
 \subsection{Data}
 
-To evaluate the predictive performance of the capability ratio and then to build an alternative measure, we use data on the outcomes of international disputes.
 We combine the National Material Capabilities data \citep{singer1972} with information on the outcomes and participants of Militarized International Disputes between 1816 and 2007 \citep{Palmer:2015hp}.
 Our data consist of $N = 1{,}740$ disputes, each between an ``initiator,'' or Country~A, and a ``target,'' or Country~B.\footnote{%
   See the Appendix for the data construction and coding specifics.
 }
 Every dispute outcome is either A~Wins, B~Wins, or Stalemate, denoted $Y_i \in \{A, B, \emptyset\}$.
-Most disputes end in a stalemate, and victory by the initiator is over twice as likely as victory by the target, as shown in Table~\ref{tab:mid}.
+Most disputes end in a stalemate, and victory by the initiator is more than twice as likely as victory by the target, as shown in Table~\ref{tab:mid}.
 
 \begin{table}[htp]
   \centering
@@ -34,14 +33,9 @@ Our data source, the National Material Capabilities dataset, records annual obse
 }
 We also calculate each country's share of the global total of each component, giving us 12 variables per dispute participant.
 The matrix of predictors has 26 columns: the 24 individual capability characteristics of the initiator and target, the standard capability ratio, and the year the dispute began.
-Collect these predictors for the $i$'th dispute into the vector $X_i$.
+Collect these predictors for the $i^{\text{th}}$ dispute into the vector $X_i$.
 
 \subsection{A Metric for Predictive Power}
-
-We face two challenges in evaluating a model's predictive power.
-The first is to define a metric---one that is appropriate to the task at hand and reasonably interpretable.
-The second is to measure each model's ability to predict \emph{out of sample}.
-Our main purpose, which is to measure the chances of victory for each side in a hypothetical interstate dispute, is inherently an out-of-sample prediction task.
 
 As fortune plays a role in every military engagement, it is impossible to perfectly predict the outcome of every dispute.
 We therefore want a measure of predictive power that respects the probabilistic nature of militarized disputes.
@@ -58,41 +52,19 @@ The log loss of model~$\hat{f}$ on the data~$(X, Y)$ is\footnote{%
   \label{eq:log-loss}
   \ell(\hat{f}, X, Y)
   =
-  - \frac{1}{N} \sum_{i = 1}^{N} \sum_{t \in \{A, B, \emptyset\}}
-  \mathbf{1} \{Y_i = t\} \log \hat{f}_t(X_i).
+  - \frac{1}{N} \sum_{i = 1}^{N} \sum_{y \in \{A, B, \emptyset\}}
+  \mathbf{1} \{Y_i = y\} \log \hat{f}_y(X_i).
 \end{equation}
 Smaller values of the log loss represent better predictive power, with the lower bound of~$0$ indicating perfect prediction.
 
 We care mainly about the generalization error of our models---the expected quality of their predictions for new data that was not used to fit the models.
-Our small sample size of $N = 1{,}740$ makes this tricky.
-Had we a surplus of observations, we could use some suitably large number to fit our models and hold out the remainder to assess the models' predictive power.
-But with as little data as we have, splitting the sample is ill-advised: we cannot hold out enough observations to estimate the generalization error precisely without harming the precision of the model itself.
-So, to measure out-of-sample predictive power without losing data, we turn to $K$-fold cross-validation \citep[241--249]{Hastie:2009wpa}.
-We randomly assign each dispute observation to a ``fold'' $k \in \{1, \ldots, K\}$, where we follow standard practice by setting $K = 10$.\footnote{%
-  Standard practice here stands on firm ground; \citet{molinaro2005} find that 10-fold cross-validation performs quite similarly to leave-one-out cross validation without having to take on massive computational costs.
-  10-fold cross-validation also performs better than other techniques, particularly in smaller samples like ours.
-}
-For each~$k$, we split the data into a ``test'' sample containing fold~$k$ and a ``training'' sample containing the remainder of the data.
-We fit a model only on the training sample and then calculate its predicted probabilities for the data in the test sample.\footnote{%
+To measure out-of-sample predictive power without losing data, we use $K$-fold cross-validation \citep[241--249]{Hastie:2009wpa}.\footnote{%
   \label{fn:nested-cv}%
-  When dealing with models with tuning parameters that are themselves selected by cross-validation, we choose tuning parameters separately within each of the $K$ iterations via another cross-validation loop.
-  This nested cross-validation is necessary to keep our estimates of generalization error from being too optimistic \citep{Varma:2006ch}.
+  When dealing with models with tuning parameters that are themselves selected by cross-validation, we choose tuning parameters separately within each of the $K$ iterations via another cross-validation loop \citep{Varma:2006ch}.
 }
-After repeating this $K$ times, we have an out-of-sample prediction for each observation in our data calculated from a model that did not see that observation.
-We compare these predicted probabilities to the observed outcomes to estimate our models' generalization error.
-Formally, the cross-validation loss of the model~$\hat{f}$ is the average out-of-fold log loss,
-\begin{equation}
-  \label{eq:cv-loss}
-  \CVL(\hat{f})
-  =
-  \frac{1}{K} \sum_{k=1}^K \ell \left(
-    \hat{f}^{(-k)}, X^{(k)}, Y^{(k)}
-  \right),
-\end{equation}
-where $(X^{(k)}, Y^{(k)})$ is the data in the $k$'th fold and $\hat{f}^{(-k)}$ is the model~$\hat{f}$ fit to the data excluding the $k$'th fold.
-
-Because it is measured on the log-likelihood scale, the log loss metric is hard to interpret.
-To ease the interpretation, we compare models' log loss to that of a null model, whose predicted probabilities always equal the sample proportions of each outcome.
+Following standard practice, we set $K = 10$.
+Let $\CVL(\hat{f})$ denote the 10-fold cross-validation estimate of the out-of-sample log loss.
+To ease interpretation, we compare models' log loss to that of a null model, whose predicted probabilities always equal the sample proportions of each outcome.
 The proportional reduction in cross-validation loss of the model~$\hat{f}$ is
 \begin{equation}
   \label{eq:prl}
@@ -115,10 +87,7 @@ We model dispute outcomes as a function of the capability ratio via ordered logi
 To reduce skewness, we take the natural logarithm of the capability ratio.
 The parameter estimates from the capability ratio model on the full sample appear in Table~\ref{tab:capratio}.
 Although these results do not speak directly to the capability ratio's out-of-sample performance, they foreshadow why its predictive power is so limited.
-The coefficient on the capability ratio is statistically significant but small relative to the cutpoints, indicating a substantively weak relationship.
-Dividing the cutpoints by the coefficient, we see that we would need a logged capability ratio below $-13$ or above $+7$ to predict any outcome other than a stalemate.
-These bounds lie well outside the observed range of capability ratios in the dispute data, which are bounded below by $-9.1$ (Palau--Philippines 2000) and above by $-0.0004$ (Germany--Panama 1940).
-In other words, the capability ratio always predicts a stalemate within the sample.
+The coefficient on the capability ratio is statistically significant but small enough relative to the cutpoints that it always predicts a stalemate within the sample.
 This does not bode well for its out-of-sample performance.
 
 \begin{table}[tp]
@@ -126,21 +95,13 @@ This does not bode well for its out-of-sample performance.
   \input{tab-capratio}
   \caption{
     Results of an ordered logistic regression of dispute outcomes on the capability ratio using the training data.
-    Because there are no missing values in the CINC scores, these estimates are identical across imputed datasets.
   }
   \label{tab:capratio}
 \end{table}
 
 We want a better model than what the capability ratio gives us, but we do not have a strong \emph{a priori} sense of what the true relationship between material capabilities and dispute outcomes looks like.
-So, we use tools from machine learning that are designed to predict well without imposing much structure on the data.
-Ideally, we would select the predictive model that is best for our data, but there are too many algorithms to try them all.
-To narrow it down, we defer to the machine learning experts on which algorithms are best.
-We draw our set of candidate models from the top-ten list by \citet{Wu:2007ev} and from the best performers in the tests by \citet{FernandezDelgado:2014ul}.
-After excluding those unsuited to our data,\footnote{%
-  Four of the algorithms named in \citet{Wu:2007ev}---$k$-means, Apriori, expectation maximization, and PageRank---are not suited for the prediction task at hand.
-  We also excluded AdaBoost due to long computation time and naive Bayes due to poor performance in initial tests.
-}
-we end up with six predictive algorithms: C5.0, support vector machines, $k$-nearest neighbors, classification and regression trees, random forests, and ensembles of neural nets.\footnote{%
+We use tools from machine learning that are designed to predict well without imposing much structure on the data, drawing a set of candidate models from the top-ten list by \citet{Wu:2007ev} and from the best performers in the tests by \citet{FernandezDelgado:2014ul}.
+After excluding those unsuited to our data, we end up with six predictive algorithms: C5.0, support vector machines, $k$-nearest neighbors, classification and regression trees, random forests, and ensembles of neural nets.\footnote{%
   See the Appendix for full details of each method.
 }
 Each algorithm is widely used for prediction and can predict dispute outcome probabilities as a complex, potentially nonlinear function of the material capability components.
@@ -158,7 +119,7 @@ All told, we have 31 candidate models: four sets of variables for each of our se
   \centering
   \input{fig-outcomes-time}
   \caption{
-    Distribution of dispute outcomes over type.
+    Distribution of dispute outcomes over time.
     Values are the proportion of disputes in the prior ten years ending in the given outcome.
   }
   \label{fig:outcomes-time}
@@ -193,15 +154,7 @@ Hence, by the cross-validation criterion, we should prefer the super learner ove
   \label{fn:sl-bias}
   As usual when selecting tuning parameters via cross-validation, the value of equation~\eqref{eq:super-learner} is not an unbiased estimate of the generalization error of the super learner.
   Nested cross-validation is computationally infeasible for the super learner, so we calculate the bias correction recommended by \citet{Tibshirani:2009tz} to estimate its generalization error.
-}  That said, the super learner does provide the capability ratio with an opportunity to defend itself; should it earn a high weight, then our costly enterprise may not be worth the effort.
-
-To summarize, we fit and cross-validate $M = 30$ candidate models, then combine them into a super learner that we will use to construct a better proxy for expected dispute outcomes.
-The biggest downside of our approach is that the results are not easily interpretable.
-Because the super learner entails averaging a large set of models---some of which, like random forests, are themselves difficult to interpret---it gives us no simple summary of how each predictor affects dispute outcomes.
-This is not a problem, given our aims.
-Certainly, we would not recommend the super learner as a means of testing hypotheses about the determinants of dispute outcomes.
-However, our goal is not to test a hypothesis---it is to construct the best proxy possible for how a dispute between two countries is likely to end.
-In this context, it is worth sacrificing interpretability for the sake of predictive power.
+}
 
 \subsection{Cross-Validation Results}
 
@@ -242,9 +195,7 @@ A model that looks bad on its own might still merit non-negligible weight in the
   \label{fig:oof-pred}
 \end{figure}
 
-The super learner predicts dispute outcomes much better than the capability ratio does.
-As we have just shown, the capability ratio only improves by~1~percent on a null model, whereas the super learner gives a~20~percent improvement.
-For another illustration of the difference in predictive power, see the plots of out-of-fold predicted probabilities---the ones we use in cross-validation---in Figure~\ref{fig:oof-pred}.
+For another illustration of the difference in predictive power between our model and the capability ratio, see the plots of out-of-fold predicted probabilities---the ones we use in cross-validation---in Figure~\ref{fig:oof-pred}.
 Under the capability ratio model, all but a handful of disputes are predicted to have an 80--90~percent chance of ending in stalemate.
 Seeing how narrow the capability ratio's predictive range is, it is little surprise that it barely does better than a null model at prediction.
 Conversely, the super learner makes much better use of the material capability data.
@@ -255,16 +206,14 @@ Its predictive range is greater, which in turn allows it to achieve a stronger, 
 Our main focus is on developing a proxy for relative power that predicts the outcomes of militarized disputes, and predictive approaches like ours are not optimal for testing specific hypotheses \citep{Shmueli:2010jd}.
 Nonetheless, we can glean from our results a few important insights about the nature of the relationship between capabilities and power.
 The first is that there \emph{is} a relationship---that variation in dispute outcomes is associated with variation in the disputants' raw capabilities.
-This finding contrasts with previous studies concluding that military capabilities do not affect dispute outcomes \citep{Maoz:1983cw}.
-\note{Refer to those other studies.}
-The problem is the use of the capability ratio to measure material power, which is only weakly related to dispute outcomes.
-Consequently, studies that rely on it will conclude that material power is unimportant.
-We find, however, that material power is related to dispute outcomes, albeit in ways that transcend the capability ratio's usefulness.
+Our results therefore support the strand of literature finding that material capabilities influence dispute outcomes \citep{wartrap,Stam:1996wl,Sullivan:2012vi}.
+Previous findings to the contrary \citep[e.g.,][]{Cannizzo:1980vz,Maoz:1983cw} may simply reflect the inadequacy of CINC-based measures as a proxy for power.
 
 But material power is not all that matters.
 Even after an intense, diverse predictive effort, we explain only 20 percent of the variation in dispute outcomes with material capability variables.
 To some extent this reflects the inherent unpredictability of military affairs; we would never expect to predict outcomes perfectly.
-We suspect, however, that we could better predict dispute outcomes even better by conditioning on even more observable indicators.
+Another potential source of error is that, depending on the extent of their aims, states may not fully deploy the capabilities they possess \citep{sullivan2007war}.
+We suspect, however, that we could predict dispute outcomes even better by conditioning on more observable indicators.
 That is a task for future work, as the purpose of this paper is only to develop a proxy for the material components of relative power.
 
 \begin{table}[tp]
@@ -298,16 +247,11 @@ For a look at how much the effect of each component changes over time, we turn b
 For each set of models dropping a particular component, we form a new ensemble just using those models without the year variable and compare its log loss to the original ensemble.
 In all but one case, the predictive loss due to dropping a capability component and the year of the dispute is more than the sum of the loss due to dropping each alone.
 The time variation is most pronounced for military expenditures.
-\note{More musing.}
-Interestingly, the sole exception is primary energy consumption---it is the most important indicator on its own, and its effects vary least over time.
-
-Finally, our results show that a country's material power cannot be summarized in a single index.
-Our ordered logit models construct a flexible index that allows for different weights on the components, variation over time in those weights (in the model with year included), and different weights for initiators and targets.
-Nonetheless, even the best ordered logit model has less than half the predictive power of our flexible ensemble.
-What this means is that the relationship between each capability component and overall material power is conditional, not absolute.
-The usefulness of a particular component may depend in part on the composition of the opponent's capability holdings.
-The super learner results are too complex to allow us to dig into the specifics of these interactions, but they alert us to their existence---and to the limitations of monadic indices as a measure of power.
-This ties well to broader theoretical conceptions of power; \citet[48]{Dowding1991} observes that power necessarily involves a social relation among multiple actors.
+That is, the returns to a dollar spent for military purposes have varied more over time than the returns to a soldier, or on increased industrial capacity, or increased population.
+This likely reflects changes in military technology and bureaucracy over time.
+As militaries have oscilatted between labor and capital intensity, so too have their requisite expense and the returns on investment \citep{howardWar}.
+The same goes for innovations in military bureaucracy.
+Interestingly, the component with the most static effect is primary energy consumption---it is the most important indicator on its own, and its effects vary least over time.
 
 
 %%% Local Variables:

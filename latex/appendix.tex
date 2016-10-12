@@ -4,11 +4,11 @@
 
 \subsection{National Material Capabilities Data}
 
-Our predictors are taken from the National Material Capabilities (v4.0) dataset from the Correlates of War project \citepapp{singer1972}.\footnote{
+Our predictors are taken from the National Material Capabilities (v4.0) dataset from the Correlates of War project \citepapp{singer1972}.\footnote{%
   Downloaded from \url{http://correlatesofwar.org/data-sets/national-material-capabilities/nmc-v4-data/at_download/file}.
 }
 The dataset contains observations on six variables for 14,199 country-years from 1816 to 2007.
-For details on the variables and their measurement, see the NMC Codebook.\footnote{
+For details on the variables and their measurement, see the NMC Codebook.\footnote{%
   Available at \url{http://correlatesofwar.org/data-sets/national-material-capabilities/nmc-codebook/at_download/file}.
 }
 Table~\ref{tab:summary} lists the proportions of zeroes and missing values among each variable.
@@ -42,12 +42,12 @@ We use the transformed components in both the multiple imputation (see below) an
 
 \subsection{Militarized Interstate Dispute Data}
 
-Our sample and outcome variable are taken from the Militarized Interstate Disputes (v4.1) dataset from the Correlates of War project \citepapp{Palmer:2015hp}.\footnote{
+Our sample and outcome variable are taken from the Militarized Interstate Disputes (v4.1) dataset from the Correlates of War project \citepapp{Palmer:2015hp}.\footnote{%
   Downloaded from \url{http://correlatesofwar.org/data-sets/MIDs/mid-level/at_download/file}.
 }
 The dataset records the participants and outcomes of interstate disputes from 1816 to 2010.
 To avoid the problem of aggregating capabilities across multiple states, we exclude disputes with more than one state on either side.
-We drop disputes that end in an outcome other than one side winning, one side yielding, or a stalemate;\footnote{
+We drop disputes that end in an outcome other than one side winning, one side yielding, or a stalemate;\footnote{%
   For details on other kinds of outcomes, see the MID Codebook.
 }
 we then collapse ``A Wins'' and ``B Yields'' into a single coding, and similarly for ``B Wins'' and ``A Yields.''
@@ -94,6 +94,9 @@ To calculate predicted probabilities for dyads with missing values, we calculate
 We use the R statistical environment \citepapp{pkg-R} for all data analysis.
 We fit, cross-validate, and calculate predictions from each candidate model through the \texttt{caret} package \citepapp{pkg-caret}.
 We then construct the super learner by solving~\eqref{eq:super-learner} via base R's \texttt{constrOptim()} function for optimization with linear constraints.
+Candidate models were drawn from \citet{Wu:2007ev} and \citet{FernandezDelgado:2014ul}.
+Four of the algorithms named in \citet{Wu:2007ev}---$k$-means, Apriori, expectation maximization, and PageRank---are not suited for the prediction task at hand.
+We also excluded AdaBoost due to long computation time and naive Bayes due to poor performance in initial tests.
 Further details about each candidate model are summarized below.
 
 \begin{itemize}
@@ -180,8 +183,6 @@ Further details about each candidate model are summarized below.
 The following list contains basic information about each model in the replication study.
 We carry out logistic and probit regressions via \texttt{glm()} in base R \citepapp{pkg-R}, multinomial logit via \texttt{multinom()} in the \texttt{nnet} package \citepapp{pkg-MASS}, ordered probit via \texttt{polr()} in the \texttt{MASS} package \citepapp{pkg-MASS}, and heteroskedastic probit via \texttt{hetglm()} in the \texttt{glmx} package \citepapp{pkg-glmx}.
 
-\input{list-replications}
-
 \begin{table}[p]
   \centering
   \small
@@ -192,6 +193,8 @@ We carry out logistic and probit regressions via \texttt{glm()} in base R \citep
   }
   \label{tab:replications-appendix}
 \end{table}
+
+\input{list-replications}
 
 
 \bibliographystyleapp{apsr}

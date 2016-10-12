@@ -7,12 +7,15 @@
 \usepackage{tikz}
 \usepackage{etoolbox}
 \usepackage[labelsep=period,font=small,labelfont=bf]{caption}
-\usepackage[charter, cal = cmcal]{mathdesign}
+\usepackage{subcaption}
+\usepackage[charter,cal=cmcal]{mathdesign}
 \usepackage[scaled]{helvet}
 \usepackage{pdflscape}
 \usepackage{afterpage}
 \usepackage{enumitem}
 \usepackage[hyphens]{url}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
 \usepackage[colorlinks=true,citecolor=black,linkcolor=black]{hyperref}
 \usepackage{booktabs}
 
@@ -50,20 +53,25 @@
 
 \maketitle
 
+%TC:ignore
 \begin{abstract}
   \noindent
-  Many enduring questions in international relations theory focus on power relations between states, so it is important that scholars have a good measure of relative power.
-  But the standard measure of relative military power, the capability ratio, is barely better than random guessing at predicting military dispute outcomes.
-  We use machine learning tools to build a superior proxy, the Dispute Outcome Expectations score, from the same underlying data.
+  Many enduring questions in international relations theory focus on power relations, so it is important that scholars have a good measure of relative power.
+  The standard measure of relative military power, the capability ratio, is barely better than random guessing at predicting militarized dispute outcomes.
+  We use machine learning to build a superior proxy, the Dispute Outcome Expectations score, from the same underlying data.
   Our measure is an order of magnitude better than the capability ratio at predicting dispute outcomes.
-  In replications of 18 recent empirical studies in international relations, we find that replacing the standard measure with DOE scores usually improves both in-sample and out-of-sample goodness of fit.
-  More broadly, we argue that scholars should focus on out-of-sample predictive power when constructing proxies for important concepts in political science.
-  Our approach illustrates how machine learning tools can automate this process.
+  We replicate \citet{reed2008war} and find, contrary to the original conclusions, that the probability of conflict is always highest when the state with the least benefits has a preponderance of power.
+  In replications of 18 other dyadic analyses that use power as a control, we find that replacing the standard measure with DOE scores usually improves both in-sample and out-of-sample goodness of fit.
 \end{abstract}
+
+Word count:  9,064, plus 1,338 in Appendix.
+%TC:endignore
 
 \thispagestyle{empty}
 \newpage
 \setcounter{page}{1}
+
+\doublespacing
 
 \input{introduction}
 
@@ -84,13 +92,21 @@
 
 
 \newpage
+
+\singlespacing
+
 \bibliographystyle{apsr}
 \bibliography{doebib}
 
 
+%TC:ignore
 \clearpage
 \appendix
+
+\singlespacing
+
 \input{appendix}
+%TC:endignore
 
 
 \end{document}
