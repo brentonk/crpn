@@ -225,7 +225,7 @@ dat_usa_russia <- rbind(dat_usa_russia_cr, dat_usa_russia_doe) %>%
                                       "Super Learner")),
            quantity = factor(quantity,
                              levels = c("VictoryUS", "Stalemate", "VictoryRussia"),
-                             labels = c("USA Wins", "Stalemate", "Russia Wins")))
+                             labels = c("USA Wins\\qquad~", "Stalemate\\qquad~", "Russia Wins\\qquad~")))
 
 tikz(file = file.path("..", "latex", "fig-vs.tex"),
      width = 5,
