@@ -67,6 +67,7 @@ slides/list-*.tex
 
 # Stata files
 *.dta
+/reed-et-al-2008/reed-et-al-2008.do
 
 # SLURM submission scripts
 *.slurm
