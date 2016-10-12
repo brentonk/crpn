@@ -340,28 +340,3 @@ print(xtable_NMC,
       floating = FALSE,
       include.rownames = FALSE,
       sanitize.text.function = identity)
-
-
-###-----------------------------------------------------------------------------
-### Sample data for slides
-###
-### TODO: Fix scaling when applying sinh()
-###-----------------------------------------------------------------------------
-
-data_NMC %>%
-    filter(ccode %in% c(2, 200, 365),
-           year %in% 1816:1817) %>%
-    select(ccode, year, milex, milper, prop_milex, prop_milper) %>%
-    mutate_each(funs(sinh), milex, milper) %>%
-    mutate(ccode = factor(ccode,
-                          levels = c(2, 200, 365),
-                          labels = c("USA", "UK", "Russia")),
-           ccode = as.character(ccode),
-           milex = prettyNum(milex, big.mark = ",")) %>%
-    mutate_each(funs(sprintf("%.3f", .)), prop_milex, prop_milper) %>%
-    select("Country" = ccode,
-           "Year" = year,
-           "Funds" = milex,
-           "Troops" = milper,
-           "%Funds" = prop_milex,
-           "%Troops" = prop_milper)
