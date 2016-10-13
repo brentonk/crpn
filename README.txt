@@ -1,5 +1,5 @@
-Predictions, Proxies, and Power: Replication Archive
-====================================================
+Prediction, Proxies, and Power: Replication Archive
+===================================================
 
 Files
 -----
@@ -119,6 +119,11 @@ Analysis was conducted using R version 3.2.0.
     You can run the provided script `install.r` to install all of the
     necessary packages.
 
+3.  (Optional) If you wish to compile the codebook or this README from
+    their respective Markdown source files, you will need to have
+    installed Pandoc version 1.16.0.1 or greater from
+    <http://pandoc.org>.
+
 Calculation of DOE Scores
 -------------------------
 
@@ -170,6 +175,9 @@ exists before running the following commands.
         ...
         Rscript 15-train-weights.r 10
 
+    These can be run in parallel or out of sequence, since their results
+    do not depend on each other.
+
     Output:
 
     -   `results-weights` subdirectory containing super learner weights
@@ -205,6 +213,9 @@ exists before running the following commands.
         ...
         Rscript 31-predict.r 2007 1
 
+    These can be run in parallel or out of sequence, since their results
+    do not depend on each other.
+
     Output:
 
     -   `results-predict` subdirectory containing CSV files with each
@@ -226,6 +237,9 @@ exists before running the following commands.
         Rscript 41-varimp.r 1
         ...
         Rscript 41-varimp.r 179
+
+    These can be run in parallel or out of sequence, since their results
+    do not depend on each other.
 
     Output:
 
@@ -272,12 +286,28 @@ Replication of Reed et al. (2008)
 All of the following commands should be run in the `reed-et-al-2008`
 subdirectory.
 
-Before running these commands, you must have the files
-`results-predict-dir-dyad.csv` and `results-predict-dyad.csv` in the `R`
-subdirectory, either by completing the steps in the previous section or
-by copying them from our Dataverse.
+Before running these commands, you must have the file
+`results-predict-dyad.csv` in the `R` subdirectory, either by completing
+the steps in the "Calculation of DOE Scores" section or by copying them
+from our Dataverse.
 
-<!-- Have Rob walk through this on Skype call -->
+1.  Run `run-and-plot.r`. Output:
+
+    -   `../latex/fig-rcnw-gull.tex`: Figure 4 of the manuscript
+    -   `results-reed-et-al.rda`: fitted model results
+
+2.  Run `cv-and-table.r`. Output:
+
+    -   `../latex/tab-rcnw.tex`: Table 5 of the manuscript
+
+Other files in the `reed-et-al-2008` subdirectory that aren't to be run
+directly:
+
+-   `reed-et-al-2008.dta`: original replication data from Reed et al.
+    (2008)
+-   `idealpoint4600.dta`: ideal point estimates used to construct status
+    quo estimates in Reed et al. (2008)
+
 Replication of Studies with Power as Control
 --------------------------------------------
 
@@ -286,8 +316,8 @@ subdirectory.
 
 Before running these commands, you must have the files
 `results-predict-dir-dyad.csv` and `results-predict-dyad.csv` in the `R`
-subdirectory, either by completing the steps in the previous section or
-by copying them from our Dataverse.
+subdirectory, either by completing the steps in the "Calculation of DOE
+Scores" section or by copying them from our Dataverse.
 
 Output labeled `../latex/FILENAME` is created in the `latex`
 subdirectory of the main directory. Be sure the `latex` subdirectory
@@ -313,6 +343,9 @@ exists before running the following commands.
     -   `weeks-2008.r`
     -   `weeks-2012.r`
     -   `zawahri-mitchell-2011.r`
+
+    The results of these scripts do not depend on each other, so they
+    can be run simultaneously.
 
     The output of each file is the corresponding
     `results-author-year.rda`, containing the results of the

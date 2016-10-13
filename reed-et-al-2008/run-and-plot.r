@@ -58,7 +58,7 @@ points <- as.tbl(read.dta("idealpoint4600.dta")) %>%
          qhat = ifelse(meana > meanb, meana - meanb, meanb - meana)) %>%
   select(-meana, -lowa, -higha, -meanb, -lowb, -highb)
 
-foo <- as.tbl(read.csv("NMC_v4_0.csv")) %>%
+foo <- as.tbl(read.csv("../data/NMC_v4_0.csv")) %>%
   select(ccode, year, cinc) %>%
   filter(year %in% sort(unique(dat$year)))
 
@@ -79,7 +79,7 @@ points <- left_join(points, nmc, by = "udyear") %>%
   select(udyear, qhat, phat)
 rm(nmc)
 
-doe <- as.tbl(read.csv("results-predict-dyad.csv")) %>%
+doe <- as.tbl(read.csv("../R/results-predict-dyad.csv")) %>%
   mutate(A_ccode = sprintf("%003d", ccode_a),
          B_ccode = sprintf("%003d", ccode_b),
          udyear = paste(A_ccode, B_ccode, year, sep = "_")) %>%
@@ -204,20 +204,6 @@ toSum <- select(dat_sub,
                                               "DOE Replication")),
          variable = ifelse(variable == "abs", "Absolute Difference",
                            "Squared Difference"))
-
-tikz(file = "../latex/fig-rcnw-measures.tex",
-     height = 5,
-     width = 5.4)
-ggplot(toSum,
-       aes(x = value)) +
-  geom_density(aes(y = ..scaled..)) +
-  facet_grid(measure ~ variable) +
-  theme_bw() +
-  theme(panel.grid.minor = element_blank(),
-        axis.text = element_text(size = 8)) +
-  scale_x_continuous("Value") +
-  scale_y_continuous("Density")
-dev.off()
 
 
 ### plotting the marginal effects, per RCNW Figure 4
